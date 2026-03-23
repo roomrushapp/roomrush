@@ -24,6 +24,7 @@ export const metadata: Metadata = {
     "The fastest way to find and post short-term sublets in Munich. Browse active listings by district, price, and dates.",
 };
 
+
 export default function RootLayout({
   children,
 }: Readonly<{

@@ -11,6 +11,7 @@ import { ArrowLeft, Zap, ShieldCheck, Mail, ImagePlus, X } from "lucide-react";
 const MAX_IMAGES = 5;
 
 export default function NewListingPage() {
+  console.log("[NewListing] component render — authLoading starts as true");
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -31,13 +32,26 @@ export default function NewListingPage() {
   });
 
   useEffect(() => {
+    console.log("[NewListing] auth useEffect — mounting, setting up listeners");
     const supabase = createClient();
 
-    // onAuthStateChange fires INITIAL_SESSION synchronously with the real
-    // session state (including after a token refresh), so we use it as the
-    // single source of truth. authLoading is only set to false here, which
-    // guarantees we never redirect before the session has actually resolved.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // Log what getSession() returns independently so we can compare
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log("[NewListing] getSession() result —", {
+        hasSession: !!session,
+        userId: session?.user?.id ?? null,
+        email: session?.user?.email ?? null,
+        error: error?.message ?? null,
+      });
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("[NewListing] onAuthStateChange fired —", {
+        event,
+        hasSession: !!session,
+        userId: session?.user?.id ?? null,
+        email: session?.user?.email ?? null,
+      });
       if (session) {
         setUserEmail(session.user.email ?? "");
         setUserId(session.user.id);
@@ -45,16 +59,22 @@ export default function NewListingPage() {
         setUserEmail("");
         setUserId("");
       }
+      console.log("[NewListing] setting authLoading = false");
       setAuthLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log("[NewListing] auth useEffect cleanup — unsubscribing");
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Redirect only after the session check has fully resolved and no user found.
   // This prevents a premature redirect while the session is still loading.
   useEffect(() => {
+    console.log("[NewListing] redirect-guard effect — authLoading:", authLoading, "| userId:", userId || "(empty)");
     if (!authLoading && !userId) {
+      console.log("[NewListing] REDIRECTING to /auth/login — reason: authLoading is false AND userId is empty");
       router.push("/auth/login");
     }
   }, [authLoading, userId, router]);
@@ -114,7 +134,12 @@ export default function NewListingPage() {
 
     const supabase = createClient();
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { router.push("/auth/login"); return; }
+    console.log("[NewListing] handleSubmit getSession() —", { hasSession: !!session, userId: session?.user?.id ?? null });
+    if (!session) {
+      console.log("[NewListing] REDIRECTING from handleSubmit — reason: session is null at submit time");
+      router.push("/auth/login");
+      return;
+    }
     const user = session.user;
 
     // 1. Create listing first to get the ID

@@ -31,20 +31,31 @@ export default function NewListingPage() {
   });
 
   useEffect(() => {
-    async function loadUser() {
-      const supabase = createClient();
-      // Use getSession() (reads from stored cookies, no network call) to avoid
-      // a race condition where getUser()'s network request fires before the
-      // session token fully settles right after login. The middleware already
-      // validates the session server-side via getUser() for all /dashboard routes.
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { router.push("/auth/login"); return; }
-      setUserEmail(session.user.email ?? "");
-      setUserId(session.user.id);
-      setAuthLoading(false);
-    }
-    loadUser();
-  }, [router]);
+    const supabase = createClient();
+
+    // Middleware already guards this route server-side. We subscribe to auth
+    // state changes here so we pick up the session even if the browser client
+    // hasn't hydrated from cookies yet on first client-side navigation.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setUserEmail(session.user.email ?? "");
+        setUserId(session.user.id);
+        setAuthLoading(false);
+      }
+    });
+
+    // Seed from any already-resolved session (avoids a visible loading flash
+    // on hard refresh where the session is immediately available).
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setUserEmail(session.user.email ?? "");
+        setUserId(session.user.id);
+        setAuthLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });

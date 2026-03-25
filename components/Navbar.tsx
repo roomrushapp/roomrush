@@ -15,8 +15,8 @@ export default function Navbar() {
   useEffect(() => {
     const supabase = createClient();
 
-    // Get current session on mount
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+    // Get current session on mount (getSession reads local storage, no network call)
+    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
 
     // Listen for auth changes (login / logout)
     const {

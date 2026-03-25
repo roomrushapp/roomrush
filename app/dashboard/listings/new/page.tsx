@@ -33,29 +33,35 @@ export default function NewListingPage() {
   useEffect(() => {
     const supabase = createClient();
 
-    // Middleware already guards this route server-side. We subscribe to auth
-    // state changes here so we pick up the session even if the browser client
-    // hasn't hydrated from cookies yet on first client-side navigation.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        setUserEmail(session.user.email ?? "");
-        setUserId(session.user.id);
-        setAuthLoading(false);
-      }
-    });
-
-    // Seed from any already-resolved session (avoids a visible loading flash
-    // on hard refresh where the session is immediately available).
+    // Seed from the already-resolved session first. authLoading is set to false
+    // here regardless of whether a session exists — this is the source of truth
+    // for the initial load so we never block on a missing session indefinitely.
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setUserEmail(session.user.email ?? "");
         setUserId(session.user.id);
-        setAuthLoading(false);
+      }
+      setAuthLoading(false);
+    });
+
+    // Keep state in sync after the initial load (e.g. token refresh, sign-out).
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setUserEmail(session.user.email ?? "");
+        setUserId(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Redirect only after the session check has fully resolved and no user found.
+  // This prevents a premature redirect while the session is still loading.
+  useEffect(() => {
+    if (!authLoading && !userId) {
+      router.push("/auth/login");
+    }
+  }, [authLoading, userId, router]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });

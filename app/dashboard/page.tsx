@@ -17,15 +17,18 @@ export default function DashboardPage() {
   useEffect(() => {
     async function load() {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push("/auth/login"); return; }
+      // Use getSession() to avoid a post-login race where getUser()'s network
+      // call returns null before the session token settles. The middleware
+      // guards /dashboard server-side with getUser() on every request.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { router.push("/auth/login"); return; }
 
-      setUserName(user.user_metadata?.full_name ?? user.email ?? "");
+      setUserName(session.user.user_metadata?.full_name ?? session.user.email ?? "");
 
       const { data } = await supabase
         .from("listings")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", session.user.id)
         .order("created_at", { ascending: false });
 
       setListings(data ?? []);

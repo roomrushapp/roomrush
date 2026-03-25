@@ -13,6 +13,7 @@ const MAX_IMAGES = 5;
 export default function NewListingPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [userEmail, setUserEmail] = useState("");
@@ -32,10 +33,15 @@ export default function NewListingPage() {
   useEffect(() => {
     async function loadUser() {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push("/auth/login"); return; }
-      setUserEmail(user.email ?? "");
-      setUserId(user.id);
+      // Use getSession() (reads from stored cookies, no network call) to avoid
+      // a race condition where getUser()'s network request fires before the
+      // session token fully settles right after login. The middleware already
+      // validates the session server-side via getUser() for all /dashboard routes.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { router.push("/auth/login"); return; }
+      setUserEmail(session.user.email ?? "");
+      setUserId(session.user.id);
+      setAuthLoading(false);
     }
     loadUser();
   }, [router]);
@@ -135,6 +141,14 @@ export default function NewListingPage() {
 
     router.push("/dashboard");
     router.refresh();
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-sm text-zinc-400">Loading…</p>
+      </div>
+    );
   }
 
   return (

@@ -33,23 +33,19 @@ export default function NewListingPage() {
   useEffect(() => {
     const supabase = createClient();
 
-    // Seed from the already-resolved session first. authLoading is set to false
-    // here regardless of whether a session exists — this is the source of truth
-    // for the initial load so we never block on a missing session indefinitely.
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setUserEmail(session.user.email ?? "");
-        setUserId(session.user.id);
-      }
-      setAuthLoading(false);
-    });
-
-    // Keep state in sync after the initial load (e.g. token refresh, sign-out).
+    // onAuthStateChange fires INITIAL_SESSION synchronously with the real
+    // session state (including after a token refresh), so we use it as the
+    // single source of truth. authLoading is only set to false here, which
+    // guarantees we never redirect before the session has actually resolved.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setUserEmail(session.user.email ?? "");
         setUserId(session.user.id);
+      } else {
+        setUserEmail("");
+        setUserId("");
       }
+      setAuthLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -117,8 +113,9 @@ export default function NewListingPage() {
     setLoading(true);
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.push("/auth/login"); return; }
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { router.push("/auth/login"); return; }
+    const user = session.user;
 
     // 1. Create listing first to get the ID
     const { data: listing, error: insertError } = await supabase

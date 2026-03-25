@@ -32,14 +32,18 @@ export async function middleware(request: NextRequest) {
 
   // Protect /dashboard — redirect to login if not authenticated
   if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/login";
+    return NextResponse.redirect(url);
   }
 
   // Protect /admin — must be authenticated AND the admin email (set in ADMIN_EMAIL env var)
   if (request.nextUrl.pathname.startsWith("/admin")) {
     const adminEmail = process.env.ADMIN_EMAIL;
     if (!user || !adminEmail || user.email !== adminEmail) {
-      return NextResponse.redirect(new URL("/", request.url));
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
     }
   }
 

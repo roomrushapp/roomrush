@@ -32,26 +32,17 @@ export default function NewListingPage() {
   });
 
   useEffect(() => {
-    console.log("[NewListing] auth useEffect — mounting, setting up listeners");
     const supabase = createClient();
 
-    // Log what getSession() returns independently so we can compare
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      console.log("[NewListing] getSession() result —", {
-        hasSession: !!session,
-        userId: session?.user?.id ?? null,
-        email: session?.user?.email ?? null,
-        error: error?.message ?? null,
-      });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setUserEmail(session.user.email ?? "");
+        setUserId(session.user.id);
+      }
+      setAuthLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("[NewListing] onAuthStateChange fired —", {
-        event,
-        hasSession: !!session,
-        userId: session?.user?.id ?? null,
-        email: session?.user?.email ?? null,
-      });
       if (session) {
         setUserEmail(session.user.email ?? "");
         setUserId(session.user.id);
@@ -59,14 +50,9 @@ export default function NewListingPage() {
         setUserEmail("");
         setUserId("");
       }
-      console.log("[NewListing] setting authLoading = false");
-      setAuthLoading(false);
     });
 
-    return () => {
-      console.log("[NewListing] auth useEffect cleanup — unsubscribing");
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   // Redirect only after the session check has fully resolved and no user found.

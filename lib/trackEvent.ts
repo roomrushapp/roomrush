@@ -10,5 +10,6 @@ export type EventType =
 
 export async function trackEvent(listing_id: string, event_type: EventType) {
   const supabase = createClient();
-  await supabase.from("listing_events").insert({ listing_id, event_type });
+  const { error } = await supabase.from("listing_events").insert({ listing_id, event_type });
+  if (error) console.error("[trackEvent] failed:", error.message, { listing_id, event_type });
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { formatDate } from "@/lib/mockData";
 import { createClient } from "@/lib/supabase/server";
 import { MapPin, Calendar, ArrowLeft, Phone, Mail } from "lucide-react";
@@ -9,6 +10,44 @@ import ShareButtons from "@/components/ShareButtons";
 type Props = {
   params: Promise<{ id: string }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("title, description, image_urls, location, rent")
+    .eq("id", id)
+    .eq("is_active", true)
+    .single();
+
+  if (!listing) {
+    return { title: "Listing not found | RoomRush Munich" };
+  }
+
+  const title = `${listing.title} – €${listing.rent}/mo · ${listing.location} | RoomRush Munich`;
+  const rawDesc = listing.description ?? "";
+  const description =
+    rawDesc.length > 140 ? rawDesc.slice(0, 137).trimEnd() + "…" : rawDesc;
+  const image = listing.image_urls?.[0] ?? null;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      ...(image && { images: [{ url: image, width: 1200, height: 800, alt: listing.title }] }),
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      title,
+      description,
+      ...(image && { images: [image] }),
+    },
+  };
+}
 
 export default async function ListingDetailPage({ params }: Props) {
   const { id } = await params;

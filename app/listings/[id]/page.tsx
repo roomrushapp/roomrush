@@ -4,6 +4,7 @@ import { formatDate } from "@/lib/mockData";
 import { createClient } from "@/lib/supabase/server";
 import { MapPin, Calendar, ArrowLeft, Phone, Mail } from "lucide-react";
 import ImageLightbox from "@/components/ImageLightbox";
+import ShareButtons from "@/components/ShareButtons";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -125,6 +126,8 @@ export default async function ListingDetailPage({ params }: Props) {
                 </>
               )}
             </div>
+
+            <ShareButtons />
 
             <p className="text-xs text-zinc-300 text-center mt-4 leading-relaxed">
               RoomRush only displays listings and is not responsible for agreements between users.

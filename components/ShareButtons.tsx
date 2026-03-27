@@ -2,8 +2,13 @@
 
 import { useState } from "react";
 import { Link2 } from "lucide-react";
+import { trackEvent } from "@/lib/trackEvent";
 
-export default function ShareButtons() {
+type Props = {
+  listing_id: string;
+};
+
+export default function ShareButtons({ listing_id }: Props) {
   const [copied, setCopied] = useState(false);
 
   const getUrl = () => window.location.href;
@@ -13,14 +18,17 @@ export default function ShareButtons() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+    trackEvent(listing_id, "share_copy");
   };
 
   const shareWhatsApp = () => {
     window.open(`https://wa.me/?text=${encodeURIComponent(getUrl())}`, "_blank", "noopener,noreferrer");
+    trackEvent(listing_id, "share_whatsapp");
   };
 
   const shareTelegram = () => {
     window.open(`https://t.me/share/url?url=${encodeURIComponent(getUrl())}`, "_blank", "noopener,noreferrer");
+    trackEvent(listing_id, "share_telegram");
   };
 
   return (

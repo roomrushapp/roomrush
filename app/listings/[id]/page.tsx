@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { formatDate } from "@/lib/mockData";
 import { createClient } from "@/lib/supabase/server";
 import { MapPin, Calendar, ArrowLeft, Phone, Mail } from "lucide-react";
+import ImageLightbox from "@/components/ImageLightbox";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -29,26 +29,7 @@ export default async function ListingDetailPage({ params }: Props) {
       </Link>
 
       {/* Image gallery */}
-      <div className="grid grid-cols-3 gap-2 mb-8 h-72 md:h-96 overflow-hidden">
-        <div className="col-span-2 relative">
-          {listing.image_urls?.[0] ? (
-            <Image src={listing.image_urls[0]} alt={listing.title} fill className="object-cover" priority sizes="(max-width: 768px) 100vw, 66vw" />
-          ) : (
-            <div className="w-full h-full bg-zinc-100 flex items-center justify-center text-zinc-400 text-sm">No photos yet</div>
-          )}
-        </div>
-        <div className="flex flex-col gap-2">
-          {[listing.image_urls?.[1], listing.image_urls?.[2]].map((img, i) =>
-            img ? (
-              <div key={i} className="relative flex-1">
-                <Image src={img} alt={`${listing.title} photo ${i + 2}`} fill className="object-cover" sizes="33vw" />
-              </div>
-            ) : (
-              <div key={i} className="flex-1 bg-zinc-100" />
-            )
-          )}
-        </div>
-      </div>
+      <ImageLightbox images={listing.image_urls} title={listing.title} />
 
       {/* Two-column layout */}
       <div className="grid md:grid-cols-3 gap-10">

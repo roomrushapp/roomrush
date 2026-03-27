@@ -235,10 +235,10 @@ export default function NewListingPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wide">Munich district *</label>
+                <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wide">Location *</label>
                 <select name="location" required value={form.location} onChange={handleChange}
                   className="w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600">
-                  <option value="">Select district…</option>
+                  <option value="">Select location…</option>
                   {MUNICH_DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>

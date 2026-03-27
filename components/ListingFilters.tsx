@@ -67,10 +67,10 @@ export default function ListingFilters({ onFilter, allListings }: Props) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wide">District</label>
+          <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wide">Location</label>
           <select value={filters.location} onChange={(e) => handleChange("location", e.target.value)}
             className="w-full border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-rose-600">
-            <option value="">All districts</option>
+            <option value="">All locations</option>
             {MUNICH_DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
           </select>
         </div>

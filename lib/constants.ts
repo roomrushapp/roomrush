@@ -24,6 +24,12 @@ export const MUNICH_DISTRICTS = [
   "Lehel",
   "Glockenbachviertel",
   "Other",
+  // Student areas around Munich
+  "Garching",
+  "Freising",
+  "Martinsried",
+  "Großhadern",
+  "Oberschleißheim",
 ] as const;
 
 export type MunichDistrict = (typeof MUNICH_DISTRICTS)[number];

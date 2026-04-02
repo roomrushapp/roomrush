@@ -3,10 +3,11 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { formatDate } from "@/lib/mockData";
 import { createClient } from "@/lib/supabase/server";
-import { MapPin, Calendar, ArrowLeft } from "lucide-react";
+import { MapPin, Calendar, ArrowLeft, Eye, Users } from "lucide-react";
 import ImageLightbox from "@/components/ImageLightbox";
 import ShareButtons from "@/components/ShareButtons";
 import ContactButtons from "@/components/ContactButtons";
+import ViewTracker from "@/components/ViewTracker";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -62,8 +63,15 @@ export default async function ListingDetailPage({ params }: Props) {
 
   if (!listing) notFound();
 
+  const { count: contactedCount } = await supabase
+    .from("listing_events")
+    .select("*", { count: "exact", head: true })
+    .eq("listing_id", id)
+    .in("event_type", ["contact_email", "contact_whatsapp", "contact_phone"]);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <ViewTracker listingId={listing.id} />
       <Link href="/" className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-black mb-6 transition-colors">
         <ArrowLeft size={14} />
         Back to listings
@@ -116,6 +124,20 @@ export default async function ListingDetailPage({ params }: Props) {
               <p className="font-semibold text-black">
                 {listing.available_until ? formatDate(listing.available_until) : "Open end"}
               </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Eye size={14} className="text-zinc-400" />
+              <div>
+                <p className="text-xs text-zinc-400 uppercase tracking-wide mb-1">Views</p>
+                <p className="font-semibold text-black">{listing.views_count ?? 0}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users size={14} className="text-zinc-400" />
+              <div>
+                <p className="text-xs text-zinc-400 uppercase tracking-wide mb-1">Contact clicks</p>
+                <p className="font-semibold text-black">{contactedCount ?? 0}</p>
+              </div>
             </div>
           </div>
 

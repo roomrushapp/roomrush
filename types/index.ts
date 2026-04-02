@@ -12,4 +12,5 @@ export type Listing = {
   phone: string | null;
   image_urls: string[];
   is_active: boolean;
+  views_count: number;
 };

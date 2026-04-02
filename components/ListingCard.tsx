@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Listing } from "@/types";
 import { timeAgo, formatDate } from "@/lib/mockData";
-import { MapPin, Calendar } from "lucide-react";
+import { MapPin, Calendar, Eye } from "lucide-react";
 
 type Props = {
   listing: Listing;
@@ -63,7 +63,13 @@ export default function ListingCard({ listing }: Props) {
               <MapPin size={11} />
               <span>{listing.location}, Munich</span>
             </div>
-            <span>{timeAgo(listing.created_at)}</span>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1">
+                <Eye size={11} />
+                {listing.views_count ?? 0}
+              </span>
+              <span>{timeAgo(listing.created_at)}</span>
+            </div>
           </div>
         </div>
       </div>

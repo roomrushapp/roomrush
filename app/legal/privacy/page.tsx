@@ -163,11 +163,24 @@ export default function PrivacyPage() {
           <h2 className="font-display font-bold text-lg text-black mb-3">
             4. Cookies und Tracking
           </h2>
-          <p>
+          <p className="mb-4">
             RoomRush verwendet keine Tracking-Cookies, keine Analyse-Tools
             (wie Google Analytics) und keine Werbe-Netzwerke. Technisch
             notwendige Session-Cookies (für die Anmeldung) werden von Supabase
             gesetzt und sind für den Betrieb der Plattform erforderlich.
+          </p>
+          <h3 className="font-semibold text-black mb-2">Browser-Speicher (localStorage)</h3>
+          <p>
+            Die Plattform nutzt den lokalen Browser-Speicher (localStorage) ausschließlich
+            für funktionale Zwecke – konkret, um doppelte Aufrufe bei der Aufrufzählung
+            von Inseraten zu verhindern (maximal ein Zählvorgang pro Browser und Inserat
+            innerhalb von 24 Stunden). Dabei werden keinerlei personenbezogene Daten
+            gespeichert. Einfache, aggregierte Nutzungsdaten (z. B. Gesamtanzahl der
+            Aufrufe eines Inserats) werden ausschließlich zur Verbesserung der Plattform
+            verwendet. Eine seitenübergreifende Verfolgung von Nutzern findet nicht statt.
+            Es werden keine Drittanbieter-Marketing- oder Tracking-Tools eingesetzt.
+            Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse am
+            störungsfreien Betrieb der Plattform).
           </p>
         </section>
 

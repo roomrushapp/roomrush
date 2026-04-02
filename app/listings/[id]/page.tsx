@@ -125,19 +125,19 @@ export default async function ListingDetailPage({ params }: Props) {
                 {listing.available_until ? formatDate(listing.available_until) : "Open end"}
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <Eye size={14} className="text-zinc-400" />
-              <div>
-                <p className="text-xs text-zinc-400 uppercase tracking-wide mb-1">Views</p>
-                <p className="font-semibold text-black">{listing.views_count ?? 0}</p>
+            <div>
+              <div className="flex items-center gap-1 mb-1">
+                <Eye size={12} className="text-zinc-400" />
+                <p className="text-xs text-zinc-400 uppercase tracking-wide">Views</p>
               </div>
+              <p className="font-display font-semibold text-xl text-zinc-800">{listing.views_count ?? 0}</p>
             </div>
-            <div className="flex items-center gap-2">
-              <Users size={14} className="text-zinc-400" />
-              <div>
-                <p className="text-xs text-zinc-400 uppercase tracking-wide mb-1">Contact clicks</p>
-                <p className="font-semibold text-black">{contactedCount ?? 0}</p>
+            <div>
+              <div className="flex items-center gap-1 mb-1">
+                <Users size={12} className="text-zinc-400" />
+                <p className="text-xs text-zinc-400 uppercase tracking-wide">Contact clicks</p>
               </div>
+              <p className="font-display font-semibold text-xl text-zinc-800">{contactedCount ?? 0}</p>
             </div>
           </div>
 

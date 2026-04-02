@@ -34,6 +34,12 @@ export default function ListingCard({ listing }: Props) {
           <span className="absolute top-3 left-3 bg-rose-600 text-white text-xs font-medium px-2 py-1 uppercase tracking-wide">
             {listing.location}
           </span>
+
+          {/* Views pill */}
+          <span className="absolute top-3 right-3 flex items-center gap-1 bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
+            <Eye size={11} />
+            {listing.views_count ?? 0}
+          </span>
         </div>
 
         {/* Content */}
@@ -63,13 +69,7 @@ export default function ListingCard({ listing }: Props) {
               <MapPin size={11} />
               <span>{listing.location}, Munich</span>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1">
-                <Eye size={11} />
-                {listing.views_count ?? 0}
-              </span>
-              <span>{timeAgo(listing.created_at)}</span>
-            </div>
+            <span>{timeAgo(listing.created_at)}</span>
           </div>
         </div>
       </div>

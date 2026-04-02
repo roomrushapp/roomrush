@@ -29,6 +29,7 @@ export default function NewListingPage() {
     available_from: "",
     available_until: "",
     phone: "",
+    facebook_url: "",
   });
 
   useEffect(() => {
@@ -67,6 +68,17 @@ export default function NewListingPage() {
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
+  function handleUrlBlur(e: React.FocusEvent<HTMLInputElement>) {
+    const val = e.target.value.trim();
+    if (!val) return;
+    try {
+      const { protocol } = new URL(val);
+      if (protocol !== "http:" && protocol !== "https:") throw new Error();
+    } catch {
+      setForm((prev) => ({ ...prev, facebook_url: "" }));
+    }
   }
 
   function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -141,6 +153,7 @@ export default function NewListingPage() {
         available_until: form.available_until || null,
         contact_email: user.email,
         phone: form.phone || null,
+        facebook_url: form.facebook_url || null,
         image_urls: [],
         is_active: true,
       })
@@ -330,6 +343,12 @@ export default function NewListingPage() {
                     value={form.phone} onChange={handleChange}
                     className="w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 placeholder:text-zinc-400" />
                   <p className="text-xs text-zinc-400 mt-1">Adding a phone number increases your response rate.</p>
+                </div>
+                <div>
+                  <input name="facebook_url" type="url" placeholder="Facebook post link (optional)"
+                    value={form.facebook_url} onChange={handleChange} onBlur={handleUrlBlur}
+                    className="w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 placeholder:text-zinc-400" />
+                  <p className="text-xs text-zinc-400 mt-1">If this listing originates from a Facebook post, paste the link here.</p>
                 </div>
               </div>
             </div>

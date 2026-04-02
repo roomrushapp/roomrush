@@ -13,4 +13,5 @@ export type Listing = {
   image_urls: string[];
   is_active: boolean;
   views_count: number;
+  facebook_url: string | null;
 };

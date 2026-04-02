@@ -37,6 +37,7 @@ export default function EditListingPage({ params }: Props) {
     available_from: "",
     available_until: "",
     phone: "",
+    facebook_url: "",
   });
 
   useEffect(() => {
@@ -63,6 +64,7 @@ export default function EditListingPage({ params }: Props) {
         available_from: data.available_from ?? "",
         available_until: data.available_until ?? "",
         phone: data.phone ?? "",
+        facebook_url: data.facebook_url ?? "",
       });
       setExistingUrls(data.image_urls ?? []);
       setFetching(false);
@@ -72,6 +74,17 @@ export default function EditListingPage({ params }: Props) {
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
+  function handleUrlBlur(e: React.FocusEvent<HTMLInputElement>) {
+    const val = e.target.value.trim();
+    if (!val) return;
+    try {
+      const { protocol } = new URL(val);
+      if (protocol !== "http:" && protocol !== "https:") throw new Error();
+    } catch {
+      setForm((prev) => ({ ...prev, facebook_url: "" }));
+    }
   }
 
   function removeExisting(url: string) {
@@ -155,6 +168,7 @@ export default function EditListingPage({ params }: Props) {
         available_from: form.available_from || null,
         available_until: form.available_until || null,
         phone: form.phone || null,
+        facebook_url: form.facebook_url || null,
         image_urls: finalUrls,
       })
       .eq("id", id);
@@ -308,6 +322,13 @@ export default function EditListingPage({ params }: Props) {
               <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wide">Contact phone / WhatsApp</label>
               <input name="phone" type="tel" placeholder="+49 123 456 7890" value={form.phone} onChange={handleChange}
                 className="w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 placeholder:text-zinc-400" />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wide">Facebook post link</label>
+              <input name="facebook_url" type="url" placeholder="https://facebook.com/…" value={form.facebook_url} onChange={handleChange} onBlur={handleUrlBlur}
+                className="w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 placeholder:text-zinc-400" />
+              <p className="text-xs text-zinc-400 mt-1">If this listing originates from a Facebook post, paste the link here.</p>
             </div>
 
             <div className="flex justify-end pt-2">

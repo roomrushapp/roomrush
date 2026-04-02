@@ -165,6 +165,7 @@ export default async function ListingDetailPage({ params }: Props) {
               listing_id={listing.id}
               contact_email={listing.contact_email}
               phone={listing.phone}
+              facebook_url={listing.facebook_url}
             />
 
             <ShareButtons listing_id={listing.id} />

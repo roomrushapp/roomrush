@@ -1,26 +1,32 @@
 "use client";
 
-import { Phone, Mail } from "lucide-react";
+import { Phone, Mail, ExternalLink } from "lucide-react";
 import { trackEvent } from "@/lib/trackEvent";
 
 type Props = {
   listing_id: string;
   contact_email: string;
   phone: string | null;
+  facebook_url?: string | null;
 };
 
-export default function ContactButtons({ listing_id, contact_email, phone }: Props) {
+export default function ContactButtons({ listing_id, contact_email, phone, facebook_url }: Props) {
+  const hasDirectContact = !!contact_email || !!phone;
+  const facebookOnly = !!facebook_url && !hasDirectContact;
+
   return (
     <div className="flex flex-col gap-3">
       {/* Email — always present */}
-      <a
-        href={`mailto:${contact_email}`}
-        onClick={() => trackEvent(listing_id, "contact_email")}
-        className="flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-3 font-medium text-sm transition-colors w-full"
-      >
-        <Mail size={16} />
-        Contact via email
-      </a>
+      {contact_email && (
+        <a
+          href={`mailto:${contact_email}`}
+          onClick={() => trackEvent(listing_id, "contact_email")}
+          className="flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-3 font-medium text-sm transition-colors w-full"
+        >
+          <Mail size={16} />
+          Contact via email
+        </a>
+      )}
 
       {/* Phone / WhatsApp — optional */}
       {phone && (
@@ -46,6 +52,24 @@ export default function ContactButtons({ listing_id, contact_email, phone }: Pro
             {phone}
           </a>
         </>
+      )}
+
+      {/* Facebook source link — secondary if other contacts exist, primary if not */}
+      {facebook_url && (
+        <a
+          href={facebook_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => trackEvent(listing_id, "facebook_click")}
+          className={
+            facebookOnly
+              ? "flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-900 text-white px-4 py-3 font-medium text-sm transition-colors w-full"
+              : "flex items-center justify-center gap-2 border border-zinc-300 hover:border-zinc-500 text-zinc-600 hover:text-zinc-800 px-4 py-3 font-medium text-sm transition-colors w-full"
+          }
+        >
+          <ExternalLink size={15} />
+          View original post
+        </a>
       )}
     </div>
   );

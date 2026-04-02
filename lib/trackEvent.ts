@@ -6,7 +6,8 @@ export type EventType =
   | "contact_phone"
   | "share_copy"
   | "share_whatsapp"
-  | "share_telegram";
+  | "share_telegram"
+  | "facebook_click";
 
 export async function trackEvent(listing_id: string, event_type: EventType) {
   const supabase = createClient();

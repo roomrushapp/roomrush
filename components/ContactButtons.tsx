@@ -5,7 +5,7 @@ import { trackEvent } from "@/lib/trackEvent";
 
 type Props = {
   listing_id: string;
-  contact_email: string;
+  contact_email: string | null;
   phone: string | null;
   facebook_url?: string | null;
 };

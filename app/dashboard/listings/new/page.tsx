@@ -18,6 +18,7 @@ export default function NewListingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [userEmail, setUserEmail] = useState("");
+  const [includeEmail, setIncludeEmail] = useState(true);
   const [userId, setUserId] = useState("");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -140,6 +141,17 @@ export default function NewListingPage() {
     }
     const user = session.user;
 
+    // Contact method guard — at least one must be present
+    const hasContact =
+      (includeEmail && !!user.email) ||
+      !!form.phone.trim() ||
+      !!form.facebook_url.trim();
+    if (!hasContact) {
+      setError("Please provide at least one contact method: email, phone/WhatsApp, or original post link.");
+      setLoading(false);
+      return;
+    }
+
     // 1. Create listing first to get the ID
     const { data: listing, error: insertError } = await supabase
       .from("listings")
@@ -151,7 +163,7 @@ export default function NewListingPage() {
         location: form.location,
         available_from: form.available_from || null,
         available_until: form.available_until || null,
-        contact_email: user.email,
+        contact_email: includeEmail ? (user.email ?? null) : null,
         phone: form.phone || null,
         facebook_url: form.facebook_url || null,
         image_urls: [],
@@ -328,16 +340,22 @@ export default function NewListingPage() {
 
             {/* Contact */}
             <div>
-              <label className="block text-xs font-medium text-zinc-500 mb-3 uppercase tracking-wide">Contact information</label>
+              <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wide">Contact information</label>
+              <p className="text-xs text-zinc-400 mb-3">At least one contact method is required.</p>
               <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-3 px-4 py-3 bg-zinc-50 border border-zinc-200">
+                <label className={`flex items-center gap-3 px-4 py-3 border cursor-pointer transition-colors ${includeEmail ? "bg-zinc-50 border-zinc-200" : "bg-white border-zinc-200 opacity-50"}`}>
+                  <input
+                    type="checkbox"
+                    checked={includeEmail}
+                    onChange={(e) => setIncludeEmail(e.target.checked)}
+                    className="accent-rose-600 w-4 h-4 flex-shrink-0"
+                  />
                   <Mail size={15} className="text-zinc-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-zinc-400 mb-0.5">Contact email (your account email)</p>
+                    <p className="text-xs text-zinc-400 mb-0.5">Use account email as contact method</p>
                     <p className="text-sm text-zinc-700 font-medium truncate">{userEmail}</p>
                   </div>
-                  <span className="text-xs text-zinc-400 bg-white border border-zinc-200 px-2 py-0.5">Auto</span>
-                </div>
+                </label>
                 <div>
                   <input name="phone" type="tel" placeholder="Phone / WhatsApp: +49 123 456 7890 (optional)"
                     value={form.phone} onChange={handleChange}

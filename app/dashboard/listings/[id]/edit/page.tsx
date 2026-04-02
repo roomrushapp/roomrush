@@ -20,6 +20,8 @@ export default function EditListingPage({ params }: Props) {
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState("");
   const [userId, setUserId] = useState("");
+  const [storedEmail, setStoredEmail] = useState<string | null>(null);
+  const [includeEmail, setIncludeEmail] = useState(false);
 
   // Existing images already in storage (URLs)
   const [existingUrls, setExistingUrls] = useState<string[]>([]);
@@ -66,6 +68,8 @@ export default function EditListingPage({ params }: Props) {
         phone: data.phone ?? "",
         facebook_url: data.facebook_url ?? "",
       });
+      setStoredEmail(data.contact_email ?? null);
+      setIncludeEmail(!!data.contact_email);
       setExistingUrls(data.image_urls ?? []);
       setFetching(false);
     }
@@ -148,6 +152,17 @@ export default function EditListingPage({ params }: Props) {
     setError("");
     setLoading(true);
 
+    // Contact method guard — at least one must be present
+    const hasContact =
+      (includeEmail && !!storedEmail) ||
+      !!form.phone.trim() ||
+      !!form.facebook_url.trim();
+    if (!hasContact) {
+      setError("Please provide at least one contact method: email, phone/WhatsApp, or original post link.");
+      setLoading(false);
+      return;
+    }
+
     // Delete removed images from storage
     await deleteFromStorage(removedUrls);
 
@@ -167,6 +182,7 @@ export default function EditListingPage({ params }: Props) {
         location: form.location,
         available_from: form.available_from || null,
         available_until: form.available_until || null,
+        contact_email: includeEmail ? (storedEmail ?? null) : null,
         phone: form.phone || null,
         facebook_url: form.facebook_url || null,
         image_urls: finalUrls,
@@ -316,6 +332,29 @@ export default function EditListingPage({ params }: Props) {
                   Photos are optional, but listings with photos are more trusted and usually get more responses.
                 </p>
               )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wide">Contact information</label>
+              <p className="text-xs text-zinc-400 mb-3">At least one contact method is required.</p>
+              <div className="flex flex-col gap-3">
+                {storedEmail ? (
+                  <label className={`flex items-center gap-3 px-4 py-3 border cursor-pointer transition-colors ${includeEmail ? "bg-zinc-50 border-zinc-200" : "bg-white border-zinc-200 opacity-50"}`}>
+                    <input
+                      type="checkbox"
+                      checked={includeEmail}
+                      onChange={(e) => setIncludeEmail(e.target.checked)}
+                      className="accent-rose-600 w-4 h-4 flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-zinc-400 mb-0.5">Use stored email as contact method</p>
+                      <p className="text-sm text-zinc-700 font-medium truncate">{storedEmail}</p>
+                    </div>
+                  </label>
+                ) : (
+                  <p className="text-xs text-zinc-400 px-1">No email stored for this listing.</p>
+                )}
+              </div>
             </div>
 
             <div>

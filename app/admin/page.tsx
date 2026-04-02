@@ -122,8 +122,12 @@ export default function AdminPage() {
                   {listing.available_from && (
                     <span className="flex items-center gap-1"><Calendar size={10} />{formatDate(listing.available_from)}</span>
                   )}
-                  <span className="text-zinc-300">|</span>
-                  <span className="truncate max-w-[200px]">{listing.contact_email}</span>
+                  {listing.contact_email && (
+                    <>
+                      <span className="text-zinc-300">|</span>
+                      <span className="truncate max-w-[200px]">{listing.contact_email}</span>
+                    </>
+                  )}
                 </div>
               </div>
 

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { formatDate } from "@/lib/mockData";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { MapPin, Calendar, ArrowLeft, Eye, Users } from "lucide-react";
 import ImageLightbox from "@/components/ImageLightbox";
 import ShareButtons from "@/components/ShareButtons";
@@ -63,7 +64,7 @@ export default async function ListingDetailPage({ params }: Props) {
 
   if (!listing) notFound();
 
-  const { count: contactedCount } = await supabase
+  const { count: contactedCount } = await createAdminClient()
     .from("listing_events")
     .select("*", { count: "exact", head: true })
     .eq("listing_id", id)

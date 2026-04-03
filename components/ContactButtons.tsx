@@ -11,7 +11,11 @@ type Props = {
 };
 
 async function handleContact(listing_id: string, event_type: EventType, url: string, newTab = false) {
-  await trackEvent(listing_id, event_type);
+  try {
+    await trackEvent(listing_id, event_type);
+  } catch (err) {
+    console.error("[ContactButtons] tracking failed:", event_type, err);
+  }
   if (newTab) {
     window.open(url, "_blank", "noopener,noreferrer");
   } else {

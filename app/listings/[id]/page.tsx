@@ -67,7 +67,7 @@ export default async function ListingDetailPage({ params }: Props) {
     .from("listing_events")
     .select("*", { count: "exact", head: true })
     .eq("listing_id", id)
-    .in("event_type", ["contact_email", "contact_whatsapp", "contact_phone"]);
+    .in("event_type", ["contact_email", "contact_whatsapp", "contact_phone", "facebook_click"]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

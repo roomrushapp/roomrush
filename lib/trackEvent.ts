@@ -1,13 +1,13 @@
 import { createClient } from "@/lib/supabase/client";
 
 export type EventType =
+  | "contact_click"
   | "contact_email"
   | "contact_whatsapp"
   | "contact_phone"
   | "share_copy"
   | "share_whatsapp"
-  | "share_telegram"
-  | "facebook_click";
+  | "share_telegram";
 
 export async function trackEvent(listing_id: string, event_type: EventType) {
   const supabase = createClient();

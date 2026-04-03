@@ -65,7 +65,7 @@ export default function ContactButtons({ listing_id, contact_email, phone, faceb
       {/* Facebook source link */}
       {facebook_url && (
         <button
-          onClick={() => handleContact(listing_id, "facebook_click", facebook_url, true)}
+          onClick={() => handleContact(listing_id, "contact_click", facebook_url, true)}
           className={
             facebookOnly
               ? "flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-900 text-white px-4 py-3 font-medium text-sm transition-colors w-full"

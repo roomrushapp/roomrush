@@ -31,7 +31,6 @@ RoomRush aims to make this faster and more transparent.
 
 <img width="1382" height="792" alt="image" src="https://github.com/user-attachments/assets/42267020-603e-4bc7-87d2-8f2fce979825" />
 <img width="1384" height="795" alt="image" src="https://github.com/user-attachments/assets/c15fd696-06cf-4c16-b8e2-7abd74dd98dd" />
-<img width="1210" height="759" alt="image" src="https://github.com/user-attachments/assets/3cfcb267-2dde-4d4a-87d1-16b153030e67" />
 
 
 ---

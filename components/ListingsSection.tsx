@@ -59,12 +59,12 @@ export default function ListingsSection({ initialListings }: Props) {
 
           {/* Mid-page newsletter — only shown when there are more than 6 listings */}
           {showMidBanner && (
-            <div className="w-full mt-6">
+            <div className="w-full">
               <NewsletterSignup
                 variant="banner"
                 compact
                 heading="Get listings like these before others."
-                subheading="New rooms land in your inbox every evening — free."
+                subheading="New rooms land in your inbox every evening - for free."
               />
             </div>
           )}

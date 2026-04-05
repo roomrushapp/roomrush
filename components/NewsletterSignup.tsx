@@ -10,11 +10,12 @@ type Props = {
   variant: Variant;
   heading?: ReactNode;
   subheading?: string;
+  compact?: boolean;
 };
 
 type Status = "idle" | "loading" | "subscribed" | "already" | "error";
 
-export default function NewsletterSignup({ variant, heading, subheading }: Props) {
+export default function NewsletterSignup({ variant, heading, subheading, compact = false }: Props) {
   const [email, setEmail] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [checkboxError, setCheckboxError] = useState(false);
@@ -86,23 +87,23 @@ export default function NewsletterSignup({ variant, heading, subheading }: Props
   /* ── BANNER variant ── */
   if (isBanner) {
     return (
-      <section className="bg-zinc-900 border-t border-zinc-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-          <div className="grid md:grid-cols-2 gap-10 items-start">
+      <section className={`bg-zinc-900 ${compact ? "border border-zinc-800" : "border-t border-zinc-800"}`}>
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${compact ? "py-6 md:py-8" : "py-14"}`}>
+          <div className={`grid md:grid-cols-2 ${compact ? "gap-6" : "gap-10"} items-center`}>
 
             {/* Left: copy */}
             <div>
-              <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest mb-3">
+              <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest mb-2">
                 Daily Newsletter
               </p>
-              <h2 className="font-display font-bold text-3xl md:text-4xl text-white leading-tight mb-3">
+              <h2 className={`font-display font-bold text-white leading-tight ${compact ? "text-xl md:text-2xl mb-1" : "text-3xl md:text-4xl mb-3"}`}>
                 {heading ?? (
                   <>
                     Never miss a<br />Munich sublet.
                   </>
                 )}
               </h2>
-              <p className="text-zinc-400 text-sm">
+              <p className={`text-zinc-400 ${compact ? "text-xs" : "text-sm"}`}>
                 {subheading ?? "Get new listings every evening — free."}
               </p>
             </div>

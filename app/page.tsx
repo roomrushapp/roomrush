@@ -34,8 +34,8 @@ export default async function HomePage() {
                 <span className="text-rose-600">NOW.</span>
               </h1>
               <p className="text-zinc-400 text-lg max-w-sm mb-8">
-                The fastest guide for short-term rentals in Munich. No noise.
-                Just active listings.
+                The fastest guide for short-term rentals in Munich and nearby
+                student areas. No noise. Just active listings.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <a

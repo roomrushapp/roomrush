@@ -48,7 +48,8 @@ export default function ListingsSection({ initialListings }: Props) {
           <p className="text-sm">Try adjusting the price range or district.</p>
         </div>
       ) : (
-        <>
+        <div className="flex flex-col gap-8">
+
           {/* First batch — listings 1–6 */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {firstBatch.map((listing) => (
@@ -58,15 +59,13 @@ export default function ListingsSection({ initialListings }: Props) {
 
           {/* Mid-page newsletter — only shown when there are more than 6 listings */}
           {showMidBanner && (
-            <div className="mt-6 border-t border-neutral-200">
-              <div className="mt-6">
-                <NewsletterSignup
-                  variant="banner"
-                  compact
-                  heading="Get listings like these before others."
-                  subheading="New rooms land in your inbox every evening — free."
-                />
-              </div>
+            <div className="w-full border-t border-neutral-200 pt-6">
+              <NewsletterSignup
+                variant="banner"
+                compact
+                heading="Get listings like these before others."
+                subheading="New rooms land in your inbox every evening — free."
+              />
             </div>
           )}
 
@@ -78,7 +77,8 @@ export default function ListingsSection({ initialListings }: Props) {
               ))}
             </div>
           )}
-        </>
+
+        </div>
       )}
     </section>
   );

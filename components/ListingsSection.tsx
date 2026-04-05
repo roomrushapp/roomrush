@@ -3,7 +3,10 @@
 import { useState } from "react";
 import ListingCard from "@/components/ListingCard";
 import ListingFilters from "@/components/ListingFilters";
+import NewsletterSignup from "@/components/NewsletterSignup";
 import type { Listing } from "@/types";
+
+const MID_BANNER_AFTER = 6;
 
 type Props = {
   initialListings: Listing[];
@@ -11,6 +14,10 @@ type Props = {
 
 export default function ListingsSection({ initialListings }: Props) {
   const [listings, setListings] = useState<Listing[]>(initialListings);
+
+  const firstBatch = listings.slice(0, MID_BANNER_AFTER);
+  const remainingBatch = listings.slice(MID_BANNER_AFTER);
+  const showMidBanner = listings.length > MID_BANNER_AFTER;
 
   return (
     <section id="listings" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -41,11 +48,34 @@ export default function ListingsSection({ initialListings }: Props) {
           <p className="text-sm">Try adjusting the price range or district.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {listings.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} />
-          ))}
-        </div>
+        <>
+          {/* First batch — listings 1–6 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {firstBatch.map((listing) => (
+              <ListingCard key={listing.id} listing={listing} />
+            ))}
+          </div>
+
+          {/* Mid-page newsletter — only shown when there are more than 6 listings */}
+          {showMidBanner && (
+            <div className="my-12 -mx-4 sm:-mx-6 lg:-mx-8">
+              <NewsletterSignup
+                variant="banner"
+                heading="See something you like?"
+                subheading="Get new listings like this every day — free."
+              />
+            </div>
+          )}
+
+          {/* Remaining listings — 7 onwards */}
+          {remainingBatch.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {remainingBatch.map((listing) => (
+                <ListingCard key={listing.id} listing={listing} />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </section>
   );

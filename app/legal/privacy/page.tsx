@@ -4,7 +4,7 @@ export default function PrivacyPage() {
       <h1 className="font-display font-bold text-3xl mb-2">
         Datenschutzerklärung
       </h1>
-      <p className="text-zinc-500 text-sm mb-4">Stand: März 2026</p>
+      <p className="text-zinc-500 text-sm mb-4">Stand: April 2026</p>
       <p className="text-xs text-zinc-400 bg-zinc-50 border border-zinc-200 px-3 py-2 mb-10">
         Hinweis: Die Benutzeroberfläche der Plattform ist auf Englisch gehalten. Diese Rechtstexte sind gemäß deutschem Recht auf Deutsch verfasst.
       </p>
@@ -155,6 +155,27 @@ export default function PrivacyPage() {
                 </a>
               </p>
             </div>
+
+            <div className="border-l-2 border-zinc-200 pl-4">
+              <p className="font-semibold text-black">Resend</p>
+              <p>
+                Für den Versand von Newsletter-E-Mails nutzen wir Resend
+                (Resend Inc., USA). E-Mail-Adressen von Newsletter-Abonnenten
+                werden ausschließlich zum Versand von Benachrichtigungen über
+                neue Inserate verwendet und nicht an Dritte weitergegeben.
+              </p>
+              <p className="mt-1">
+                Datenschutzerklärung:{" "}
+                <a
+                  href="https://resend.com/legal/privacy-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-rose-600 hover:underline"
+                >
+                  resend.com/legal/privacy-policy
+                </a>
+              </p>
+            </div>
           </div>
         </section>
 
@@ -287,7 +308,56 @@ export default function PrivacyPage() {
         {/* 9 */}
         <section>
           <h2 className="font-display font-bold text-lg text-black mb-3">
-            9. Änderungen dieser Datenschutzerklärung
+            9. Newsletter &amp; E-Mail-Kommunikation
+          </h2>
+          <p className="mb-4">
+            RoomRush bietet einen optionalen täglichen Newsletter an, über den
+            Nutzer bei neuen Inseraten benachrichtigt werden.
+          </p>
+          <ul className="list-disc list-inside space-y-2 text-zinc-600 mb-4">
+            <li>
+              E-Mail-Adressen werden ausschließlich auf freiwilliger Basis und
+              mit ausdrücklicher Einwilligung erhoben.
+            </li>
+            <li>
+              Die Daten werden in unserer Datenbank bei Supabase gespeichert
+              (Server-Standort: EU, Frankfurt).
+            </li>
+            <li>
+              E-Mails werden über den Dienst Resend versendet (siehe § 3).
+            </li>
+            <li>
+              E-Mails werden nur versendet, wenn an dem jeweiligen Tag neue
+              Inserate veröffentlicht wurden. Es findet kein täglicher
+              Versand ohne inhaltlichen Anlass statt.
+            </li>
+            <li>
+              Eine Abmeldung ist jederzeit möglich — über den
+              Abmelde-Link in jeder E-Mail oder per Kontaktaufnahme
+              unter{" "}
+              <a
+                href="mailto:roomrush.app@gmail.com"
+                className="text-rose-600 hover:underline"
+              >
+                roomrush.app@gmail.com
+              </a>
+              .
+            </li>
+            <li>
+              E-Mail-Adressen werden nicht an Dritte verkauft oder zu
+              Werbezwecken weitergegeben.
+            </li>
+            <li>
+              Rechtsgrundlage für die Verarbeitung ist Art. 6 Abs. 1 lit. a
+              DSGVO (Einwilligung).
+            </li>
+          </ul>
+        </section>
+
+        {/* 10 */}
+        <section>
+          <h2 className="font-display font-bold text-lg text-black mb-3">
+            10. Änderungen dieser Datenschutzerklärung
           </h2>
           <p>
             Wir behalten uns vor, diese Datenschutzerklärung bei Bedarf

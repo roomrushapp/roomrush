@@ -10,6 +10,7 @@ import ImageLightbox from "@/components/ImageLightbox";
 import ShareButtons from "@/components/ShareButtons";
 import ContactButtons from "@/components/ContactButtons";
 import ViewTracker from "@/components/ViewTracker";
+import NewsletterSignup from "@/components/NewsletterSignup";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -177,6 +178,15 @@ export default async function ListingDetailPage({ params }: Props) {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* ── NEWSLETTER INLINE ── */}
+      <div className="max-w-md mt-4">
+        <NewsletterSignup
+          variant="inline"
+          heading="Want more options?"
+          subheading="Get notified when new rooms are posted."
+        />
       </div>
     </div>
   );

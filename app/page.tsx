@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import ListingsSection from "@/components/ListingsSection";
+import NewsletterSignup from "@/components/NewsletterSignup";
 import type { Listing } from "@/types";
 
 export default async function HomePage() {
@@ -69,6 +70,13 @@ export default async function HomePage() {
 
       {/* ── LISTINGS (client component handles filters + grid) ── */}
       <ListingsSection initialListings={listings} />
+
+      {/* ── NEWSLETTER BANNER ── */}
+      <NewsletterSignup
+        variant="banner"
+        heading={<>Never miss a<br />Munich sublet.</>}
+        subheading="Get new listings every evening — free."
+      />
 
       {/* ── CTA BANNER ── */}
       <section className="bg-black text-white mt-12">

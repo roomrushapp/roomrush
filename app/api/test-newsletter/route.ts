@@ -12,7 +12,7 @@ export async function GET() {
   // Fetch the most recent active listings (up to 5) for preview
   const { data: listings, error: listingsError } = await supabase
     .from("listings")
-    .select("id, title, rent, location, available_from")
+    .select("id, title, rent, location, available_from, image_urls")
     .eq("is_active", true)
     .order("created_at", { ascending: false })
     .limit(5);
@@ -30,13 +30,16 @@ export async function GET() {
   const listingsHtml = listings
     .map(
       (l) => `
-    <div style="border:1px solid #e4e4e7;padding:20px;margin-bottom:16px;">
-      <p style="font-size:16px;font-weight:600;color:#09090b;margin:0 0 8px 0;">${l.title}</p>
-      <p style="font-size:14px;color:#52525b;margin:0 0 4px 0;">€${l.rent}/month &nbsp;·&nbsp; ${l.location}</p>
-      ${l.available_from ? `<p style="font-size:13px;color:#71717a;margin:0 0 12px 0;">Available from ${new Date(l.available_from).toLocaleDateString("en-DE", { day: "numeric", month: "long", year: "numeric" })}</p>` : ""}
-      <a href="https://getroomrush.de/listings/${l.id}" style="display:inline-block;background:#e11d48;color:#fff;font-size:13px;font-weight:500;padding:8px 16px;text-decoration:none;">
-        View listing →
-      </a>
+    <div style="border:1px solid #e4e4e7;margin-bottom:16px;overflow:hidden;">
+      ${l.image_urls && l.image_urls[0] ? `<img src="${l.image_urls[0]}" alt="Room image" width="560" style="width:100%;max-width:560px;height:200px;object-fit:cover;display:block;">` : ""}
+      <div style="padding:16px 20px 20px 20px;">
+        <p style="font-size:16px;font-weight:600;color:#09090b;margin:0 0 8px 0;">${l.title}</p>
+        <p style="font-size:14px;color:#52525b;margin:0 0 4px 0;">€${l.rent}/month &nbsp;·&nbsp; ${l.location}</p>
+        ${l.available_from ? `<p style="font-size:13px;color:#71717a;margin:0 0 12px 0;">Available from ${new Date(l.available_from).toLocaleDateString("en-DE", { day: "numeric", month: "long", year: "numeric" })}</p>` : `<p style="margin:0 0 12px 0;"></p>`}
+        <a href="https://getroomrush.de/listings/${l.id}" style="display:inline-block;background:#e11d48;color:#fff;font-size:13px;font-weight:500;padding:8px 16px;text-decoration:none;">
+          View listing →
+        </a>
+      </div>
     </div>`
     )
     .join("");
@@ -54,10 +57,13 @@ export async function GET() {
 
     <div style="padding:28px;">
       <h1 style="font-size:20px;font-weight:700;color:#09090b;margin:0 0 6px 0;">
-        🏠 ${n} new room${n > 1 ? "s" : ""} in Munich today
+        🏠 ${n} new room${n > 1 ? "s" : ""} in Munich today — just listed
       </h1>
-      <p style="font-size:14px;color:#71717a;margin:0 0 24px 0;">
+      <p style="font-size:14px;color:#71717a;margin:0 0 8px 0;">
         Here are the latest sublets posted on RoomRush.
+      </p>
+      <p style="font-size:14px;margin:0 0 24px 0;">
+        <a href="https://getroomrush.de" style="color:#e11d48;text-decoration:none;">Browse all listings →</a>
       </p>
 
       ${listingsHtml}

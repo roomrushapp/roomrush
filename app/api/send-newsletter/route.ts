@@ -127,8 +127,21 @@ async function sendNewsletter() {
 }
 
 function authorize(request: NextRequest): boolean {
-  const secret = request.headers.get("x-cron-secret");
-  return secret === process.env.CRON_SECRET;
+  // Allow unauthenticated requests in development for manual testing
+  if (process.env.NODE_ENV !== "production") return true;
+
+  // Path 1: Vercel cron job — validates x-cron-secret header
+  const cronSecret = request.headers.get("x-cron-secret");
+  if (cronSecret === process.env.CRON_SECRET) return true;
+
+  // Path 2: Temporary manual trigger — validates ?secret= query param
+  const querySecret = new URL(request.url).searchParams.get("secret");
+  if (
+    process.env.MANUAL_TRIGGER_SECRET &&
+    querySecret === process.env.MANUAL_TRIGGER_SECRET
+  ) return true;
+
+  return false;
 }
 
 export async function GET(request: NextRequest) {

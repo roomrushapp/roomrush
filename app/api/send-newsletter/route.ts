@@ -4,12 +4,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function POST(request: NextRequest) {
-  const secret = request.headers.get("x-cron-secret");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+async function sendNewsletter() {
   const supabase = await createClient();
 
   // Fetch listings created today
@@ -129,4 +124,23 @@ export async function POST(request: NextRequest) {
     sentCount,
     failedCount: errors.length,
   });
+}
+
+function authorize(request: NextRequest): boolean {
+  const secret = request.headers.get("x-cron-secret");
+  return secret === process.env.CRON_SECRET;
+}
+
+export async function GET(request: NextRequest) {
+  if (!authorize(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return sendNewsletter();
+}
+
+export async function POST(request: NextRequest) {
+  if (!authorize(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return sendNewsletter();
 }

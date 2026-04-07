@@ -1,39 +1,65 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Use the service role key so this route can read and write newsletter_runs
+// without being blocked by RLS. This client is never exposed to users — the
+// route itself is protected by CRON_SECRET / MANUAL_TRIGGER_SECRET.
+function getAdminClient() {
+  return createSupabaseAdmin(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
+
+const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
 async function sendNewsletter(triggeredBy: "cron" | "manual") {
   const runAt = new Date();
   console.log(`[Newsletter] Run started — trigger=${triggeredBy} utc=${runAt.toISOString()}`);
 
-  const supabase = await createClient();
+  const supabase = getAdminClient();
 
   // ── Window calculation ──────────────────────────────────────────────────────
-  // Prefer the timestamp of the last recorded run as the window start.
-  // This ensures each run covers exactly the period since the previous one,
-  // making repeated triggers safe (second trigger finds nothing new) and
-  // making manual recovery safe (no duplicate listings sent to subscribers).
+  // Query the most recent recorded run. Its sent_at becomes windowStart, so
+  // each run covers exactly the gap since the last one completed.
   //
-  // If no prior run exists (fresh deploy, empty table), fall back to now - 24h.
-  const { data: lastRun } = await supabase
+  // Using .maybeSingle() instead of .single() so an empty table returns
+  // { data: null, error: null } rather than a PGRST116 error.
+  //
+  // If no prior run exists (fresh deploy / empty table), fall back to now - 24h.
+  const { data: lastRun, error: lastRunError } = await supabase
     .from("newsletter_runs")
     .select("sent_at")
     .order("sent_at", { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
+  if (lastRunError) {
+    console.error("[Newsletter] Failed to query newsletter_runs:", lastRunError);
+    // Surface this — it almost always means the table doesn't exist yet or
+    // the service role key is missing. We cannot continue safely.
+    return NextResponse.json(
+      { error: "Failed to query newsletter_runs", detail: lastRunError.message },
+      { status: 500 }
+    );
+  }
+
+  const windowSource = lastRun ? "last_run" : "fallback_24h";
   const windowStart: Date = lastRun?.sent_at
     ? new Date(lastRun.sent_at)
     : new Date(runAt.getTime() - 24 * 60 * 60 * 1000);
-
   const windowEnd = runAt;
 
   console.log(
-    `[Newsletter] Window: ${windowStart.toISOString()} → ${windowEnd.toISOString()} (${lastRun ? "from last run" : "fallback 24h"})`
+    `[Newsletter] Window source: ${windowSource}`
+  );
+  console.log(
+    `[Newsletter] Window: ${windowStart.toISOString()} → ${windowEnd.toISOString()}`
   );
 
   // ── Fetch listings ──────────────────────────────────────────────────────────
@@ -52,25 +78,45 @@ async function sendNewsletter(triggeredBy: "cron" | "manual") {
 
   const listingCount = listings?.length ?? 0;
   console.log(`[Newsletter] Listings in window: ${listingCount}`);
-
   for (const l of listings ?? []) {
     console.log(`[Newsletter]   listing id=${l.id} created_at=${l.created_at}`);
   }
 
-  // ── No listings — record the run and stop ───────────────────────────────────
-  // We still insert into newsletter_runs so the window advances.
-  // This prevents the next run from picking up a double-width window.
+  // ── Helper: record the run and return the inserted id ───────────────────────
+  async function recordRun(sentCount: number, failedCount: number): Promise<number | null> {
+    const { data: inserted, error: insertError } = await supabase
+      .from("newsletter_runs")
+      .insert({
+        sent_at: runAt.toISOString(),
+        listing_count: listingCount,
+        sent_count: sentCount,
+        failed_count: failedCount,
+      })
+      .select("id")
+      .single();
+
+    if (insertError) {
+      console.error("[Newsletter] FAILED to insert into newsletter_runs:", insertError);
+      return null;
+    }
+
+    console.log(`[Newsletter] Recorded run id=${inserted.id}`);
+    return inserted.id;
+  }
+
+  // ── No listings — record and stop ───────────────────────────────────────────
   if (listingCount === 0) {
     console.log("[Newsletter] No new listings — recording run, skipping send.");
-    await supabase
-      .from("newsletter_runs")
-      .insert({ sent_at: runAt.toISOString(), listing_count: 0, sent_count: 0, failed_count: 0 });
+    const runId = await recordRun(0, 0);
     return NextResponse.json({
       sent: false,
       reason: "no_new_listings",
       trigger: triggeredBy,
+      windowSource,
       windowStart: windowStart.toISOString(),
       windowEnd: windowEnd.toISOString(),
+      runInserted: runId !== null,
+      runId,
     });
   }
 
@@ -124,23 +170,23 @@ async function sendNewsletter(triggeredBy: "cron" | "manual") {
     `[Newsletter] Subscribers — valid=${validSubscribers.length} invalid=${invalidCount} duplicates=${dupCount}`
   );
 
-  // No valid subscribers — still record the run so the window advances
   if (validSubscribers.length === 0) {
     console.log("[Newsletter] No valid subscribers — recording run, skipping send.");
-    await supabase
-      .from("newsletter_runs")
-      .insert({ sent_at: runAt.toISOString(), listing_count: listingCount, sent_count: 0, failed_count: 0 });
+    const runId = await recordRun(0, 0);
     return NextResponse.json({
       sent: false,
       reason: "no_subscribers",
       trigger: triggeredBy,
+      windowSource,
       windowStart: windowStart.toISOString(),
       windowEnd: windowEnd.toISOString(),
       listings: listingCount,
+      runInserted: runId !== null,
+      runId,
     });
   }
 
-  // ── Build email HTML ────────────────────────────────────────────────────────
+  // ── Build listings HTML ─────────────────────────────────────────────────────
   const n = listingCount;
 
   const listingsHtml = (listings ?? [])
@@ -160,7 +206,7 @@ async function sendNewsletter(triggeredBy: "cron" | "manual") {
     )
     .join("");
 
-  // ── Send emails ─────────────────────────────────────────────────────────────
+  // ── Send emails (sequential with delay to respect Resend rate limits) ────────
   let sentCount = 0;
   const failures: Array<{ email: string; reason: string }> = [];
 
@@ -214,27 +260,18 @@ async function sendNewsletter(triggeredBy: "cron" | "manual") {
       console.log(`[Newsletter] Sent → ${subscriber.email}`);
       sentCount++;
     }
+
+    // 250ms between sends — Resend allows ~2 req/s on starter plans
+    await delay(250);
   }
 
   // ── Record run ──────────────────────────────────────────────────────────────
-  // Always insert regardless of partial failures. The window must advance so
-  // the next run does not re-send listings that were already attempted.
-  const { error: runInsertError } = await supabase
-    .from("newsletter_runs")
-    .insert({
-      sent_at: runAt.toISOString(),
-      listing_count: listingCount,
-      sent_count: sentCount,
-      failed_count: failures.length,
-    });
-
-  if (runInsertError) {
-    // Log but do not fail the response — emails were already sent.
-    console.error("[Newsletter] Failed to record run in newsletter_runs:", runInsertError);
-  }
+  // Insert unconditionally — even partial failures must advance the window.
+  // The next run must not re-attempt listings or recipients from this run.
+  const runId = await recordRun(sentCount, failures.length);
 
   console.log(
-    `[Newsletter] Run complete — listings=${listingCount} sent=${sentCount} failed=${failures.length} invalidSkipped=${invalidCount} dupSkipped=${dupCount}`
+    `[Newsletter] Run complete — listings=${listingCount} sent=${sentCount} failed=${failures.length} invalidSkipped=${invalidCount} dupSkipped=${dupCount} runId=${runId}`
   );
 
   if (failures.length > 0) {
@@ -244,6 +281,7 @@ async function sendNewsletter(triggeredBy: "cron" | "manual") {
   return NextResponse.json({
     sent: true,
     trigger: triggeredBy,
+    windowSource,
     windowStart: windowStart.toISOString(),
     windowEnd: windowEnd.toISOString(),
     listings: listingCount,
@@ -254,6 +292,8 @@ async function sendNewsletter(triggeredBy: "cron" | "manual") {
     sentCount,
     failedCount: failures.length,
     failures,
+    runInserted: runId !== null,
+    runId,
   });
 }
 

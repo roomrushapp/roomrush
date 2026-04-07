@@ -63,14 +63,14 @@ export default function Navbar() {
             <Link href="/" className="text-sm text-zinc-600 hover:text-black transition-colors">
               Listings
             </Link>
-            <Link href="/newsletter" className="text-sm text-zinc-600 hover:text-black transition-colors">
-              Newsletter
-            </Link>
 
             {user ? (
               <>
                 <Link href="/dashboard" className="text-sm text-zinc-600 hover:text-black transition-colors">
                   Dashboard
+                </Link>
+                <Link href="/newsletter" className="text-sm text-zinc-600 hover:text-black transition-colors">
+                  Newsletter
                 </Link>
                 <Link
                   href="/dashboard/listings/new"
@@ -88,6 +88,9 @@ export default function Navbar() {
               </>
             ) : (
               <>
+                <Link href="/newsletter" className="text-sm text-zinc-600 hover:text-black transition-colors">
+                  Newsletter
+                </Link>
                 <Link href="/auth/login" className="text-sm text-zinc-600 hover:text-black transition-colors">
                   Log in
                 </Link>
@@ -118,14 +121,14 @@ export default function Navbar() {
           <Link href="/" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
             Listings
           </Link>
-          <Link href="/newsletter" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
-            Newsletter
-          </Link>
 
           {user ? (
             <>
               <Link href="/dashboard" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
                 Dashboard
+              </Link>
+              <Link href="/newsletter" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
+                Newsletter
               </Link>
               <Link
                 href="/dashboard/listings/new"
@@ -143,6 +146,9 @@ export default function Navbar() {
             </>
           ) : (
             <>
+              <Link href="/newsletter" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
+                Newsletter
+              </Link>
               <Link href="/auth/login" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
                 Log in
               </Link>

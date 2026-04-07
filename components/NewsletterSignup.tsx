@@ -88,52 +88,40 @@ export default function NewsletterSignup({ variant, heading, subheading, compact
   if (isBanner) {
     return (
       <section className={`bg-zinc-900 ${compact ? "border border-zinc-800" : "border-t border-zinc-800"}`}>
-        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${compact ? "py-6 md:py-8" : "py-14"}`}>
-          <div className={`grid md:grid-cols-2 ${compact ? "gap-6" : "gap-10"} items-center`}>
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${compact ? "py-8 md:py-10" : "py-14"}`}>
 
-            {/* Left: copy */}
-            <div>
-              <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest mb-2">
+          {compact ? (
+            /* ── Compact: single-column vertical form (used on /newsletter page) ── */
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest">
                 Daily Newsletter
               </p>
-              <h2 className={`font-display font-bold text-white leading-tight ${compact ? "text-xl md:text-2xl mb-1" : "text-3xl md:text-4xl mb-3"}`}>
-                {heading ?? (
-                  <>
-                    Never miss a<br />Munich sublet.
-                  </>
-                )}
-              </h2>
-              <p className={`text-zinc-400 ${compact ? "text-xs" : "text-sm"}`}>
-                {subheading ?? "Get new listings every evening — free."}
-              </p>
-            </div>
 
-            {/* Right: form */}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4 md:pt-2">
-              <div className="flex flex-col sm:flex-row gap-2">
-                <div className="relative flex-1">
-                  <Mail
-                    size={15}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
-                  />
-                  <input
-                    type="email"
-                    required
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 text-sm px-4 py-3 pl-9 focus:outline-none focus:border-zinc-500 transition-colors"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={status === "loading"}
-                  className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white px-5 py-3 font-medium text-sm transition-colors whitespace-nowrap"
-                >
-                  {status === "loading" ? "Subscribing…" : "Get daily listings"}
-                  {status !== "loading" && <ArrowRight size={15} />}
-                </button>
+              {/* Email input — full width */}
+              <div className="relative">
+                <Mail
+                  size={15}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+                />
+                <input
+                  type="email"
+                  required
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 text-sm px-4 py-3 pl-9 focus:outline-none focus:border-zinc-500 transition-colors"
+                />
               </div>
+
+              {/* CTA button — full width, below input */}
+              <button
+                type="submit"
+                disabled={status === "loading"}
+                className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white w-full px-5 py-3 font-medium text-sm transition-colors"
+              >
+                {status === "loading" ? "Subscribing…" : "Get daily listings"}
+                {status !== "loading" && <ArrowRight size={15} />}
+              </button>
 
               {/* GDPR checkbox */}
               <label className="flex items-start gap-3 cursor-pointer group">
@@ -171,10 +159,99 @@ export default function NewsletterSignup({ variant, heading, subheading, compact
               )}
 
               <p className="text-xs text-zinc-600">
-                No spam. Only emails when new rooms are posted.
+                Only emails when new rooms are posted. No spam.
               </p>
             </form>
-          </div>
+          ) : (
+            /* ── Full: two-column layout (used on homepage) ── */
+            <div className="grid md:grid-cols-2 gap-10 items-center">
+
+              {/* Left: copy */}
+              <div>
+                <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest mb-2">
+                  Daily Newsletter
+                </p>
+                <h2 className="font-display font-bold text-white leading-tight text-3xl md:text-4xl mb-3">
+                  {heading ?? (
+                    <>
+                      Never miss a<br />Munich sublet.
+                    </>
+                  )}
+                </h2>
+                <p className="text-zinc-400 text-sm">
+                  {subheading ?? "Get new listings every evening, free."}
+                </p>
+              </div>
+
+              {/* Right: form */}
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4 md:pt-2">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-1">
+                    <Mail
+                      size={15}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+                    />
+                    <input
+                      type="email"
+                      required
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 text-sm px-4 py-3 pl-9 focus:outline-none focus:border-zinc-500 transition-colors"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={status === "loading"}
+                    className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white px-5 py-3 font-medium text-sm transition-colors whitespace-nowrap"
+                  >
+                    {status === "loading" ? "Subscribing…" : "Get daily listings"}
+                    {status !== "loading" && <ArrowRight size={15} />}
+                  </button>
+                </div>
+
+                {/* GDPR checkbox */}
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className="relative mt-0.5 shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={agreed}
+                      onChange={(e) => {
+                        setAgreed(e.target.checked);
+                        if (e.target.checked) setCheckboxError(false);
+                      }}
+                      className="sr-only peer"
+                    />
+                    <div className={`w-4 h-4 border ${checkboxError ? "border-rose-500" : "border-zinc-600"} peer-checked:bg-rose-600 peer-checked:border-rose-600 transition-colors`} />
+                    {agreed && (
+                      <svg
+                        className="absolute inset-0 w-4 h-4 text-white pointer-events-none"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                      >
+                        <path d="M3 8l3.5 3.5 6.5-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </div>
+                  <span className={`text-xs leading-relaxed ${checkboxError ? "text-rose-400" : "text-zinc-400"}`}>
+                    I agree to receive daily new listing emails from RoomRush. I can unsubscribe anytime.
+                    {checkboxError && (
+                      <span className="block text-rose-400 mt-0.5">Please check this box to continue.</span>
+                    )}
+                  </span>
+                </label>
+
+                {status === "error" && (
+                  <p className="text-xs text-rose-400">Something went wrong. Please try again.</p>
+                )}
+
+                <p className="text-xs text-zinc-600">
+                  No spam. Only emails when new rooms are posted.
+                </p>
+              </form>
+            </div>
+          )}
+
         </div>
       </section>
     );

@@ -28,7 +28,7 @@ export default function NewsletterPage() {
         {/* Two-column hero — text left, form right */}
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start pb-20">
 
-          {/* Left: persuasive copy */}
+          {/* Left: copy */}
           <div className="lg:pt-3">
             <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest mb-4">
               Daily Newsletter · Munich
@@ -36,15 +36,11 @@ export default function NewsletterPage() {
             <h1 className="font-display font-bold text-4xl md:text-5xl leading-tight text-white mb-5">
               Get Munich sublets<br />in your inbox.
             </h1>
-            <p className="text-zinc-400 text-base mb-3">
-              Every evening, get new Munich sublets in your inbox. Only sent when new listings are available.
-              No WhatsApp noise. No endless scrolling through Facebook or Telegram groups.
-            </p>
-            <p className="text-zinc-500 text-sm mb-8">
-              New listings across Munich, Garching, Freising, and nearby areas, every evening at 7 pm.
+            <p className="text-zinc-400 text-base mb-8">
+              Stop checking multiple WhatsApp, Facebook, and Telegram groups all day.
             </p>
 
-            {/* 3 benefit points */}
+            {/* Benefit points */}
             <ul className="flex flex-col gap-3 mb-10">
               <li className="flex items-center gap-3 text-sm text-zinc-300">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
@@ -52,7 +48,7 @@ export default function NewsletterPage() {
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-300">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
-                Munich sublets only, no noise
+                Munich, Garching, Freising, and nearby areas
               </li>
               <li className="flex items-center gap-3 text-sm text-zinc-300">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
@@ -65,13 +61,8 @@ export default function NewsletterPage() {
             </p>
           </div>
 
-          {/* Right: existing NewsletterSignup component, compact card */}
-          <NewsletterSignup
-            variant="banner"
-            compact={true}
-            heading="Subscribe free."
-            subheading="For students, interns, and young professionals moving to Munich."
-          />
+          {/* Right: form card */}
+          <NewsletterSignup variant="banner" compact={true} />
 
         </div>
       </div>

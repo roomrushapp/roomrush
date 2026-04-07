@@ -130,7 +130,7 @@ export default function NewsletterSignup({ variant, heading, subheading, compact
                   disabled={status === "loading"}
                   className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white px-5 py-3 font-medium text-sm transition-colors whitespace-nowrap"
                 >
-                  {status === "loading" ? "Subscribing…" : "Notify me daily"}
+                  {status === "loading" ? "Subscribing…" : "Get daily listings"}
                   {status !== "loading" && <ArrowRight size={15} />}
                 </button>
               </div>
@@ -208,7 +208,7 @@ export default function NewsletterSignup({ variant, heading, subheading, compact
           disabled={status === "loading"}
           className="inline-flex items-center justify-center gap-2 bg-zinc-900 hover:bg-black disabled:opacity-50 text-white px-4 py-3 font-medium text-sm transition-colors w-full"
         >
-          {status === "loading" ? "Subscribing…" : "Notify me daily"}
+          {status === "loading" ? "Subscribing…" : "Get daily listings"}
           {status !== "loading" && <ArrowRight size={15} />}
         </button>
 

@@ -63,6 +63,9 @@ export default function Navbar() {
             <Link href="/" className="text-sm text-zinc-600 hover:text-black transition-colors">
               Listings
             </Link>
+            <Link href="/newsletter" className="text-sm text-zinc-600 hover:text-black transition-colors">
+              Newsletter
+            </Link>
 
             {user ? (
               <>
@@ -114,6 +117,9 @@ export default function Navbar() {
         <div className="md:hidden border-t border-zinc-100 bg-white px-4 py-4 flex flex-col gap-4">
           <Link href="/" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
             Listings
+          </Link>
+          <Link href="/newsletter" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
+            Newsletter
           </Link>
 
           {user ? (

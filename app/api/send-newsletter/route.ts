@@ -261,8 +261,8 @@ async function sendNewsletter(triggeredBy: "cron" | "manual") {
       sentCount++;
     }
 
-    // 250ms between sends — Resend allows ~2 req/s on starter plans
-    await delay(250);
+    // 500ms between sends — max 2 emails/s, safely under Resend's 5 req/s limit
+    await delay(500);
   }
 
   // ── Record run ──────────────────────────────────────────────────────────────

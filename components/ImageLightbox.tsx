@@ -41,7 +41,7 @@ export default function ImageLightbox({ images, title }: Props) {
       <div className="grid grid-cols-3 gap-2 mb-8 h-72 md:h-96 overflow-hidden">
         <div className="col-span-2 relative cursor-pointer" onClick={() => setLightboxIndex(0)}>
           {images?.[0] ? (
-            <Image src={images[0]} alt={title} fill className="object-cover" priority sizes="(max-width: 768px) 100vw, 66vw" />
+            <Image src={images[0]} alt={title} fill unoptimized className="object-cover" priority sizes="(max-width: 768px) 100vw, 66vw" />
           ) : (
             <div className="w-full h-full bg-zinc-100 flex items-center justify-center text-zinc-400 text-sm">No photos yet</div>
           )}
@@ -50,7 +50,7 @@ export default function ImageLightbox({ images, title }: Props) {
           {[images?.[1], images?.[2]].map((img, i) =>
             img ? (
               <div key={i} className="relative flex-1 cursor-pointer" onClick={() => setLightboxIndex(i + 1)}>
-                <Image src={img} alt={`${title} photo ${i + 2}`} fill className="object-cover" sizes="33vw" />
+                <Image src={img} alt={`${title} photo ${i + 2}`} fill unoptimized className="object-cover" sizes="33vw" />
               </div>
             ) : (
               <div key={i} className="flex-1 bg-zinc-100" />
@@ -94,6 +94,7 @@ export default function ImageLightbox({ images, title }: Props) {
               src={images[lightboxIndex]}
               alt={`${title} photo ${lightboxIndex + 1}`}
               fill
+              unoptimized
               className="object-contain"
               sizes="100vw"
             />

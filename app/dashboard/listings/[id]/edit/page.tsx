@@ -289,7 +289,7 @@ export default function EditListingPage({ params }: Props) {
                   {/* Existing images */}
                   {existingUrls.map((url, i) => (
                     <div key={url} className="relative aspect-square bg-zinc-100">
-                      <Image src={url} alt={`Photo ${i + 1}`} fill className="object-cover" sizes="120px" />
+                      <Image src={url} alt={`Photo ${i + 1}`} fill unoptimized className="object-cover" sizes="120px" />
                       <button type="button" onClick={() => removeExisting(url)}
                         className="absolute top-1 right-1 bg-black/60 hover:bg-black text-white rounded-full p-0.5 transition-colors">
                         <X size={12} />
@@ -302,7 +302,7 @@ export default function EditListingPage({ params }: Props) {
                   {/* New image previews */}
                   {newPreviews.map((src, i) => (
                     <div key={src} className="relative aspect-square bg-zinc-100">
-                      <Image src={src} alt={`New photo ${i + 1}`} fill className="object-cover" sizes="120px" />
+                      <Image src={src} alt={`New photo ${i + 1}`} fill unoptimized className="object-cover" sizes="120px" />
                       <button type="button" onClick={() => removeNew(i)}
                         className="absolute top-1 right-1 bg-black/60 hover:bg-black text-white rounded-full p-0.5 transition-colors">
                         <X size={12} />

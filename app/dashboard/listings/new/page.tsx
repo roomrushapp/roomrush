@@ -305,7 +305,7 @@ export default function NewListingPage() {
                 <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-3">
                   {imagePreviews.map((src, i) => (
                     <div key={i} className="relative aspect-square bg-zinc-100">
-                      <Image src={src} alt={`Preview ${i + 1}`} fill className="object-cover" sizes="120px" />
+                      <Image src={src} alt={`Preview ${i + 1}`} fill unoptimized className="object-cover" sizes="120px" />
                       <button type="button" onClick={() => removeImage(i)}
                         className="absolute top-1 right-1 bg-black/60 hover:bg-black text-white rounded-full p-0.5 transition-colors">
                         <X size={12} />

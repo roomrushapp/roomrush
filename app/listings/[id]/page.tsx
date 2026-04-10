@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { formatDate } from "@/lib/mockData";
 import { createClient } from "@/lib/supabase/server";
-import { MapPin, Calendar, ArrowLeft, Eye, Users } from "lucide-react";
+import { MapPin, Calendar, ArrowLeft } from "lucide-react";
 import ImageLightbox from "@/components/ImageLightbox";
 import ShareButtons from "@/components/ShareButtons";
 import ContactButtons from "@/components/ContactButtons";
@@ -127,20 +127,6 @@ export default async function ListingDetailPage({ params }: Props) {
               <p className="font-semibold text-black">
                 {listing.available_until ? formatDate(listing.available_until) : "Open end"}
               </p>
-            </div>
-            <div>
-              <div className="flex items-center gap-1 mb-1">
-                <Eye size={12} className="text-zinc-400" />
-                <p className="text-xs text-zinc-400 uppercase tracking-wide">Views</p>
-              </div>
-              <p className="font-display font-semibold text-xl text-zinc-800">{listing.views_count ?? 0}</p>
-            </div>
-            <div>
-              <div className="flex items-center gap-1 mb-1">
-                <Users size={12} className="text-zinc-400" />
-                <p className="text-xs text-zinc-400 uppercase tracking-wide">Contact clicks</p>
-              </div>
-              <p className="font-display font-semibold text-xl text-zinc-800">{contactedCount ?? 0}</p>
             </div>
           </div>
 

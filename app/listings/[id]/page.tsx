@@ -81,13 +81,13 @@ function PartnerSourceBox({
         <p className="text-sm font-semibold text-zinc-700 mb-3">{cleanName}</p>
       )}
       {(original_post_url || partner_url) && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-2">
           {original_post_url && (
             <a
               href={original_post_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block rounded border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 text-xs px-3 py-2 transition-colors"
+              className="block w-full rounded border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 text-sm font-medium text-center px-3 py-2.5 transition-colors"
             >
               View original post ↗
             </a>
@@ -97,7 +97,7 @@ function PartnerSourceBox({
               href={partner_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block rounded border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 text-xs px-3 py-2 transition-colors"
+              className="block w-full rounded border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 text-sm font-medium text-center px-3 py-2.5 transition-colors"
             >
               Join group ↗
             </a>

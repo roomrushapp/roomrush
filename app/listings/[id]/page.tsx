@@ -71,12 +71,14 @@ function PartnerSourceBox({
 }) {
   if (!is_partner_listing) return null;
 
+  const cleanName = partner_name?.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "").trim();
+
   return (
-    <div className="mt-4 border border-zinc-200 bg-zinc-50 p-4">
+    <div className="mt-4 border border-zinc-200 bg-white p-4">
       <p className="text-[10px] text-zinc-400 uppercase tracking-wider mb-2">From partner source</p>
-      <p className="text-xs text-zinc-400 mb-0.5">Originally shared via</p>
-      {partner_name && (
-        <p className="text-sm font-medium text-zinc-700 mb-3">{partner_name}</p>
+      <p className="text-xs text-zinc-400 mb-1">Originally shared via</p>
+      {cleanName && (
+        <p className="text-sm font-semibold text-zinc-700 mb-3">{cleanName}</p>
       )}
       {(original_post_url || partner_url) && (
         <div className="flex flex-wrap gap-2">
@@ -85,7 +87,7 @@ function PartnerSourceBox({
               href={original_post_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block border border-zinc-300 text-zinc-600 hover:border-zinc-400 hover:text-zinc-800 text-xs px-3 py-1.5 transition-colors"
+              className="inline-block rounded border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 text-xs px-3 py-2 transition-colors"
             >
               View original post ↗
             </a>
@@ -95,7 +97,7 @@ function PartnerSourceBox({
               href={partner_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block border border-zinc-300 text-zinc-600 hover:border-zinc-400 hover:text-zinc-800 text-xs px-3 py-1.5 transition-colors"
+              className="inline-block rounded border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 text-xs px-3 py-2 transition-colors"
             >
               Join group ↗
             </a>
@@ -210,14 +212,14 @@ export default async function ListingDetailPage({ params }: Props) {
               facebook_url={listing.facebook_url}
             />
 
-            <ShareButtons listing_id={listing.id} />
-
             <PartnerSourceBox
               is_partner_listing={listing.is_partner_listing}
               partner_name={listing.partner_name}
               partner_url={listing.partner_url}
               original_post_url={listing.original_post_url}
             />
+
+            <ShareButtons listing_id={listing.id} />
 
             <p className="text-xs text-zinc-300 text-center mt-4 leading-relaxed">
               RoomRush only displays listings and is not responsible for agreements between users.

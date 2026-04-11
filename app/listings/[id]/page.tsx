@@ -87,7 +87,7 @@ function PartnerSourceBox({
               href={original_post_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full rounded border border-zinc-400 bg-white text-zinc-800 hover:border-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 text-sm font-medium text-center px-3 py-2.5 transition-colors"
+              className="block w-full rounded border border-zinc-300 bg-zinc-100 text-zinc-800 hover:bg-zinc-200 text-sm font-medium text-center px-3 py-2.5 transition-colors"
             >
               View original post ↗
             </a>
@@ -97,7 +97,7 @@ function PartnerSourceBox({
               href={partner_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full rounded border border-zinc-400 bg-white text-zinc-800 hover:border-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 text-sm font-medium text-center px-3 py-2.5 transition-colors"
+              className="block w-full rounded border border-zinc-300 bg-zinc-100 text-zinc-800 hover:bg-zinc-200 text-sm font-medium text-center px-3 py-2.5 transition-colors"
             >
               Join group ↗
             </a>

@@ -73,34 +73,35 @@ function PartnerSourceBox({
 
   return (
     <div className="mt-4 border border-zinc-200 bg-zinc-50 p-4">
-      <p className="text-[10px] text-zinc-400 uppercase tracking-wider mb-1">From partner source</p>
+      <p className="text-[10px] text-zinc-400 uppercase tracking-wider mb-2">From partner source</p>
+      <p className="text-xs text-zinc-400 mb-0.5">Originally shared via</p>
       {partner_name && (
-        <p className="text-sm text-zinc-600 mb-3">
-          Originally shared via <span className="font-medium text-zinc-700">{partner_name}</span>
-        </p>
+        <p className="text-sm font-medium text-zinc-700 mb-3">{partner_name}</p>
       )}
-      <div className="flex flex-col gap-2">
-        {original_post_url && (
-          <a
-            href={original_post_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-zinc-600 underline underline-offset-2 hover:text-zinc-900 transition-colors"
-          >
-            View original post ↗
-          </a>
-        )}
-        {partner_url && (
-          <a
-            href={partner_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-zinc-600 underline underline-offset-2 hover:text-zinc-900 transition-colors"
-          >
-            Join group ↗
-          </a>
-        )}
-      </div>
+      {(original_post_url || partner_url) && (
+        <div className="flex flex-wrap gap-2">
+          {original_post_url && (
+            <a
+              href={original_post_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block border border-zinc-300 text-zinc-600 hover:border-zinc-400 hover:text-zinc-800 text-xs px-3 py-1.5 transition-colors"
+            >
+              View original post ↗
+            </a>
+          )}
+          {partner_url && (
+            <a
+              href={partner_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block border border-zinc-300 text-zinc-600 hover:border-zinc-400 hover:text-zinc-800 text-xs px-3 py-1.5 transition-colors"
+            >
+              Join group ↗
+            </a>
+          )}
+        </div>
+      )}
     </div>
   );
 }

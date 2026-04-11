@@ -14,4 +14,9 @@ export type Listing = {
   is_active: boolean;
   views_count: number;
   facebook_url: string | null;
+  // Partner source attribution (admin-managed)
+  is_partner_listing: boolean | null;
+  partner_name: string | null;
+  partner_url: string | null;
+  original_post_url: string | null;
 };

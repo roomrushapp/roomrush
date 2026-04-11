@@ -6,7 +6,7 @@ import Link from "next/link";
 import { formatDate } from "@/lib/mockData";
 import { createClient } from "@/lib/supabase/client";
 import type { Listing } from "@/types";
-import { MapPin, Calendar, Trash2, ShieldAlert } from "lucide-react";
+import { MapPin, Calendar, Trash2, ShieldAlert, Pencil, Plus } from "lucide-react";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -61,6 +61,13 @@ export default function AdminPage() {
         <div>
           <h1 className="font-display font-bold text-3xl text-black">All Listings</h1>
           <p className="text-sm text-zinc-500 mt-1">Manage every listing on RoomRush.</p>
+        </div>
+        <div className="flex items-start gap-3">
+          <Link href="/admin/listings/new"
+            className="inline-flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 text-sm font-medium transition-colors">
+            <Plus size={14} />
+            New Listing
+          </Link>
         </div>
         <div className="flex gap-3 text-center">
           <div className="border border-zinc-200 px-4 py-2">
@@ -139,6 +146,12 @@ export default function AdminPage() {
 
               {/* Controls */}
               <div className="flex items-center gap-3 flex-shrink-0">
+                <Link
+                  href={`/admin/listings/${listing.id}/edit`}
+                  className="p-1.5 text-zinc-400 hover:text-zinc-700 border border-zinc-200 hover:border-zinc-400 transition-colors"
+                  aria-label="Edit listing">
+                  <Pencil size={14} />
+                </Link>
                 <button
                   onClick={() => toggleActive(listing.id, listing.is_active)}
                   className={`relative w-10 h-5 transition-colors ${listing.is_active ? "bg-rose-600" : "bg-zinc-300"}`}

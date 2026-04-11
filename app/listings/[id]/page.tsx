@@ -74,7 +74,7 @@ function PartnerSourceBox({
   const cleanName = partner_name?.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "").trim();
 
   return (
-    <div className="mt-4 border border-zinc-200 bg-white p-4">
+    <div className="mt-4 border border-zinc-200 bg-white p-5">
       <p className="text-[10px] text-zinc-400 uppercase tracking-wider mb-2">From partner source</p>
       <p className="text-xs text-zinc-400 mb-1">Originally shared via</p>
       {cleanName && (
@@ -87,7 +87,7 @@ function PartnerSourceBox({
               href={original_post_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full rounded border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 text-sm font-medium text-center px-3 py-2.5 transition-colors"
+              className="block w-full rounded border border-zinc-400 bg-white text-zinc-800 hover:border-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 text-sm font-medium text-center px-3 py-2.5 transition-colors"
             >
               View original post ↗
             </a>
@@ -97,7 +97,7 @@ function PartnerSourceBox({
               href={partner_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full rounded border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400 hover:text-zinc-900 text-sm font-medium text-center px-3 py-2.5 transition-colors"
+              className="block w-full rounded border border-zinc-400 bg-white text-zinc-800 hover:border-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 text-sm font-medium text-center px-3 py-2.5 transition-colors"
             >
               Join group ↗
             </a>

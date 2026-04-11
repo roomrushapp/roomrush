@@ -371,6 +371,21 @@ export default function NewListingPage() {
               </div>
             </div>
 
+            {/* ── PARTNER FIELDS (future) ────────────────────────────────────────────
+                When a listing comes from a partner source (e.g. a housing group),
+                the following fields will be added here as a separate optional section,
+                visible only to admins or via a toggled UI — not exposed to normal users.
+
+                Fields to add when ready:
+                  is_partner_listing: boolean        (marks this as a partner-sourced listing)
+                  partner_name: string               (e.g. "Munich Housing Group")
+                  partner_url: string                (group or page link)
+                  original_post_url: string          (link back to the original post)
+
+                These map directly to the PartnerSourceBox props on the listing detail page.
+                Do not add UI here until the partner intake flow is defined.
+            ─────────────────────────────────────────────────────────────────────── */}
+
             {/* Submit */}
             <div className="flex justify-end pt-2">
               <button type="submit" disabled={loading}

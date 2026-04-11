@@ -54,6 +54,58 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+// ── Partner source attribution block ──────────────────────────────────────
+// Renders only when a listing is marked as a partner listing.
+// To add a new partner, simply set is_partner_listing=true and populate
+// partner_name / partner_url / original_post_url on the listing row.
+function PartnerSourceBox({
+  is_partner_listing,
+  partner_name,
+  partner_url,
+  original_post_url,
+}: {
+  is_partner_listing?: boolean | null;
+  partner_name?: string | null;
+  partner_url?: string | null;
+  original_post_url?: string | null;
+}) {
+  if (!is_partner_listing) return null;
+
+  return (
+    <div className="mt-4 border border-zinc-200 bg-zinc-50 p-4">
+      <p className="text-[10px] text-zinc-400 uppercase tracking-wider mb-1">From partner source</p>
+      {partner_name && (
+        <p className="text-sm text-zinc-600 mb-3">
+          Originally shared via <span className="font-medium text-zinc-700">{partner_name}</span>
+        </p>
+      )}
+      <div className="flex flex-col gap-2">
+        {original_post_url && (
+          <a
+            href={original_post_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-zinc-600 underline underline-offset-2 hover:text-zinc-900 transition-colors"
+          >
+            View original post ↗
+          </a>
+        )}
+        {partner_url && (
+          <a
+            href={partner_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-zinc-600 underline underline-offset-2 hover:text-zinc-900 transition-colors"
+          >
+            Join group ↗
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+// ──────────────────────────────────────────────────────────────────────────
+
 export default async function ListingDetailPage({ params }: Props) {
   const { id } = await params;
   const supabase = await createClient();
@@ -158,6 +210,13 @@ export default async function ListingDetailPage({ params }: Props) {
             />
 
             <ShareButtons listing_id={listing.id} />
+
+            <PartnerSourceBox
+              is_partner_listing={listing.is_partner_listing}
+              partner_name={listing.partner_name}
+              partner_url={listing.partner_url}
+              original_post_url={listing.original_post_url}
+            />
 
             <p className="text-xs text-zinc-300 text-center mt-4 leading-relaxed">
               RoomRush only displays listings and is not responsible for agreements between users.

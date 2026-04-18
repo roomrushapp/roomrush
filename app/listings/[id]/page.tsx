@@ -9,6 +9,7 @@ import { MapPin, Calendar, ArrowLeft } from "lucide-react";
 import ImageLightbox from "@/components/ImageLightbox";
 import ShareButtons from "@/components/ShareButtons";
 import ContactButtons from "@/components/ContactButtons";
+import { CONTACT_EVENT_TYPES } from "@/lib/trackEvent";
 import ViewTracker from "@/components/ViewTracker";
 import NewsletterSignup from "@/components/NewsletterSignup";
 
@@ -125,7 +126,7 @@ export default async function ListingDetailPage({ params }: Props) {
     .from("listing_events")
     .select("*", { count: "exact", head: true })
     .eq("listing_id", id)
-    .in("event_type", ["contact_email", "contact_whatsapp", "contact_phone", "facebook_click", "contact_click"]);
+    .in("event_type", [...CONTACT_EVENT_TYPES]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

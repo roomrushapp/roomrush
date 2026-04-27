@@ -65,7 +65,7 @@ async function sendNewsletter(triggeredBy: "cron" | "manual") {
   // ── Fetch listings ──────────────────────────────────────────────────────────
   const { data: listings, error: listingsError } = await supabase
     .from("listings")
-    .select("id, title, rent, location, available_from, image_urls, created_at")
+    .select("id, slug, title, rent, location, available_from, image_urls, created_at")
     .eq("is_active", true)
     .gt("created_at", windowStart.toISOString())
     .lte("created_at", windowEnd.toISOString())
@@ -198,7 +198,7 @@ async function sendNewsletter(triggeredBy: "cron" | "manual") {
         <p style="font-size:16px;font-weight:600;color:#09090b;margin:0 0 8px 0;">${l.title}</p>
         <p style="font-size:14px;color:#52525b;margin:0 0 4px 0;">€${l.rent}/month &nbsp;·&nbsp; ${l.location}</p>
         ${l.available_from ? `<p style="font-size:13px;color:#71717a;margin:0 0 12px 0;">Available from ${new Date(l.available_from).toLocaleDateString("en-DE", { day: "numeric", month: "long", year: "numeric" })}</p>` : `<p style="margin:0 0 12px 0;"></p>`}
-        <a href="https://getroomrush.de/listings/${l.id}" style="display:inline-block;background:#e11d48;color:#fff;font-size:13px;font-weight:500;padding:8px 16px;text-decoration:none;">
+        <a href="https://getroomrush.de${l.slug ? `/sublet/${l.slug}` : `/listings/${l.id}`}" style="display:inline-block;background:#e11d48;color:#fff;font-size:13px;font-weight:500;padding:8px 16px;text-decoration:none;">
           View listing →
         </a>
       </div>

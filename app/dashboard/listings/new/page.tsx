@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { MUNICH_DISTRICTS } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
+import { makeUniqueSlug } from "@/lib/slugify";
 import { ArrowLeft, Zap, ShieldCheck, Mail, ImagePlus, X } from "lucide-react";
 
 const MAX_IMAGES = 5;
@@ -153,10 +154,16 @@ export default function NewListingPage() {
     }
 
     // 1. Create listing first to get the ID
+    const slug = await makeUniqueSlug(form.title, async (s) => {
+      const { data } = await supabase.from("listings").select("id").eq("slug", s).maybeSingle();
+      return !!data;
+    });
+
     const { data: listing, error: insertError } = await supabase
       .from("listings")
       .insert({
         user_id: user.id,
+        slug,
         title: form.title,
         description: form.description,
         rent: Number(form.rent),

@@ -12,7 +12,7 @@ export default function ListingCard({ listing }: Props) {
   const thumbnail = listing.image_urls?.[0] ?? null;
 
   return (
-    <Link href={`/listings/${listing.id}`} className="group block">
+    <Link href={listing.slug ? `/sublet/${listing.slug}` : `/listings/${listing.id}`} className="group block">
       <div className="bg-white border border-zinc-200 overflow-hidden hover:border-zinc-400 transition-colors">
         {/* Image */}
         <div className="relative w-full aspect-[4/3] bg-zinc-100 overflow-hidden">

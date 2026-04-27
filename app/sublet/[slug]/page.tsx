@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { notFound, permanentRedirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { formatDate } from "@/lib/mockData";
 import { createClient } from "@/lib/supabase/server";
@@ -9,21 +9,22 @@ import { MapPin, Calendar, ArrowLeft } from "lucide-react";
 import ImageLightbox from "@/components/ImageLightbox";
 import ShareButtons from "@/components/ShareButtons";
 import ContactButtons from "@/components/ContactButtons";
-import { CONTACT_EVENT_TYPES } from "@/lib/trackEvent";
 import ViewTracker from "@/components/ViewTracker";
 import NewsletterSignup from "@/components/NewsletterSignup";
 
+const BASE_URL = "https://getroomrush.de";
+
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
+  const { slug } = await params;
   const supabase = await createClient();
   const { data: listing } = await supabase
     .from("listings")
     .select("title, description, image_urls, location, rent")
-    .eq("id", id)
+    .eq("slug", slug)
     .eq("is_active", true)
     .single();
 
@@ -36,14 +37,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description =
     rawDesc.length > 140 ? rawDesc.slice(0, 137).trimEnd() + "…" : rawDesc;
   const image = listing.image_urls?.[0] ?? null;
+  const canonicalUrl = `${BASE_URL}/sublet/${slug}`;
 
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title,
       description,
       type: "website",
+      url: canonicalUrl,
       ...(image && { images: [{ url: image, width: 1200, height: 800, alt: listing.title }] }),
     },
     twitter: {
@@ -55,10 +61,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// ── Partner source attribution block ──────────────────────────────────────
-// Renders only when a listing is marked as a partner listing.
-// To add a new partner, simply set is_partner_listing=true and populate
-// partner_name / partner_url / original_post_url on the listing row.
 function PartnerSourceBox({
   is_partner_listing,
   partner_name,
@@ -108,27 +110,18 @@ function PartnerSourceBox({
     </div>
   );
 }
-// ──────────────────────────────────────────────────────────────────────────
 
-export default async function ListingDetailPage({ params }: Props) {
-  const { id } = await params;
+export default async function SubletDetailPage({ params }: Props) {
+  const { slug } = await params;
   const supabase = await createClient();
   const { data: listing } = await supabase
     .from("listings")
     .select("*")
-    .eq("id", id)
+    .eq("slug", slug)
     .eq("is_active", true)
     .single();
 
   if (!listing) notFound();
-
-  if (listing.slug) permanentRedirect(`/sublet/${listing.slug}`);
-
-  const { count: contactedCount } = await supabase
-    .from("listing_events")
-    .select("*", { count: "exact", head: true })
-    .eq("listing_id", id)
-    .in("event_type", [...CONTACT_EVENT_TYPES]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

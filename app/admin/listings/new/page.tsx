@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MUNICH_DISTRICTS } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
+import { makeUniqueSlug } from "@/lib/slugify";
 import { ArrowLeft, ShieldAlert } from "lucide-react";
 
 export default function AdminNewListingPage() {
@@ -39,9 +40,16 @@ export default function AdminNewListingPage() {
     setLoading(true);
 
     const supabase = createClient();
+
+    const slug = await makeUniqueSlug(form.title, async (s) => {
+      const { data } = await supabase.from("listings").select("id").eq("slug", s).maybeSingle();
+      return !!data;
+    });
+
     const { error: insertError } = await supabase
       .from("listings")
       .insert({
+        slug,
         title: form.title,
         description: form.description,
         rent: Number(form.rent),

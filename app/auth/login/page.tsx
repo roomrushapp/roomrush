@@ -1,38 +1,129 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function LoginPage() {
-  const router = useRouter();
+const MAX_ATTEMPTS = 5;
+const COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+const STORAGE_KEY = "rr_login_state";
+
+interface LoginState {
+  attempts: number;
+  cooldownUntil: number; // epoch ms, 0 = no cooldown
+}
+
+function getLoginState(): LoginState {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return { attempts: 0, cooldownUntil: 0 };
+}
+
+function saveLoginState(state: LoginState) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {}
+}
+
+function clearLoginState() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {}
+}
+
+function formatSeconds(ms: number) {
+  const s = Math.ceil(ms / 1000);
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m > 0 ? `${m}m ${sec}s` : `${sec}s`;
+}
+
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const linkExpired = searchParams.get("error") === "link_expired";
+
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(linkExpired ? "Your password reset link has expired. Please request a new one." : "");
   const [loading, setLoading] = useState(false);
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
+
+  // Restore cooldown from localStorage on mount and tick down
+  useEffect(() => {
+    const state = getLoginState();
+    const remaining = state.cooldownUntil - Date.now();
+    if (remaining > 0) setCooldownRemaining(remaining);
+  }, []);
+
+  useEffect(() => {
+    if (cooldownRemaining <= 0) return;
+    const id = setInterval(() => {
+      setCooldownRemaining((prev) => {
+        const next = prev - 1000;
+        if (next <= 0) {
+          clearInterval(id);
+          // Reset attempt count once cooldown expires
+          const state = getLoginState();
+          saveLoginState({ ...state, cooldownUntil: 0, attempts: 0 });
+          return 0;
+        }
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [cooldownRemaining]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
+    const state = getLoginState();
+
+    // Block submission during cooldown
+    const remaining = state.cooldownUntil - Date.now();
+    if (remaining > 0) {
+      setCooldownRemaining(remaining);
+      return;
+    }
+
+    setLoading(true);
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) {
-      setError(error.message);
+    if (authError) {
+      const newAttempts = state.attempts + 1;
+
+      if (newAttempts >= MAX_ATTEMPTS) {
+        const cooldownUntil = Date.now() + COOLDOWN_MS;
+        saveLoginState({ attempts: newAttempts, cooldownUntil });
+        setCooldownRemaining(COOLDOWN_MS);
+        setError("");
+      } else {
+        saveLoginState({ ...state, attempts: newAttempts });
+        const left = MAX_ATTEMPTS - newAttempts;
+        setError(
+          `Invalid email or password. ${left} attempt${left === 1 ? "" : "s"} remaining before a temporary lockout.`
+        );
+      }
+
       setLoading(false);
       return;
     }
 
+    clearLoginState();
     window.location.href = "/dashboard";
   }
+
+  const isCoolingDown = cooldownRemaining > 0;
 
   return (
     <div className="min-h-screen grid md:grid-cols-2">
@@ -52,8 +143,22 @@ export default function LoginPage() {
             The fastest way to discover your next sublet.
           </p>
 
+          {/* Cooldown banner */}
+          {isCoolingDown && (
+            <div className="bg-amber-50 border border-amber-300 text-amber-800 text-sm px-4 py-3 mb-6">
+              <p className="font-semibold mb-0.5">Too many failed attempts</p>
+              <p>
+                Please wait{" "}
+                <span className="font-mono font-semibold">
+                  {formatSeconds(cooldownRemaining)}
+                </span>{" "}
+                before trying again.
+              </p>
+            </div>
+          )}
+
           {/* Error message */}
-          {error && (
+          {!isCoolingDown && error && (
             <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm px-4 py-3 mb-6">
               {error}
             </div>
@@ -70,7 +175,8 @@ export default function LoginPage() {
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 placeholder:text-zinc-400"
+                disabled={isCoolingDown}
+                className="w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 placeholder:text-zinc-400 disabled:opacity-50"
               />
             </div>
 
@@ -79,7 +185,10 @@ export default function LoginPage() {
                 <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wide">
                   Password
                 </label>
-                <Link href="#" className="text-xs text-rose-600 hover:text-rose-700">
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-xs text-rose-600 hover:text-rose-700"
+                >
                   Forgot?
                 </Link>
               </div>
@@ -90,7 +199,8 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 pr-10 placeholder:text-zinc-400"
+                  disabled={isCoolingDown}
+                  className="w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 pr-10 placeholder:text-zinc-400 disabled:opacity-50"
                 />
                 <button
                   type="button"
@@ -104,7 +214,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || isCoolingDown}
               className="w-full bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300 text-white py-3 font-medium text-sm transition-colors"
             >
               {loading ? "Signing in…" : "Enter RoomRush"}
@@ -113,17 +223,26 @@ export default function LoginPage() {
 
           <p className="text-sm text-zinc-500 text-center mt-6">
             Don&apos;t have an account?{" "}
-            <Link href="/auth/signup" className="text-rose-600 hover:text-rose-700 font-medium">
+            <Link
+              href="/auth/signup"
+              className="text-rose-600 hover:text-rose-700 font-medium"
+            >
               Sign up for free
             </Link>
           </p>
 
           <div className="flex justify-center gap-4 mt-8">
-            <Link href="/legal/privacy" className="text-xs text-zinc-400 hover:text-zinc-600">
+            <Link
+              href="/legal/privacy"
+              className="text-xs text-zinc-400 hover:text-zinc-600"
+            >
               Datenschutz
             </Link>
             <span className="text-xs text-zinc-300">·</span>
-            <Link href="/legal/impressum" className="text-xs text-zinc-400 hover:text-zinc-600">
+            <Link
+              href="/legal/impressum"
+              className="text-xs text-zinc-400 hover:text-zinc-600"
+            >
               Impressum
             </Link>
           </div>
@@ -132,17 +251,29 @@ export default function LoginPage() {
 
       {/* ── RIGHT: Brand panel ── */}
       <div className="hidden md:flex flex-col items-center justify-center bg-zinc-50 relative overflow-hidden px-10">
-        <p className="font-display font-black text-[20vw] text-zinc-200 leading-none select-none absolute" aria-hidden>
+        <p
+          className="font-display font-black text-[20vw] text-zinc-200 leading-none select-none absolute"
+          aria-hidden
+        >
           RR
         </p>
         <div className="relative z-10 max-w-xs">
           <div className="w-8 h-1 bg-rose-600 mb-6" />
           <blockquote className="font-display font-bold text-2xl text-black leading-snug mb-4">
-            &ldquo;Found a place in Munich in under 2 minutes. High velocity indeed.&rdquo;
+            &ldquo;Found a place in Munich in under 2 minutes. High velocity
+            indeed.&rdquo;
           </blockquote>
           <p className="text-sm text-zinc-500">— James K., Power User</p>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

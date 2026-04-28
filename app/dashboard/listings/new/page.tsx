@@ -246,6 +246,34 @@ export default function NewListingPage() {
             </div>
           )}
 
+          {/* Featured Listing early-access card */}
+          <div className="bg-zinc-900 border border-zinc-700 rounded-lg px-5 py-5 mb-6">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-rose-400 uppercase tracking-widest mb-1">Early access</p>
+                <h2 className="text-white font-semibold text-base leading-snug mb-2">Featured Listing</h2>
+                <p className="text-zinc-300 text-sm leading-relaxed mb-3">
+                  RoomRush is now reaching 1,400+ monthly visitors. Want your listing to get seen earlier?
+                  Feature it near the top of RoomRush and include it in the next newsletter.
+                </p>
+                <p className="text-white text-sm font-medium mb-3">
+                  €5 launch offer · Featured for 5 days
+                </p>
+                <p className="text-zinc-500 text-xs">
+                  Free posting is still available. This is completely optional while we test the feature.
+                </p>
+              </div>
+              <a
+                href="https://wa.me/4915258963065?text=Hi%20RoomRush%2C%20I%27m%20interested%20in%20the%20%E2%82%AC5%20Featured%20Listing%20early%20access%20offer%20for%20my%20listing."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 bg-white hover:bg-zinc-100 text-zinc-900 text-sm font-semibold px-4 py-2.5 rounded transition-colors whitespace-nowrap"
+              >
+                Ask about Featured Listing
+              </a>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             {/* Title */}
             <div>

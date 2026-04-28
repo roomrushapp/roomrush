@@ -9,7 +9,6 @@ import { MapPin, Calendar, ArrowLeft, Eye, Users } from "lucide-react";
 import ImageLightbox from "@/components/ImageLightbox";
 import ShareButtons from "@/components/ShareButtons";
 import ContactButtons from "@/components/ContactButtons";
-import { CONTACT_EVENT_TYPES } from "@/lib/trackEvent";
 import ViewTracker from "@/components/ViewTracker";
 import NewsletterSignup from "@/components/NewsletterSignup";
 
@@ -128,7 +127,7 @@ export default async function ListingDetailPage({ params }: Props) {
     .from("listing_events")
     .select("*", { count: "exact", head: true })
     .eq("listing_id", id)
-    .in("event_type", [...CONTACT_EVENT_TYPES]);
+    .in("event_type", ["contact_email", "contact_whatsapp", "contact_phone", "contact_facebook"]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -196,7 +195,7 @@ export default async function ListingDetailPage({ params }: Props) {
             <div>
               <div className="flex items-center gap-1 mb-1">
                 <Users size={12} className="text-zinc-400" />
-                <p className="text-xs text-zinc-400 uppercase tracking-wide">Contact clicks</p>
+                <p className="text-xs text-zinc-400 uppercase tracking-wide">Contact interactions</p>
               </div>
               <p className="font-display font-semibold text-xl text-zinc-800">{contactedCount ?? 0}</p>
             </div>

@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Listing } from "@/types";
 import { timeAgo, formatDate } from "@/lib/mockData";
-import { MapPin, Calendar } from "lucide-react";
+import { MapPin, Calendar, Eye } from "lucide-react";
 
 type Props = {
   listing: Listing;
@@ -36,6 +36,11 @@ export default function ListingCard({ listing }: Props) {
             {listing.location}
           </span>
 
+          {/* Views pill */}
+          <span className="absolute top-3 right-3 flex items-center gap-1 bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
+            <Eye size={11} />
+            {listing.views_count ?? 0}
+          </span>
         </div>
 
         {/* Content */}

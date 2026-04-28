@@ -195,7 +195,7 @@ export default async function ListingDetailPage({ params }: Props) {
             <div>
               <div className="flex items-center gap-1 mb-1">
                 <Users size={12} className="text-zinc-400" />
-                <p className="text-xs text-zinc-400 uppercase tracking-wide">Contact interactions</p>
+                <p className="text-xs text-zinc-400 uppercase tracking-wide">Contact actions</p>
               </div>
               <p className="font-display font-semibold text-xl text-zinc-800">{contactedCount ?? 0}</p>
             </div>

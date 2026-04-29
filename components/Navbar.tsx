@@ -72,7 +72,7 @@ export default function Navbar() {
                     Dashboard
                   </Link>
                   <Link href="/newsletter" className="text-sm text-zinc-600 hover:text-black transition-colors">
-                    Newsletter
+                    Room Alerts
                   </Link>
                   <Link
                     href="/dashboard/listings/new"
@@ -91,7 +91,7 @@ export default function Navbar() {
               ) : (
                 <>
                   <Link href="/newsletter" className="text-sm text-zinc-600 hover:text-black transition-colors">
-                    Newsletter
+                    Room Alerts
                   </Link>
                   <Link href="/auth/login" className="text-sm text-zinc-600 hover:text-black transition-colors">
                     Log in
@@ -139,7 +139,7 @@ export default function Navbar() {
                 Dashboard
               </Link>
               <Link href="/newsletter" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
-                Newsletter
+                Room Alerts
               </Link>
               <Link
                 href="/dashboard/listings/new"
@@ -158,7 +158,7 @@ export default function Navbar() {
           ) : (
             <>
               <Link href="/newsletter" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
-                Newsletter
+                Room Alerts
               </Link>
               <Link href="/auth/login" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
                 Log in

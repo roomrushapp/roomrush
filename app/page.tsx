@@ -3,7 +3,6 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import ListingsSection from "@/components/ListingsSection";
-import NewsletterSignup from "@/components/NewsletterSignup";
 import type { Listing } from "@/types";
 
 export default async function HomePage() {
@@ -42,7 +41,7 @@ export default async function HomePage() {
                   href="#listings"
                   className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 font-medium text-sm transition-colors"
                 >
-                  Find a sublet in Munich, fast
+                  Browse available sublets
                   <ArrowRight size={16} />
                 </a>
                 <Link
@@ -71,41 +70,61 @@ export default async function HomePage() {
       {/* ── LISTINGS (client component handles filters + grid) ── */}
       <ListingsSection initialListings={listings} />
 
-      {/* ── NEWSLETTER BANNER ── */}
-      <NewsletterSignup
-        variant="banner"
-        heading={<>Never miss a<br />Munich sublet.</>}
-        subheading="Get new listings every evening — free."
-      />
+      {/* ── ROOM ALERTS TEASER ── */}
+      <section className="bg-zinc-900 border-t border-zinc-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest mb-2">
+                Room Alerts
+              </p>
+              <h2 className="font-display font-bold text-white text-2xl md:text-3xl leading-tight mb-2">
+                Never miss a Munich sublet.
+              </h2>
+              <p className="text-zinc-400 text-sm max-w-lg">
+                Get free daily listings around 7–8 pm. Need rooms even faster? You can also apply for Priority Alerts Beta.
+              </p>
+            </div>
+            <div className="shrink-0">
+              <Link
+                href="/newsletter"
+                className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 font-medium text-sm transition-colors whitespace-nowrap"
+              >
+                Get Room Alerts
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      {/* ── CTA BANNER ── */}
+      {/* ── SUPPLY CTA ── */}
       <section className="bg-black text-white mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h2 className="font-display font-bold text-4xl md:text-5xl leading-tight mb-4">
-                NEVER MISS A<br />
-                <span className="text-rose-600">MUNICH SUBLET.</span>
+                GOT A ROOM<br />
+                <span className="text-rose-600">TO SUBLET?</span>
               </h2>
               <p className="text-zinc-400 text-sm mb-6">
-                List your space in Munich&apos;s fastest growing sublet network.
-                Takes less than 60 seconds.
+                Post your room on RoomRush. Reach students, interns, and young professionals looking for short-term rooms in Munich.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 md:justify-end">
               <Link
-                href="/auth/signup"
+                href="/dashboard/listings/new"
                 className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 font-medium text-sm transition-colors"
               >
-                Create free account
+                Post a listing
                 <ArrowRight size={16} />
               </Link>
-              <Link
-                href="/dashboard/listings/new"
+              <a
+                href="#listings"
                 className="inline-flex items-center justify-center border border-zinc-600 hover:border-zinc-400 text-white px-6 py-3 font-medium text-sm transition-colors"
               >
-                Post a listing
-              </Link>
+                View listings
+              </a>
             </div>
           </div>
         </div>

@@ -10,7 +10,7 @@ import ImageLightbox from "@/components/ImageLightbox";
 import ShareButtons from "@/components/ShareButtons";
 import ContactButtons from "@/components/ContactButtons";
 import ViewTracker from "@/components/ViewTracker";
-import NewsletterSignup from "@/components/NewsletterSignup";
+
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -244,13 +244,23 @@ export default async function ListingDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* ── NEWSLETTER INLINE ── */}
-      <div className="max-w-md mt-4">
-        <NewsletterSignup
-          variant="inline"
-          heading="Want more options?"
-          subheading="Get notified when new rooms are posted."
-        />
+      {/* ── ROOM ALERTS CARD ── */}
+      <div className="max-w-md mt-4 border border-zinc-200 p-6">
+        <p className="text-rose-600 text-xs font-semibold uppercase tracking-widest mb-2">
+          Room Alerts
+        </p>
+        <h3 className="font-display font-bold text-lg text-zinc-900 mb-1">
+          Want more options?
+        </h3>
+        <p className="text-zinc-500 text-sm mb-5">
+          Get new RoomRush listings by email, or apply for Priority Alerts if you are actively searching.
+        </p>
+        <Link
+          href="/newsletter"
+          className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-3 font-medium text-sm transition-colors"
+        >
+          Get alerts
+        </Link>
       </div>
     </div>
   );

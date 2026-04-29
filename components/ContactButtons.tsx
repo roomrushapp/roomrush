@@ -1,7 +1,10 @@
 "use client";
 
 import { Phone, Mail } from "lucide-react";
-import { trackEvent, EventType } from "@/lib/trackEvent";
+import { trackContact } from "@/lib/trackEvent";
+import type { CONTACT_EVENT_TYPES } from "@/lib/trackEvent";
+
+type ContactEventType = (typeof CONTACT_EVENT_TYPES)[number];
 
 type Props = {
   listing_id: string;
@@ -10,9 +13,9 @@ type Props = {
   facebook_url?: string | null;
 };
 
-async function handleContact(listing_id: string, event_type: EventType, url: string, newTab = false) {
+async function handleContact(listing_id: string, event_type: ContactEventType, url: string, newTab = false) {
   try {
-    await trackEvent(listing_id, event_type);
+    await trackContact(listing_id, event_type);
   } catch (err) {
     console.error("[ContactButtons] tracking failed:", event_type, err);
   }

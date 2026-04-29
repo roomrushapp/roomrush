@@ -191,15 +191,25 @@ export default function PrivacyPage() {
             gesetzt und sind für den Betrieb der Plattform erforderlich.
           </p>
           <h3 className="font-semibold text-black mb-2">Browser-Speicher (localStorage)</h3>
-          <p>
+          <p className="mb-3">
             Die Plattform nutzt den lokalen Browser-Speicher (localStorage) ausschließlich
-            für funktionale Zwecke – konkret, um doppelte Aufrufe bei der Aufrufzählung
-            von Inseraten zu verhindern (maximal ein Zählvorgang pro Browser und Inserat
-            innerhalb von 24 Stunden). Dabei werden keinerlei personenbezogene Daten
-            gespeichert. Einfache, aggregierte Nutzungsdaten (z. B. Gesamtanzahl der
-            Aufrufe eines Inserats) werden ausschließlich zur Verbesserung der Plattform
-            verwendet. Eine seitenübergreifende Verfolgung von Nutzern findet nicht statt.
-            Es werden keine Drittanbieter-Marketing- oder Tracking-Tools eingesetzt.
+            für funktionale Zwecke und einfache, aggregierte Plattformstatistiken. Dazu gehört
+            insbesondere die Vermeidung doppelter Zählungen bei Inseratsaufrufen und
+            Kontaktinteraktionen – zum Beispiel wenn ein Nutzer denselben Kontaktbutton
+            mehrfach anklickt.
+          </p>
+          <p className="mb-3">
+            Hierfür werden nur inseratsbezogene Einträge im Browser gespeichert, zum Beispiel
+            ob ein bestimmtes Inserat bereits aufgerufen oder kontaktiert wurde. Diese Einträge
+            enthalten keine Namen, E-Mail-Adressen, Telefonnummern oder sonstige direkt
+            personenbezogene Angaben.
+          </p>
+          <p>
+            Eine seitenübergreifende Verfolgung, Profilbildung, Werbung oder Weitergabe an
+            Drittanbieter findet nicht statt. Die Daten werden nur aggregiert verwendet –
+            zum Beispiel zur Anzeige von Aufrufen oder interessierten Nutzern bei einem
+            Inserat und zur Verbesserung der Plattform. Es werden keine
+            Drittanbieter-Marketing- oder Tracking-Tools eingesetzt.
             Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse am
             störungsfreien Betrieb der Plattform).
           </p>

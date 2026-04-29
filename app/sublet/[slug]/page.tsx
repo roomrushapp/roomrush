@@ -123,11 +123,16 @@ export default async function SubletDetailPage({ params }: Props) {
 
   if (!listing) notFound();
 
-  const { count: contactedCount } = await supabase
+  const { count: rawInterestedCount } = await supabase
     .from("listing_events")
     .select("*", { count: "exact", head: true })
     .eq("listing_id", listing.id)
-    .in("event_type", ["contact_email", "contact_whatsapp", "contact_phone", "contact_facebook"]);
+    .eq("event_type", "contact_unique");
+
+  const MIN_PUBLIC_INTERESTED_USERS = 5;
+  const viewsCount = listing.views_count ?? 0;
+  const interestedUsers = Math.min(rawInterestedCount ?? 0, viewsCount);
+  const showInterestedUsers = interestedUsers >= MIN_PUBLIC_INTERESTED_USERS;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -192,13 +197,15 @@ export default async function SubletDetailPage({ params }: Props) {
               </div>
               <p className="font-display font-semibold text-xl text-zinc-800">{listing.views_count ?? 0}</p>
             </div>
-            <div>
-              <div className="flex items-center gap-1 mb-1">
-                <Users size={12} className="text-zinc-400" />
-                <p className="text-xs text-zinc-400 uppercase tracking-wide">Contact actions</p>
+            {showInterestedUsers && (
+              <div>
+                <div className="flex items-center gap-1 mb-1">
+                  <Users size={12} className="text-zinc-400" />
+                  <p className="text-xs text-zinc-400 uppercase tracking-wide">Interested users</p>
+                </div>
+                <p className="font-display font-semibold text-xl text-zinc-800">{interestedUsers}</p>
               </div>
-              <p className="font-display font-semibold text-xl text-zinc-800">{contactedCount ?? 0}</p>
-            </div>
+            )}
           </div>
 
           {/* Description */}

@@ -69,13 +69,13 @@ export default function ListingsSection({ initialListings }: Props) {
                     Want new rooms sent to you?
                   </p>
                   <p className="text-zinc-400 text-sm max-w-lg">
-                    Get free daily listings around 7–8 pm. Need rooms even faster? You can also apply for Priority Alerts Beta.
+                    Get free daily listings by email. If you are actively searching, you can also explore Priority Alerts.
                   </p>
                 </div>
                 <div className="shrink-0">
                   <Link
                     href="/newsletter"
-                    className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 font-medium text-sm transition-colors whitespace-nowrap"
+                    className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-3 font-medium text-sm transition-colors whitespace-nowrap"
                   >
                     Get Room Alerts
                   </Link>

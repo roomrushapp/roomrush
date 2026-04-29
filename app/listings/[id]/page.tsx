@@ -253,11 +253,11 @@ export default async function ListingDetailPage({ params }: Props) {
           Still searching?
         </h3>
         <p className="text-zinc-500 text-sm mb-4">
-          Get free daily listings by email, or apply for Priority Alerts if you want matching RoomRush uploads earlier.
+          Get free daily RoomRush listings by email, or explore Priority Alerts if you want earlier matching uploads.
         </p>
         <Link
           href="/newsletter"
-          className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 font-medium text-sm transition-colors"
+          className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-3 font-medium text-sm transition-colors"
         >
           Get Room Alerts
         </Link>

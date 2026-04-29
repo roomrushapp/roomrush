@@ -83,7 +83,6 @@ export default function PriorityAlertsForm() {
       kvr_needed: form.kvr_needed,
       notes: form.notes.trim() || null,
       terms_accepted: true,
-      status: "pending",
     });
 
     if (error) {
@@ -280,6 +279,20 @@ export default function PriorityAlertsForm() {
           rows={3}
           className={`${inputClass} resize-none`}
         />
+      </div>
+
+      {/* Important notice — sits directly above terms and submit */}
+      <div className="border border-zinc-800 bg-zinc-900/50 p-4 text-xs text-zinc-400 leading-relaxed space-y-2.5">
+        <p className="text-zinc-300 font-semibold text-sm">Important before applying</p>
+        <p>
+          Priority Alerts do not guarantee that a matching room will be uploaded during your alert period. They also do not guarantee a room, reply, viewing, or contract.
+        </p>
+        <p>
+          If there are zero matching or close match RoomRush uploads during your first 7 days, we extend your Priority Alerts once for another 7 days free. After the free extension, the alert period ends automatically, so the maximum period is 14 days.
+        </p>
+        <p>
+          Since this is still beta, if the feature is improved during your active period, you will be included in the better version without extra charge within your active alert period.
+        </p>
       </div>
 
       {/* Terms */}

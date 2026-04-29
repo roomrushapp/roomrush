@@ -41,6 +41,13 @@ export default function AdminNewListingPage() {
 
     const supabase = createClient();
 
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setError("Please log in again before creating a listing.");
+      setLoading(false);
+      return;
+    }
+
     const slug = await makeUniqueSlug(form.title, async (s) => {
       const { data } = await supabase.from("listings").select("id").eq("slug", s).maybeSingle();
       return !!data;
@@ -50,6 +57,7 @@ export default function AdminNewListingPage() {
       .from("listings")
       .insert({
         slug,
+        user_id: user.id,
         title: form.title,
         description: form.description,
         rent: Number(form.rent),

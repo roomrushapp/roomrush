@@ -160,7 +160,7 @@ export default function PriorityAlertsForm() {
       {/* Budget + Move-in */}
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className={labelClass}>Max budget (€/month) *</label>
+          <label className={labelClass}>Max budget (€ / month) *</label>
           <input
             type="number"
             placeholder="e.g. 900"

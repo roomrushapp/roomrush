@@ -256,7 +256,7 @@ export default function NewListingPage() {
             </div>
 
             {/* Rent + Location */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wide">Rent per month (€) *</label>
                 <div className="relative">
@@ -277,7 +277,7 @@ export default function NewListingPage() {
             </div>
 
             {/* Dates */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wide">Available from</label>
                 <input name="available_from" type="date" value={form.available_from} onChange={handleChange}

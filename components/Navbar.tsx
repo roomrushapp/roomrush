@@ -58,68 +58,71 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-sm text-zinc-600 hover:text-black transition-colors">
-              Listings
+          {/* Right side: groups desktop nav and mobile actions so justify-between only sees two items */}
+          <div className="flex items-center gap-2">
+            {/* Desktop nav */}
+            <div className="hidden md:flex items-center gap-6">
+              <Link href="/" className="text-sm text-zinc-600 hover:text-black transition-colors">
+                Listings
+              </Link>
+
+              {user ? (
+                <>
+                  <Link href="/dashboard" className="text-sm text-zinc-600 hover:text-black transition-colors">
+                    Dashboard
+                  </Link>
+                  <Link href="/newsletter" className="text-sm text-zinc-600 hover:text-black transition-colors">
+                    Newsletter
+                  </Link>
+                  <Link
+                    href="/dashboard/listings/new"
+                    className="bg-rose-600 hover:bg-rose-700 text-white text-sm px-4 py-2 font-medium transition-colors"
+                  >
+                    Post a Listing
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-1 text-sm text-zinc-500 hover:text-black transition-colors"
+                  >
+                    <LogOut size={14} />
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/newsletter" className="text-sm text-zinc-600 hover:text-black transition-colors">
+                    Newsletter
+                  </Link>
+                  <Link href="/auth/login" className="text-sm text-zinc-600 hover:text-black transition-colors">
+                    Log in
+                  </Link>
+                  <Link
+                    href="/dashboard/listings/new"
+                    className="bg-rose-600 hover:bg-rose-700 text-white text-sm px-4 py-2 font-medium transition-colors"
+                  >
+                    Post a Listing
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* Mobile: Post button */}
+            <Link
+              href="/dashboard/listings/new"
+              className="md:hidden bg-rose-600 hover:bg-rose-700 text-white text-xs px-3 py-1.5 font-medium transition-colors rounded"
+            >
+              Post
             </Link>
 
-            {user ? (
-              <>
-                <Link href="/dashboard" className="text-sm text-zinc-600 hover:text-black transition-colors">
-                  Dashboard
-                </Link>
-                <Link href="/newsletter" className="text-sm text-zinc-600 hover:text-black transition-colors">
-                  Newsletter
-                </Link>
-                <Link
-                  href="/dashboard/listings/new"
-                  className="bg-rose-600 hover:bg-rose-700 text-white text-sm px-4 py-2 font-medium transition-colors"
-                >
-                  Post a Listing
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-1 text-sm text-zinc-500 hover:text-black transition-colors"
-                >
-                  <LogOut size={14} />
-                  Log out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link href="/newsletter" className="text-sm text-zinc-600 hover:text-black transition-colors">
-                  Newsletter
-                </Link>
-                <Link href="/auth/login" className="text-sm text-zinc-600 hover:text-black transition-colors">
-                  Log in
-                </Link>
-                <Link
-                  href="/dashboard/listings/new"
-                  className="bg-rose-600 hover:bg-rose-700 text-white text-sm px-4 py-2 font-medium transition-colors"
-                >
-                  Post a Listing
-                </Link>
-              </>
-            )}
-          </div>
-
-          {/* Mobile: Post button */}
-          <Link
-            href="/dashboard/listings/new"
-            className="md:hidden bg-rose-600 hover:bg-rose-700 text-white text-xs px-3 py-1.5 font-medium transition-colors rounded"
-          >
-            Post
-          </Link>
-
-          {/* Mobile menu button */}
-          <button
-            className="md:hidden p-1 text-zinc-700"
-            onClick={() => setOpen(!open)}
-            aria-label="Toggle menu"
-          >
-            {open ? <X size={20} /> : <Menu size={20} />}
-          </button>
+            {/* Mobile menu button */}
+            <button
+              className="md:hidden p-1 text-zinc-700"
+              onClick={() => setOpen(!open)}
+              aria-label="Toggle menu"
+            >
+              {open ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>{/* end right-side group */}
         </div>
       </div>
 

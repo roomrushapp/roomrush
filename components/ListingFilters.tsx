@@ -31,9 +31,12 @@ export default function ListingFilters({ onFilter, allListings }: Props) {
     if (next.minRent) result = result.filter((l) => l.rent >= Number(next.minRent));
     if (next.maxRent) result = result.filter((l) => l.rent <= Number(next.maxRent));
     if (next.availableFrom) {
-      result = result.filter(
-        (l) => l.available_from && new Date(l.available_from) <= new Date(next.availableFrom)
-      );
+      const sel = next.availableFrom; // "YYYY-MM-DD" — lexicographic comparison is safe for ISO dates
+      result = result.filter((l) => {
+        const startOk = !l.available_from || l.available_from <= sel;
+        const endOk = !l.available_until || l.available_until >= sel;
+        return startOk && endOk;
+      });
     }
     onFilter(result);
   }

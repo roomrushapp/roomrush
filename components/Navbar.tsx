@@ -104,6 +104,14 @@ export default function Navbar() {
             )}
           </div>
 
+          {/* Mobile: Post button */}
+          <Link
+            href="/dashboard/listings/new"
+            className="md:hidden bg-rose-600 hover:bg-rose-700 text-white text-xs px-3 py-1.5 font-medium transition-colors rounded"
+          >
+            Post
+          </Link>
+
           {/* Mobile menu button */}
           <button
             className="md:hidden p-1 text-zinc-700"

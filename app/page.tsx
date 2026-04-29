@@ -20,7 +20,7 @@ export default async function HomePage() {
     <>
       {/* ── HERO ── */}
       <section className="bg-black text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-24">
           <div className="grid md:grid-cols-2 gap-10 items-center">
             <div>
               <p className="text-rose-500 text-sm font-medium uppercase tracking-widest mb-4">
@@ -47,7 +47,7 @@ export default async function HomePage() {
                 </a>
                 <Link
                   href="/dashboard/listings/new"
-                  className="inline-flex items-center gap-2 border border-zinc-600 hover:border-zinc-400 text-white px-6 py-3 font-medium text-sm transition-colors"
+                  className="inline-flex items-center gap-2 border border-zinc-400 hover:border-white text-white px-6 py-3 font-medium text-sm transition-colors"
                 >
                   Post your room
                 </Link>

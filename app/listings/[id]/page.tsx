@@ -245,21 +245,21 @@ export default async function ListingDetailPage({ params }: Props) {
       </div>
 
       {/* ── ROOM ALERTS CARD ── */}
-      <div className="max-w-md mt-4 border border-zinc-200 p-6">
+      <div className="max-w-md mt-4 border border-zinc-200 bg-zinc-50 p-5">
         <p className="text-rose-600 text-xs font-semibold uppercase tracking-widest mb-2">
           Room Alerts
         </p>
-        <h3 className="font-display font-bold text-lg text-zinc-900 mb-1">
-          Want more options?
+        <h3 className="font-display font-bold text-base text-zinc-900 mb-1">
+          Still searching?
         </h3>
-        <p className="text-zinc-500 text-sm mb-5">
-          Get new RoomRush listings by email, or apply for Priority Alerts if you are actively searching.
+        <p className="text-zinc-500 text-sm mb-4">
+          Get free daily listings by email, or apply for Priority Alerts if you want matching RoomRush uploads earlier.
         </p>
         <Link
           href="/newsletter"
-          className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-3 font-medium text-sm transition-colors"
+          className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 font-medium text-sm transition-colors"
         >
-          Get alerts
+          Get Room Alerts
         </Link>
       </div>
     </div>

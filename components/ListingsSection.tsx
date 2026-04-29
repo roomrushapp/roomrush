@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import ListingCard from "@/components/ListingCard";
 import ListingFilters from "@/components/ListingFilters";
-import NewsletterSignup from "@/components/NewsletterSignup";
 import type { Listing } from "@/types";
 
 const MID_BANNER_AFTER = 6;
@@ -57,15 +57,30 @@ export default function ListingsSection({ initialListings }: Props) {
             ))}
           </div>
 
-          {/* Mid-page newsletter — only shown when there are more than 6 listings */}
+          {/* Mid-page Room Alerts teaser — no email form, links to /newsletter */}
           {showMidBanner && (
-            <div className="w-full">
-              <NewsletterSignup
-                variant="banner"
-                compact
-                heading="Get listings like these before others."
-                subheading="New rooms land in your inbox every evening - for free."
-              />
+            <div className="w-full bg-zinc-900 border border-zinc-800 px-6 py-8 md:py-10">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                <div>
+                  <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest mb-2">
+                    Room Alerts
+                  </p>
+                  <p className="font-display font-bold text-white text-xl md:text-2xl leading-tight mb-1.5">
+                    Want new rooms sent to you?
+                  </p>
+                  <p className="text-zinc-400 text-sm max-w-lg">
+                    Get free daily listings around 7–8 pm. Need rooms even faster? You can also apply for Priority Alerts Beta.
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  <Link
+                    href="/newsletter"
+                    className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 font-medium text-sm transition-colors whitespace-nowrap"
+                  >
+                    Get Room Alerts
+                  </Link>
+                </div>
+              </div>
             </div>
           )}
 

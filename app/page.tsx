@@ -108,7 +108,7 @@ export default async function HomePage() {
                 <span className="text-rose-600">TO SUBLET?</span>
               </h2>
               <p className="text-zinc-400 text-sm mb-6">
-                Post your room on RoomRush. Reach students, interns, and young professionals looking for short-term rooms in Munich.
+                Post it on RoomRush. Reach students, interns, and young professionals looking for short-term rooms in Munich.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 md:justify-end">

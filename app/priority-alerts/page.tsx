@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Priority Alerts Beta — RoomRush Munich",
   description:
-    "Apply for Priority Alerts Beta. Get earlier alerts for RoomRush uploads that match your filters. Limited to 10 people. €9.99 for 7 days.",
+    "Apply for Priority Alerts Beta. Get earlier alerts for RoomRush uploads that match your filters. Limited to 10 people. €2.99 for 7 days.",
 };
 
 export default function PriorityAlertsPage() {
@@ -47,7 +47,7 @@ export default function PriorityAlertsPage() {
             {/* Price card */}
             <div className="border border-zinc-700 bg-zinc-900 p-5">
               <div className="flex items-end gap-2 mb-4">
-                <p className="font-display font-bold text-3xl text-white">€9.99</p>
+                <p className="font-display font-bold text-3xl text-white">€2.99</p>
                 <p className="text-zinc-400 text-sm pb-0.5">for 7 days</p>
               </div>
               <ul className="flex flex-col gap-2">

@@ -7,6 +7,7 @@ import Image from "next/image";
 import { MUNICH_DISTRICTS } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
 import { makeUniqueSlug } from "@/lib/slugify";
+import { compressImage } from "@/lib/compressImage";
 import { ArrowLeft, Zap, ShieldCheck, Mail, ImagePlus, X } from "lucide-react";
 
 const MAX_IMAGES = 5;
@@ -109,11 +110,12 @@ export default function NewListingPage() {
     const urls: string[] = [];
 
     for (const file of imageFiles) {
-      const ext = file.name.split(".").pop();
+      const processed = await compressImage(file);
+      const ext = processed.name.split(".").pop();
       const path = `${userId}/${listingId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error } = await supabase.storage
         .from("listing-images")
-        .upload(path, file, { upsert: false });
+        .upload(path, processed, { upsert: false, contentType: processed.type });
 
       if (error) continue;
 

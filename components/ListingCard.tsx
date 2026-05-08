@@ -22,6 +22,8 @@ export default function ListingCard({ listing }: Props) {
               alt={listing.title}
               fill
               unoptimized
+              loading="lazy"
+              decoding="async"
               className="object-cover group-hover:scale-105 transition-transform duration-300"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />

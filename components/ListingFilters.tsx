@@ -31,11 +31,11 @@ export default function ListingFilters({ onFilter, allListings }: Props) {
     if (next.minRent) result = result.filter((l) => l.rent >= Number(next.minRent));
     if (next.maxRent) result = result.filter((l) => l.rent <= Number(next.maxRent));
     if (next.availableFrom) {
-      const sel = next.availableFrom; // "YYYY-MM-DD" — lexicographic comparison is safe for ISO dates
+      // next.availableFrom is "YYYY-MM"; compare only the YYYY-MM prefix of available_from
+      const sel = next.availableFrom; // e.g. "2026-05"
       result = result.filter((l) => {
-        const startOk = !l.available_from || l.available_from <= sel;
-        const endOk = !l.available_until || l.available_until >= sel;
-        return startOk && endOk;
+        if (!l.available_from) return false;
+        return l.available_from.slice(0, 7) === sel;
       });
     }
     onFilter(result);
@@ -93,8 +93,8 @@ export default function ListingFilters({ onFilter, allListings }: Props) {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wide">Available from</label>
-          <input type="date" value={filters.availableFrom}
+          <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wide">Move-in month</label>
+          <input type="month" value={filters.availableFrom}
             onChange={(e) => handleChange("availableFrom", e.target.value)}
             className="w-full border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-rose-600" />
         </div>

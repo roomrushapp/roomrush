@@ -13,6 +13,20 @@ type Props = {
   facebook_url?: string | null;
 };
 
+function buildWhatsAppUrl(phone: string): string {
+  const number = phone.replace(/[^0-9]/g, "");
+  const message =
+    "Hi, I found your room on RoomRush and I'm interested. Is it still available?\n\nIf yes, I can send more details about myself.";
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+}
+
+function buildMailtoUrl(email: string): string {
+  const subject = "Room inquiry from RoomRush";
+  const body =
+    "Hi,\n\nI found your room on RoomRush and I'm interested. Is it still available?\n\nIf yes, I can send more details about myself.\n\nBest";
+  return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 async function handleContact(listing_id: string, event_type: ContactEventType, url: string, newTab = false) {
   try {
     await trackContact(listing_id, event_type);
@@ -34,7 +48,7 @@ export default function ContactButtons({ listing_id, contact_email, phone, faceb
       {/* Email */}
       {contact_email && (
         <button
-          onClick={() => handleContact(listing_id, "contact_email", `mailto:${contact_email}`)}
+          onClick={() => handleContact(listing_id, "contact_email", buildMailtoUrl(contact_email))}
           className="flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-3 font-medium text-sm transition-colors w-full"
         >
           <Mail size={16} />
@@ -46,7 +60,7 @@ export default function ContactButtons({ listing_id, contact_email, phone, faceb
       {phone && (
         <>
           <button
-            onClick={() => handleContact(listing_id, "contact_whatsapp", `https://wa.me/${phone.replace(/[^0-9]/g, "")}`, true)}
+            onClick={() => handleContact(listing_id, "contact_whatsapp", buildWhatsAppUrl(phone), true)}
             className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-3 font-medium text-sm transition-colors w-full"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">

@@ -9,6 +9,7 @@ import { MapPin, Calendar, ArrowLeft, Eye, Users } from "lucide-react";
 import ImageLightbox from "@/components/ImageLightbox";
 import ShareButtons from "@/components/ShareButtons";
 import ContactButtons from "@/components/ContactButtons";
+import ReportListingButton from "@/components/ReportListingButton";
 import ViewTracker from "@/components/ViewTracker";
 
 
@@ -241,6 +242,8 @@ export default async function ListingDetailPage({ params }: Props) {
               partner_url={listing.partner_url}
               original_post_url={listing.original_post_url}
             />
+
+            <ReportListingButton />
 
             <ShareButtons listing_id={listing.id} />
 

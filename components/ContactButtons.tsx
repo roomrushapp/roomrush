@@ -13,6 +13,16 @@ type Props = {
   facebook_url?: string | null;
 };
 
+function normalizeFacebookUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (/^(www\.)?facebook\.com/i.test(trimmed)) return `https://${trimmed}`;
+  if (/^(www\.)?fb\.com/i.test(trimmed)) return `https://${trimmed}`;
+  return trimmed;
+}
+
 function buildWhatsAppUrl(phone: string): string {
   const number = phone.replace(/[^0-9]/g, "");
   const message =
@@ -42,6 +52,7 @@ async function handleContact(listing_id: string, event_type: ContactEventType, u
 
 export default function ContactButtons({ listing_id, contact_email, phone, facebook_url }: Props) {
   const hasDirectContact = !!contact_email || !!phone;
+  const normalizedFacebookUrl = normalizeFacebookUrl(facebook_url);
 
   return (
     <div className="flex flex-col gap-3">
@@ -78,17 +89,20 @@ export default function ContactButtons({ listing_id, contact_email, phone, faceb
         </>
       )}
 
-      {/* Facebook CTA */}
-      {facebook_url && (
-        <button
-          onClick={() => handleContact(listing_id, "contact_facebook", facebook_url, true)}
+      {/* Facebook CTA — rendered as <a> so mobile browsers don't block it */}
+      {normalizedFacebookUrl && (
+        <a
+          href={normalizedFacebookUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => { trackContact(listing_id, "contact_facebook").catch(() => {}); }}
           className="flex items-center justify-center gap-2 bg-[#1877F2] hover:bg-[#1464d8] text-white px-4 py-3 font-medium text-sm transition-colors w-full"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.884v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
           </svg>
           Message on Facebook
-        </button>
+        </a>
       )}
     </div>
   );

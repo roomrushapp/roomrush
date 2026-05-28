@@ -263,7 +263,7 @@ export default async function ListingDetailPage({ params }: Props) {
           Still searching?
         </h3>
         <p className="text-zinc-500 text-sm mb-4">
-          Get free daily RoomRush listings by email, or explore Priority Alerts if you want earlier matching uploads.
+          Get free daily RoomRush listings by email, straight to your inbox.
         </p>
         <Link
           href="/newsletter"

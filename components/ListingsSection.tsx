@@ -69,7 +69,7 @@ export default function ListingsSection({ initialListings }: Props) {
                     Want new rooms sent to you?
                   </p>
                   <p className="text-zinc-400 text-sm max-w-lg">
-                    Get free daily listings by email. If you are actively searching, you can also explore Priority Alerts.
+                    Get free daily listings by email, straight to your inbox.
                   </p>
                 </div>
                 <div className="shrink-0">

@@ -82,7 +82,7 @@ export default async function HomePage() {
                 Never miss a Munich sublet.
               </h2>
               <p className="text-zinc-400 text-sm max-w-lg">
-                Get free daily listings around 7–8 pm. Need rooms even faster? You can also apply for Priority Alerts Beta.
+                Get free daily listings around 7–8 pm, straight to your inbox.
               </p>
             </div>
             <div className="shrink-0">

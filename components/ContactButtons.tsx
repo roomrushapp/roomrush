@@ -15,12 +15,18 @@ type Props = {
 
 function normalizeFacebookUrl(url: string | null | undefined): string | null {
   if (!url) return null;
-  const trimmed = url.trim();
-  if (!trimmed) return null;
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  if (/^(www\.)?facebook\.com/i.test(trimmed)) return `https://${trimmed}`;
-  if (/^(www\.)?fb\.com/i.test(trimmed)) return `https://${trimmed}`;
-  return trimmed;
+  let s = url.trim();
+  if (!s) return null;
+  // strip any existing scheme so we can normalise the host
+  s = s.replace(/^https?:\/\//i, "");
+  // rewrite mobile subdomain to www
+  s = s.replace(/^m\.facebook\.com/i, "www.facebook.com");
+  // accept facebook.com (with or without www) and fb.com shortcuts
+  if (!/^(www\.)?facebook\.com/i.test(s) && !/^(www\.)?fb\.com/i.test(s)) {
+    // unrecognised format — return as-is with scheme so it at least has one
+    return `https://${s}`;
+  }
+  return `https://${s}`;
 }
 
 function buildWhatsAppUrl(phone: string): string {
@@ -93,8 +99,6 @@ export default function ContactButtons({ listing_id, contact_email, phone, faceb
       {normalizedFacebookUrl && (
         <a
           href={normalizedFacebookUrl}
-          target="_blank"
-          rel="noopener noreferrer"
           onClick={() => { trackContact(listing_id, "contact_facebook").catch(() => {}); }}
           className="flex items-center justify-center gap-2 bg-[#1877F2] hover:bg-[#1464d8] text-white px-4 py-3 font-medium text-sm transition-colors w-full"
         >

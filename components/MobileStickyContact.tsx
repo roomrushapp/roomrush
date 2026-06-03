@@ -10,8 +10,6 @@ const WHATSAPP_ICON = (
   </svg>
 );
 
-const SCROLL_THRESHOLD = 280;
-
 type Props = {
   listing_id: string;
   contact_email: string | null;
@@ -41,26 +39,14 @@ export default function MobileStickyContact({
   rent,
   contactCardId,
 }: Props) {
-  const [scrolledPast, setScrolledPast] = useState(false);
   const [cardVisible, setCardVisible] = useState(false);
 
-  // Track scroll threshold
-  useEffect(() => {
-    function onScroll() {
-      setScrolledPast(window.scrollY > SCROLL_THRESHOLD);
-    }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // Track contact card visibility
   useEffect(() => {
     const el = document.getElementById(contactCardId);
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => setCardVisible(entry.isIntersecting),
-      { threshold: 0.1 }
+      { threshold: 0.15 }
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -72,7 +58,7 @@ export default function MobileStickyContact({
 
   if (!hasWhatsApp && !hasEmail && !hasPhone) return null;
 
-  const shouldShow = scrolledPast && !cardVisible;
+  const shouldShow = !cardVisible;
 
   async function handleWhatsApp() {
     try { await trackContact(listing_id, "contact_whatsapp"); } catch {}
@@ -101,7 +87,7 @@ export default function MobileStickyContact({
         transform: shouldShow ? "translateY(0)" : "translateY(120%)",
         opacity: shouldShow ? 1 : 0,
         pointerEvents: shouldShow ? "auto" : "none",
-        transition: "transform 250ms ease, opacity 200ms ease",
+        transition: "transform 500ms ease-in-out, opacity 400ms ease-in-out",
       }}
     >
       <div

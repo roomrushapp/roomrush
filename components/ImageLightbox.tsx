@@ -21,7 +21,7 @@ export default function ImageLightbox({ images, title }: Props) {
   if (!hasImages) {
     return (
       <div className="relative mb-8 h-72 md:h-96 overflow-hidden">
-        <NoPhotoPlaceholder />
+        <NoPhotoPlaceholder variant="detail" />
       </div>
     );
   }

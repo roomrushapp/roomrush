@@ -4,15 +4,16 @@ const ROOM_IMAGE =
   "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=60";
 
 type Props = {
-  /** Extra classes applied to the outer wrapper (e.g. "h-72 md:h-96") */
+  /** "card" → compact pill (listing cards). "detail" → wider, larger box (detail page). */
+  variant?: "card" | "detail";
+  /** Extra classes applied to the outer wrapper. */
   className?: string;
 };
 
-/**
- * Shown in place of a hero image / card thumbnail when a listing has no photos.
- * Blurred room background + dark scrim + single "Contact host for photos" label.
- */
-export default function NoPhotoPlaceholder({ className = "" }: Props) {
+export default function NoPhotoPlaceholder({
+  variant = "card",
+  className = "",
+}: Props) {
   return (
     <div className={`relative w-full h-full overflow-hidden ${className}`}>
       {/* Blurred background room image */}
@@ -30,9 +31,15 @@ export default function NoPhotoPlaceholder({ className = "" }: Props) {
 
       {/* Centred label */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="bg-black/60 text-white text-xs md:text-sm font-medium px-3 py-2 md:px-4 md:py-2.5 tracking-wide backdrop-blur-sm border border-white/10">
-          Contact host for photos
-        </span>
+        {variant === "detail" ? (
+          <span className="bg-black/60 text-white text-base md:text-lg font-medium px-8 py-4 tracking-wide backdrop-blur-sm border border-white/10 text-center w-[80%] max-w-lg">
+            Contact host for pictures
+          </span>
+        ) : (
+          <span className="bg-black/60 text-white text-xs md:text-sm font-medium px-3 py-2 md:px-4 md:py-2.5 tracking-wide backdrop-blur-sm border border-white/10">
+            Contact host for pictures
+          </span>
+        )}
       </div>
     </div>
   );

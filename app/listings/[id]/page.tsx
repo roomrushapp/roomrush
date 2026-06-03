@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
 
+const NO_PHOTO_OG_URL = "https://getroomrush.de/api/og-no-photo";
+
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
@@ -35,7 +37,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const rawDesc = listing.description ?? "";
   const description =
     rawDesc.length > 140 ? rawDesc.slice(0, 137).trimEnd() + "…" : rawDesc;
-  const image = listing.image_urls?.[0] ?? null;
+  const realImage = listing.image_urls?.[0] ?? null;
+  const ogImage = realImage
+    ? { url: realImage, width: 1200, height: 800, alt: listing.title }
+    : { url: NO_PHOTO_OG_URL, width: 1200, height: 630, alt: "Contact host for pictures" };
 
   return {
     title,
@@ -44,13 +49,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       type: "website",
-      ...(image && { images: [{ url: image, width: 1200, height: 800, alt: listing.title }] }),
+      images: [ogImage],
     },
     twitter: {
-      card: image ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title,
       description,
-      ...(image && { images: [image] }),
+      images: [ogImage.url],
     },
   };
 }

@@ -15,6 +15,7 @@ import MobileStickyContact from "@/components/MobileStickyContact";
 
 
 const BASE_URL = "https://getroomrush.de";
+const NO_PHOTO_OG_URL = `${BASE_URL}/api/og-no-photo`;
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -38,7 +39,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const rawDesc = listing.description ?? "";
   const description =
     rawDesc.length > 140 ? rawDesc.slice(0, 137).trimEnd() + "…" : rawDesc;
-  const image = listing.image_urls?.[0] ?? null;
+  const realImage = listing.image_urls?.[0] ?? null;
+  const ogImage = realImage
+    ? { url: realImage, width: 1200, height: 800, alt: listing.title }
+    : { url: NO_PHOTO_OG_URL, width: 1200, height: 630, alt: "Contact host for pictures" };
   const canonicalUrl = `${BASE_URL}/sublet/${slug}`;
 
   return {
@@ -52,13 +56,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       type: "website",
       url: canonicalUrl,
-      ...(image && { images: [{ url: image, width: 1200, height: 800, alt: listing.title }] }),
+      images: [ogImage],
     },
     twitter: {
-      card: image ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title,
       description,
-      ...(image && { images: [image] }),
+      images: [ogImage.url],
     },
   };
 }

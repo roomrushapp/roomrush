@@ -3,27 +3,56 @@
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import NoPhotoPlaceholder from "@/components/NoPhotoPlaceholder";
 
 type Props = {
   images: string[] | null | undefined;
   title: string;
 };
 
+/**
+ * Wrapper — decides at render time whether to show the static placeholder
+ * or the real interactive gallery. The lightbox state lives inside Gallery
+ * so it is never instantiated for listings without photos.
+ */
 export default function ImageLightbox({ images, title }: Props) {
+  const hasImages = Array.isArray(images) && images.length > 0;
+
+  if (!hasImages) {
+    return (
+      <div className="relative mb-8 h-72 md:h-96 overflow-hidden">
+        <NoPhotoPlaceholder />
+      </div>
+    );
+  }
+
+  return <Gallery images={images} title={title} />;
+}
+
+/* ─── Real gallery — only rendered when images exist ─────────────────────── */
+
+function Gallery({ images, title }: { images: string[]; title: string }) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const close = useCallback(() => setLightboxIndex(null), []);
 
-  const prev = useCallback(() => {
-    if (lightboxIndex === null || !images) return;
-    setLightboxIndex((lightboxIndex - 1 + images.length) % images.length);
-  }, [lightboxIndex, images]);
+  const prev = useCallback(
+    () =>
+      setLightboxIndex((i) =>
+        i === null ? null : (i - 1 + images.length) % images.length
+      ),
+    [images.length]
+  );
 
-  const next = useCallback(() => {
-    if (lightboxIndex === null || !images) return;
-    setLightboxIndex((lightboxIndex + 1) % images.length);
-  }, [lightboxIndex, images]);
+  const next = useCallback(
+    () =>
+      setLightboxIndex((i) =>
+        i === null ? null : (i + 1) % images.length
+      ),
+    [images.length]
+  );
 
+  // Keyboard navigation
   useEffect(() => {
     if (lightboxIndex === null) return;
     const onKey = (e: KeyboardEvent) => {
@@ -35,32 +64,49 @@ export default function ImageLightbox({ images, title }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [lightboxIndex, close, prev, next]);
 
-  // Prevent background scroll while lightbox is open
+  // Lock body scroll while lightbox is open
   useEffect(() => {
-    if (lightboxIndex === null) {
-      document.body.style.overflow = "";
-    } else {
-      document.body.style.overflow = "hidden";
-    }
+    document.body.style.overflow = lightboxIndex !== null ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [lightboxIndex]);
 
   return (
     <>
-      {/* Image grid — same layout as before */}
+      {/* Thumbnail grid */}
       <div className="grid grid-cols-3 gap-2 mb-8 h-72 md:h-96 overflow-hidden">
-        <div className="col-span-2 relative cursor-pointer" onClick={() => setLightboxIndex(0)}>
-          {images?.[0] ? (
-            <Image src={images[0]} alt={title} fill unoptimized className="object-cover" priority sizes="(max-width: 768px) 100vw, 66vw" />
-          ) : (
-            <div className="w-full h-full bg-zinc-100 flex items-center justify-center text-zinc-400 text-sm">No photos yet</div>
-          )}
+        {/* Main (large) image */}
+        <div
+          className="col-span-2 relative cursor-pointer"
+          onClick={() => setLightboxIndex(0)}
+        >
+          <Image
+            src={images[0]}
+            alt={title}
+            fill
+            unoptimized
+            className="object-cover"
+            priority
+            sizes="(max-width: 768px) 100vw, 66vw"
+          />
         </div>
+
+        {/* Side thumbnails (slots 1 and 2) */}
         <div className="flex flex-col gap-2">
-          {[images?.[1], images?.[2]].map((img, i) =>
+          {[images[1], images[2]].map((img, i) =>
             img ? (
-              <div key={i} className="relative flex-1 cursor-pointer" onClick={() => setLightboxIndex(i + 1)}>
-                <Image src={img} alt={`${title} photo ${i + 2}`} fill unoptimized className="object-cover" sizes="33vw" />
+              <div
+                key={i}
+                className="relative flex-1 cursor-pointer"
+                onClick={() => setLightboxIndex(i + 1)}
+              >
+                <Image
+                  src={img}
+                  alt={`${title} photo ${i + 2}`}
+                  fill
+                  unoptimized
+                  className="object-cover"
+                  sizes="33vw"
+                />
               </div>
             ) : (
               <div key={i} className="flex-1 bg-zinc-100" />
@@ -69,8 +115,8 @@ export default function ImageLightbox({ images, title }: Props) {
         </div>
       </div>
 
-      {/* Lightbox overlay */}
-      {lightboxIndex !== null && images?.[lightboxIndex] && (
+      {/* Lightbox overlay — only when an image is selected */}
+      {lightboxIndex !== null && (
         <div
           className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center"
           onClick={close}
@@ -95,7 +141,7 @@ export default function ImageLightbox({ images, title }: Props) {
             </button>
           )}
 
-          {/* Image — full screen on mobile, constrained on desktop */}
+          {/* Full image */}
           <div
             className="relative w-full h-[90dvh] md:max-w-4xl md:max-h-[90vh] md:mx-16"
             onClick={(e) => e.stopPropagation()}

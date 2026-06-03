@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Listing } from "@/types";
 import { timeAgo, formatDate } from "@/lib/mockData";
 import { MapPin, Calendar, Eye } from "lucide-react";
+import NoPhotoPlaceholder from "@/components/NoPhotoPlaceholder";
 
 type Props = {
   listing: Listing;
@@ -28,9 +29,7 @@ export default function ListingCard({ listing }: Props) {
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-zinc-400 text-sm">
-              No photo
-            </div>
+            <NoPhotoPlaceholder />
           )}
 
           {/* Location badge */}

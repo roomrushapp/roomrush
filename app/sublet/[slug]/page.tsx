@@ -11,6 +11,7 @@ import ShareButtons from "@/components/ShareButtons";
 import ContactButtons from "@/components/ContactButtons";
 import ReportListingButton from "@/components/ReportListingButton";
 import ViewTracker from "@/components/ViewTracker";
+import MobileStickyContact from "@/components/MobileStickyContact";
 
 
 const BASE_URL = "https://getroomrush.de";
@@ -136,7 +137,7 @@ export default async function SubletDetailPage({ params }: Props) {
   const showInterestedUsers = interestedUsers >= MIN_PUBLIC_INTERESTED_USERS;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-28 md:pb-8">
       <ViewTracker listingId={listing.id} />
       <Link href="/" className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-black mb-6 transition-colors">
         <ArrowLeft size={14} />
@@ -216,8 +217,8 @@ export default async function SubletDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Right: contact */}
-        <div className="md:col-span-1">
+        {/* Right: contact — hidden on mobile (sticky bar handles it) */}
+        <div className="hidden md:block md:col-span-1">
           <div className="sticky top-20 border border-zinc-200 p-6">
             <p className="text-xs text-zinc-400 uppercase tracking-wide mb-1">Interested?</p>
             <p className="text-sm text-zinc-600 mb-6">
@@ -253,6 +254,14 @@ export default async function SubletDetailPage({ params }: Props) {
           </div>
         </div>
       </div>
+
+      {/* Mobile sticky contact bar */}
+      <MobileStickyContact
+        listing_id={listing.id}
+        contact_email={listing.contact_email}
+        phone={listing.phone}
+        rent={listing.rent}
+      />
 
       {/* ── ROOM ALERTS CARD ── */}
       <div className="max-w-md mt-4 border border-zinc-200 bg-zinc-50 p-5">

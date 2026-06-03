@@ -26,11 +26,11 @@ export default function NoPhotoPlaceholder({ className = "" }: Props) {
       />
 
       {/* Dark scrim */}
-      <div className="absolute inset-0 bg-black/55" />
+      <div className="absolute inset-0 bg-black/40" />
 
       {/* Centred label */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="bg-black/60 text-white text-xs font-medium px-3 py-2 tracking-wide backdrop-blur-sm border border-white/10">
+        <span className="bg-black/60 text-white text-xs md:text-sm font-medium px-3 py-2 md:px-4 md:py-2.5 tracking-wide backdrop-blur-sm border border-white/10">
           Contact host for photos
         </span>
       </div>

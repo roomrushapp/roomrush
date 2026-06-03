@@ -217,9 +217,9 @@ export default async function SubletDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Right: contact — hidden on mobile (sticky bar handles it) */}
-        <div className="hidden md:block md:col-span-1">
-          <div className="sticky top-20 border border-zinc-200 p-6">
+        {/* Right: contact */}
+        <div className="md:col-span-1">
+          <div id="contact-card" className="sticky top-20 border border-zinc-200 p-6">
             <p className="text-xs text-zinc-400 uppercase tracking-wide mb-1">Interested?</p>
             <p className="text-sm text-zinc-600 mb-6">
               Contact the host directly. All agreements are made outside this platform.
@@ -255,12 +255,13 @@ export default async function SubletDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Mobile sticky contact bar */}
+      {/* Mobile sticky contact bar — hides when the full contact card scrolls into view */}
       <MobileStickyContact
         listing_id={listing.id}
         contact_email={listing.contact_email}
         phone={listing.phone}
         rent={listing.rent}
+        contactCardId="contact-card"
       />
 
       {/* ── ROOM ALERTS CARD ── */}

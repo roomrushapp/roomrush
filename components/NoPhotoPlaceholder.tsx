@@ -32,7 +32,7 @@ export default function NoPhotoPlaceholder({
       {/* Centred label */}
       <div className="absolute inset-0 flex items-center justify-center">
         {variant === "detail" ? (
-          <span className="bg-black/60 text-white text-base md:text-lg font-medium px-8 py-4 tracking-wide backdrop-blur-sm border border-white/10 text-center w-[80%] max-w-lg">
+          <span className="bg-black/60 text-white text-sm md:text-base font-medium px-4 py-3 md:px-6 md:py-4 tracking-wide backdrop-blur-sm border border-white/10 text-center w-[75%] md:w-[70%] max-w-lg">
             Contact host for pictures
           </span>
         ) : (

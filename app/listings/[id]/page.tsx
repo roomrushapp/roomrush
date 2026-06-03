@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-const NO_PHOTO_OG_URL = "https://getroomrush.de/api/og-no-photo";
+const NO_PHOTO_OG_URL = "https://getroomrush.de/no-photo-og.png";
 
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";

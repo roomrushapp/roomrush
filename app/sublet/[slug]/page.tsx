@@ -15,7 +15,7 @@ import MobileStickyContact from "@/components/MobileStickyContact";
 
 
 const BASE_URL = "https://getroomrush.de";
-const NO_PHOTO_OG_URL = `${BASE_URL}/api/og-no-photo`;
+const NO_PHOTO_OG_URL = `${BASE_URL}/no-photo-og.png`;
 
 type Props = {
   params: Promise<{ slug: string }>;

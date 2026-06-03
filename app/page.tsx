@@ -20,23 +20,71 @@ export default async function HomePage() {
       {/* ── HERO ── */}
       <section className="bg-black text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-24">
-          <div className="grid md:grid-cols-2 gap-5 md:gap-10 items-center">
-            <div>
-              <p className="text-rose-500 text-sm font-medium uppercase tracking-widest mb-3 md:mb-4">
-                Munich · Sublets Only
-              </p>
-              <h1 className="font-display font-bold text-5xl md:text-6xl lg:text-7xl leading-none tracking-tight text-white mb-4 md:mb-6">
+
+          {/* ── Mobile layout ── */}
+          <div className="md:hidden">
+            <p className="text-rose-500 text-sm font-medium uppercase tracking-widest mb-3">
+              Munich · Sublets Only
+            </p>
+            {/* headline + image side by side */}
+            <div className="flex items-start gap-3 mb-4">
+              <h1 className="font-display font-bold text-5xl leading-none tracking-tight text-white flex-1">
                 SUBLET
                 <br />
                 MUNICH
                 <br />
                 <span className="text-rose-600">NOW.</span>
               </h1>
-              <p className="text-zinc-400 text-base md:text-lg max-w-sm mb-5 md:mb-8">
+              <div className="relative shrink-0 w-[130px] h-[150px] overflow-hidden">
+                <Image
+                  src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80"
+                  alt="Munich sublet living room"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute bottom-0 right-0 w-8 h-8 bg-rose-600" />
+              </div>
+            </div>
+            <p className="text-zinc-400 text-base max-w-sm mb-5">
+              The fastest guide for short-term rentals in Munich and nearby
+              student areas. No noise. Just active listings.
+            </p>
+            <div className="flex flex-col gap-3">
+              <a
+                href="#listings"
+                className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 font-medium text-sm transition-colors"
+              >
+                Browse available sublets
+                <ArrowRight size={16} />
+              </a>
+              <Link
+                href="/dashboard/listings/new"
+                className="inline-flex items-center gap-2 border border-zinc-400 hover:border-white text-white px-6 py-3 font-medium text-sm transition-colors"
+              >
+                Post your room
+              </Link>
+            </div>
+          </div>
+
+          {/* ── Desktop layout (unchanged) ── */}
+          <div className="hidden md:grid md:grid-cols-2 gap-10 items-center">
+            <div>
+              <p className="text-rose-500 text-sm font-medium uppercase tracking-widest mb-4">
+                Munich · Sublets Only
+              </p>
+              <h1 className="font-display font-bold text-6xl lg:text-7xl leading-none tracking-tight text-white mb-6">
+                SUBLET
+                <br />
+                MUNICH
+                <br />
+                <span className="text-rose-600">NOW.</span>
+              </h1>
+              <p className="text-zinc-400 text-lg max-w-sm mb-8">
                 The fastest guide for short-term rentals in Munich and nearby
                 student areas. No noise. Just active listings.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-row gap-3">
                 <a
                   href="#listings"
                   className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 font-medium text-sm transition-colors"
@@ -52,20 +100,18 @@ export default async function HomePage() {
                 </Link>
               </div>
             </div>
-
-            <div className="flex justify-center md:block">
-              <div className="relative w-full max-w-[300px] md:max-w-full aspect-[4/3] max-h-[240px] md:max-h-none overflow-hidden">
-                <Image
-                  src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&q=80"
-                  alt="Munich sublet living room"
-                  fill
-                  className="object-cover"
-                  priority
-                />
-                <div className="absolute bottom-0 right-0 w-16 h-16 bg-rose-600" />
-              </div>
+            <div className="relative aspect-[4/3] overflow-hidden">
+              <Image
+                src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&q=80"
+                alt="Munich sublet living room"
+                fill
+                className="object-cover"
+                priority
+              />
+              <div className="absolute bottom-0 right-0 w-16 h-16 bg-rose-600" />
             </div>
           </div>
+
         </div>
       </section>
 

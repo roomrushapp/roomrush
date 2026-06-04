@@ -65,9 +65,6 @@ export default function Navbar() {
               <Link href="/" className="text-sm text-zinc-600 hover:text-black transition-colors">
                 Rooms
               </Link>
-              <Link href="/room-seekers" className="text-sm text-zinc-600 hover:text-black transition-colors">
-                Room Seekers
-              </Link>
 
               {user ? (
                 <>
@@ -134,9 +131,6 @@ export default function Navbar() {
         <div className="md:hidden border-t border-zinc-100 bg-white px-4 py-4 flex flex-col gap-4">
           <Link href="/" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
             Rooms
-          </Link>
-          <Link href="/room-seekers" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
-            Room Seekers
           </Link>
 
           {user ? (

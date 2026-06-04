@@ -31,7 +31,6 @@ export default function CreateRoomSeekerPage() {
   const [userId, setUserId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [hasProfile, setHasProfile] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -55,7 +54,11 @@ export default function CreateRoomSeekerPage() {
         .select("id")
         .eq("user_id", uid)
         .maybeSingle();
-      if (data) setHasProfile(true);
+      if (data) {
+        // Profile already exists — go straight to edit
+        router.replace("/room-seekers/edit");
+        return;
+      }
       setAuthLoading(false);
     });
 
@@ -109,25 +112,6 @@ export default function CreateRoomSeekerPage() {
     return (
       <div className="max-w-xl mx-auto px-4 py-24 text-center text-zinc-400 text-sm">
         Loading…
-      </div>
-    );
-  }
-
-  if (hasProfile) {
-    return (
-      <div className="max-w-xl mx-auto px-4 py-24 text-center">
-        <p className="font-display font-semibold text-xl text-black mb-2">
-          You already have a profile.
-        </p>
-        <p className="text-zinc-500 text-sm mb-6">
-          Each account can only have one Room Seeker profile.
-        </p>
-        <Link
-          href="/room-seekers/edit"
-          className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 font-medium text-sm transition-colors"
-        >
-          Edit your profile
-        </Link>
       </div>
     );
   }

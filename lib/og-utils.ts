@@ -202,12 +202,12 @@ export function generateOgTitle(listing: {
     ? `€${listing.rent.toLocaleString("de-DE")}`
     : null;
 
-  // Build the cleanest possible title
-  if (rentStr && title && title.length <= 50) {
-    return `${rentStr} ${title} | RoomRush`;
+  // €500 | Title | RoomRush — rent as the first visual hook, clearly separated
+  if (rentStr && title && title.length <= 55) {
+    return `${rentStr} | ${title} | RoomRush`;
   }
   if (rentStr && location) {
-    return `${rentStr} Room in ${location} | RoomRush`;
+    return `${rentStr} | Room in ${location} | RoomRush`;
   }
   if (title) {
     return `${title} | RoomRush Munich`;

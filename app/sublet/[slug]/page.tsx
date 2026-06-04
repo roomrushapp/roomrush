@@ -38,8 +38,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const ogTitle = generateOgTitle(listing);
   const ogDescription = generateOgDescription(listing);
-  const ogImageUrl = `${BASE_URL}/api/og?slug=${encodeURIComponent(slug)}`;
   const canonicalUrl = `${BASE_URL}/sublet/${slug}`;
+
+  const photoUrl = listing.image_urls?.[0] ?? null;
+  const ogImageUrl = photoUrl ?? `${BASE_URL}/no-photo-og.png`;
+  // Real photos are unknown dimensions; use 1200×630 for the static fallback.
+  const ogImageMeta = photoUrl
+    ? { url: ogImageUrl, secureUrl: ogImageUrl, width: 1200, height: 800, alt: ogTitle }
+    : { url: ogImageUrl, secureUrl: ogImageUrl, width: 1200, height: 630, alt: "RoomRush Munich" };
 
   return {
     title: ogTitle,
@@ -52,7 +58,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: ogDescription,
       type: "website",
       url: canonicalUrl,
-      images: [{ url: ogImageUrl, secureUrl: ogImageUrl, width: 1200, height: 630, alt: ogTitle, type: "image/png" }],
+      images: [ogImageMeta],
     },
     twitter: {
       card: "summary_large_image",

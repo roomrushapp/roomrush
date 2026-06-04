@@ -1,7 +1,5 @@
 export const dynamic = "force-dynamic";
 
-const NO_PHOTO_OG_URL = "https://getroomrush.de/no-photo-og.png";
-
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
@@ -13,7 +11,9 @@ import ShareButtons from "@/components/ShareButtons";
 import ContactButtons from "@/components/ContactButtons";
 import ReportListingButton from "@/components/ReportListingButton";
 import ViewTracker from "@/components/ViewTracker";
+import { generateOgTitle, generateOgDescription } from "@/lib/og-utils";
 
+const BASE_URL = "https://getroomrush.de";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = await createClient();
   const { data: listing } = await supabase
     .from("listings")
-    .select("title, description, image_urls, location, rent")
+    .select("title, description, image_urls, location, rent, available_from, available_until")
     .eq("id", id)
     .eq("is_active", true)
     .single();
@@ -33,29 +33,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Listing not found | RoomRush Munich" };
   }
 
-  const title = `${listing.title} – €${listing.rent}/mo · ${listing.location} | RoomRush Munich`;
-  const rawDesc = listing.description ?? "";
-  const description =
-    rawDesc.length > 140 ? rawDesc.slice(0, 137).trimEnd() + "…" : rawDesc;
-  const realImage = listing.image_urls?.[0] ?? null;
-  const ogImage = realImage
-    ? { url: realImage, width: 1200, height: 800, alt: listing.title }
-    : { url: NO_PHOTO_OG_URL, width: 1200, height: 630, alt: "Contact host for pictures" };
+  const ogTitle = generateOgTitle(listing);
+  const ogDescription = generateOgDescription(listing);
+  const ogImageUrl = `${BASE_URL}/api/og?id=${encodeURIComponent(id)}`;
 
   return {
-    title,
-    description,
+    title: ogTitle,
+    description: ogDescription,
     openGraph: {
-      title,
-      description,
+      title: ogTitle,
+      description: ogDescription,
       type: "website",
-      images: [ogImage],
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: ogTitle }],
     },
     twitter: {
       card: "summary_large_image",
-      title,
-      description,
-      images: [ogImage.url],
+      title: ogTitle,
+      description: ogDescription,
+      images: [ogImageUrl],
     },
   };
 }

@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { cleanLocation, formatRent, extractBadges } from "@/lib/og-utils";
 
 export const runtime = "nodejs";
@@ -10,6 +10,12 @@ export const runtime = "nodejs";
 const W = 1200;
 const H = 630;
 const ROSE = "#e11d48";
+
+// Cache OG images for 1 hour at the CDN; serve stale for up to 24 h while revalidating.
+// This keeps crawler response times fast and avoids Vercel cold-start timeouts.
+const CACHE_HEADERS = {
+  "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+};
 const OVERLAY_GRADIENT =
   "linear-gradient(to top, rgba(0,22,14,0.97) 0%, rgba(0,22,14,0.87) 50%, rgba(0,22,14,0.08) 100%)";
 
@@ -51,7 +57,8 @@ export async function GET(req: NextRequest) {
   const fontFamily = fonts.length > 0 ? "Inter" : "sans-serif";
 
   // ── Fetch listing ──────────────────────────────────────────────────────────
-  const supabase = await createClient();
+  // Use the admin (cookie-free) client so crawlers with no session can fetch data.
+  const supabase = createAdminClient();
   let query = supabase
     .from("listings")
     .select(
@@ -70,6 +77,7 @@ export async function GET(req: NextRequest) {
       width: W,
       height: H,
       fonts,
+      headers: CACHE_HEADERS,
     });
   }
 
@@ -288,7 +296,7 @@ export async function GET(req: NextRequest) {
         </div>
       </div>
     </div>,
-    { width: W, height: H, fonts },
+    { width: W, height: H, fonts, headers: CACHE_HEADERS },
   );
 }
 

@@ -13,7 +13,7 @@ import ReportListingButton from "@/components/ReportListingButton";
 import ViewTracker from "@/components/ViewTracker";
 import { generateOgTitle, generateOgDescription } from "@/lib/og-utils";
 
-const BASE_URL = "https://getroomrush.de";
+const BASE_URL = "https://www.getroomrush.de";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: ogTitle,
       description: ogDescription,
       type: "website",
-      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: ogTitle }],
+      images: [{ url: ogImageUrl, secureUrl: ogImageUrl, width: 1200, height: 630, alt: ogTitle, type: "image/png" }],
     },
     twitter: {
       card: "summary_large_image",

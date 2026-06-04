@@ -11,7 +11,7 @@ export const CONTACT_EVENT_TYPES = [
   "contact_click",  // legacy generic Facebook fallback
 ] as const;
 
-const SHARE_EVENT_TYPES = ["share_copy", "share_whatsapp", "share_telegram"] as const;
+const SHARE_EVENT_TYPES = ["share_copy", "share_whatsapp", "share_telegram", "share_facebook"] as const;
 
 export type EventType =
   | (typeof CONTACT_EVENT_TYPES)[number]

@@ -9,7 +9,7 @@ export default function BrowseToggle({ active }: Props) {
     <div className="flex justify-center">
       <div className="inline-flex bg-zinc-100 border border-zinc-200 p-1 gap-0.5">
         <Link
-          href="/"
+          href="/#listings"
           className={`px-7 py-2.5 text-sm font-semibold transition-colors whitespace-nowrap ${
             active === "rooms"
               ? "bg-rose-600 text-white"

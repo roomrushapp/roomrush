@@ -62,7 +62,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-6">
-              <Link href="/" className="text-sm text-zinc-600 hover:text-black transition-colors">
+              <Link href="/#listings" className="text-sm text-zinc-600 hover:text-black transition-colors">
                 Rooms
               </Link>
 
@@ -129,7 +129,7 @@ export default function Navbar() {
       {/* Mobile menu */}
       {open && (
         <div className="md:hidden border-t border-zinc-100 bg-white px-4 py-4 flex flex-col gap-4">
-          <Link href="/" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
+          <Link href="/#listings" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
             Rooms
           </Link>
 

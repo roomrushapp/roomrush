@@ -8,13 +8,16 @@ import type { Listing, RoomSeekerProfile } from "@/types";
 import { Plus, Pencil, Trash2, LayoutDashboard, LogOut, MapPin, Calendar, Search } from "lucide-react";
 import Image from "next/image";
 import { resolveMainSeekerPhoto } from "@/lib/mockData";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type Tab = "listings" | "seeker";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("listings");
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<Tab>(
+    searchParams.get("section") === "room-seeker-profile" ? "seeker" : "listings"
+  );
   const [listings, setListings] = useState<Listing[]>([]);
   const [seekerProfile, setSeekerProfile] = useState<RoomSeekerProfile | null | undefined>(undefined); // undefined = loading
   const [seekerToggling, setSeekerToggling] = useState(false);

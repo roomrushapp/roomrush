@@ -33,7 +33,7 @@ export default async function RoomSeekersPage() {
       .eq("user_id", user.id)
       .maybeSingle();
     if (ownProfile) {
-      ctaHref = "/room-seekers/edit";
+      ctaHref = "/dashboard?section=room-seeker-profile";
       ctaLabel = "Manage your profile";
     }
   }

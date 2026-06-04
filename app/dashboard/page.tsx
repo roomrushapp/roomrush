@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { formatDate } from "@/lib/mockData";
 import { createClient } from "@/lib/supabase/client";
@@ -12,12 +12,24 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 type Tab = "listings" | "seeker";
 
+/**
+ * Reads the `?section=room-seeker-profile` search param and calls back to the
+ * parent. Must live in its own component so it can be wrapped in <Suspense>.
+ * useSearchParams() cannot be called directly in the page component.
+ */
+function SectionParamReader({ onSection }: { onSection: (tab: Tab) => void }) {
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get("section") === "room-seeker-profile") {
+      onSection("seeker");
+    }
+  }, [searchParams, onSection]);
+  return null;
+}
+
 export default function DashboardPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [tab, setTab] = useState<Tab>(
-    searchParams.get("section") === "room-seeker-profile" ? "seeker" : "listings"
-  );
+  const [tab, setTab] = useState<Tab>("listings");
   const [listings, setListings] = useState<Listing[]>([]);
   const [seekerProfile, setSeekerProfile] = useState<RoomSeekerProfile | null | undefined>(undefined); // undefined = loading
   const [seekerToggling, setSeekerToggling] = useState(false);
@@ -92,6 +104,11 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen flex">
+      {/* Read ?section= query param — must be in Suspense per Next.js App Router rules */}
+      <Suspense fallback={null}>
+        <SectionParamReader onSection={setTab} />
+      </Suspense>
+
       {/* Sidebar */}
       <aside className="w-56 bg-white border-r border-zinc-200 flex flex-col py-6 px-4 hidden md:flex">
         <div className="mb-8">

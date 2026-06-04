@@ -14,15 +14,16 @@ const CONTACT_METHODS = [
 ] as const;
 
 const CONTACT_PLACEHOLDERS: Record<string, string> = {
-  whatsapp: "+49 123 456 7890",
+  whatsapp: "+49 176 1234 5678",
   email: "you@example.com",
-  instagram: "@yourhandle",
+  instagram: "@yourhandle or profile URL",
   facebook: "https://facebook.com/yourprofile",
 };
 
-const INPUT_CLASS =
+const INPUT =
   "w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 placeholder:text-zinc-400";
-const LABEL_CLASS = "block text-xs font-semibold text-zinc-700 uppercase tracking-wide mb-1.5";
+const LABEL =
+  "block text-xs font-semibold text-zinc-700 uppercase tracking-wide mb-1.5";
 
 export default function CreateRoomSeekerPage() {
   const router = useRouter();
@@ -45,39 +46,27 @@ export default function CreateRoomSeekerPage() {
 
   useEffect(() => {
     const supabase = createClient();
-
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) {
-        setAuthLoading(false);
-        return;
-      }
+      if (!session) { setAuthLoading(false); return; }
       const uid = session.user.id;
       setUserId(uid);
-
-      // Check if profile already exists
       const { data } = await supabase
         .from("room_seeker_profiles")
         .select("id")
         .eq("user_id", uid)
         .maybeSingle();
-
-      if (data) {
-        setHasProfile(true);
-      }
+      if (data) setHasProfile(true);
       setAuthLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       setUserId(session?.user.id ?? "");
     });
-
     return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
-    if (!authLoading && !userId) {
-      router.push("/auth/login");
-    }
+    if (!authLoading && !userId) router.push("/auth/login");
   }, [authLoading, userId, router]);
 
   function handleChange(
@@ -90,9 +79,8 @@ export default function CreateRoomSeekerPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     const supabase = createClient();
-    const { error: insertError } = await supabase.from("room_seeker_profiles").insert({
+    const { error: err } = await supabase.from("room_seeker_profiles").insert({
       user_id: userId,
       name: form.name.trim(),
       photo_url: form.photo_url.trim() || null,
@@ -104,25 +92,22 @@ export default function CreateRoomSeekerPage() {
       contact_value: form.contact_value.trim(),
       is_active: true,
     });
-
     setLoading(false);
-
-    if (insertError) {
-      if (insertError.code === "23505") {
+    if (err) {
+      if (err.code === "23505") {
         setError("You already have a profile. Redirecting to edit…");
         setTimeout(() => router.push("/room-seekers/edit"), 1500);
       } else {
-        setError(insertError.message);
+        setError(err.message);
       }
       return;
     }
-
     router.push("/room-seekers");
   }
 
   if (authLoading) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-24 text-center text-zinc-400 text-sm">
+      <div className="max-w-xl mx-auto px-4 py-24 text-center text-zinc-400 text-sm">
         Loading…
       </div>
     );
@@ -130,12 +115,12 @@ export default function CreateRoomSeekerPage() {
 
   if (hasProfile) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-24 text-center">
+      <div className="max-w-xl mx-auto px-4 py-24 text-center">
         <p className="font-display font-semibold text-xl text-black mb-2">
           You already have a profile.
         </p>
         <p className="text-zinc-500 text-sm mb-6">
-          You can only have one Room Seeker profile per account.
+          Each account can only have one Room Seeker profile.
         </p>
         <Link
           href="/room-seekers/edit"
@@ -148,11 +133,10 @@ export default function CreateRoomSeekerPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
-      {/* Back link */}
+    <div className="max-w-xl mx-auto px-4 sm:px-6 py-10">
       <Link
         href="/room-seekers"
-        className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-black transition-colors mb-6"
+        className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-black transition-colors mb-8"
       >
         <ArrowLeft size={14} />
         Room Seekers
@@ -162,11 +146,11 @@ export default function CreateRoomSeekerPage() {
         <p className="text-xs font-medium text-rose-600 uppercase tracking-widest mb-1">
           New Profile
         </p>
-        <h1 className="font-display font-bold text-2xl md:text-3xl text-black">
+        <h1 className="font-display font-bold text-2xl md:text-3xl text-black mb-2">
           Create your Room Seeker profile
         </h1>
-        <p className="text-zinc-500 text-sm mt-2">
-          Your profile will be publicly visible on RoomRush so listers and WG groups can find you.
+        <p className="text-zinc-500 text-sm">
+          Your profile will be public on RoomRush — listers and WG groups can find and contact you.
         </p>
       </div>
 
@@ -176,163 +160,115 @@ export default function CreateRoomSeekerPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        {/* Name */}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
-          <label htmlFor="name" className={LABEL_CLASS}>
+          <label htmlFor="name" className={LABEL}>
             Your name <span className="text-rose-600">*</span>
           </label>
           <input
-            id="name"
-            name="name"
-            type="text"
-            required
-            maxLength={100}
-            placeholder="e.g. Prashant"
-            value={form.name}
-            onChange={handleChange}
-            className={INPUT_CLASS}
+            id="name" name="name" type="text" required maxLength={100}
+            placeholder="Prashant"
+            value={form.name} onChange={handleChange} className={INPUT}
           />
         </div>
 
-        {/* Budget */}
         <div>
-          <label htmlFor="budget" className={LABEL_CLASS}>
+          <label htmlFor="budget" className={LABEL}>
             Budget <span className="text-rose-600">*</span>
           </label>
           <input
-            id="budget"
-            name="budget"
-            type="text"
-            required
-            maxLength={100}
-            placeholder="e.g. up to €750/mo"
-            value={form.budget}
-            onChange={handleChange}
-            className={INPUT_CLASS}
+            id="budget" name="budget" type="text" required maxLength={100}
+            placeholder="Up to €750 warm"
+            value={form.budget} onChange={handleChange} className={INPUT}
           />
         </div>
 
-        {/* Move-in date */}
         <div>
-          <label htmlFor="move_in_date" className={LABEL_CLASS}>
+          <label htmlFor="move_in_date" className={LABEL}>
             Move-in date <span className="text-rose-600">*</span>
           </label>
           <input
-            id="move_in_date"
-            name="move_in_date"
-            type="text"
-            required
-            maxLength={50}
-            placeholder="e.g. August 2025 or ASAP"
-            value={form.move_in_date}
-            onChange={handleChange}
-            className={INPUT_CLASS}
+            id="move_in_date" name="move_in_date" type="text" required maxLength={50}
+            placeholder="From August / ASAP / flexible"
+            value={form.move_in_date} onChange={handleChange} className={INPUT}
           />
         </div>
 
-        {/* Preferred area */}
         <div>
-          <label htmlFor="preferred_area" className={LABEL_CLASS}>
+          <label htmlFor="preferred_area" className={LABEL}>
             Preferred area <span className="text-rose-600">*</span>
           </label>
           <input
-            id="preferred_area"
-            name="preferred_area"
-            type="text"
-            required
-            maxLength={200}
-            placeholder="e.g. Munich / Schwabing / flexible"
-            value={form.preferred_area}
-            onChange={handleChange}
-            className={INPUT_CLASS}
+            id="preferred_area" name="preferred_area" type="text" required maxLength={200}
+            placeholder="Munich, Garching, or flexible"
+            value={form.preferred_area} onChange={handleChange} className={INPUT}
           />
         </div>
 
-        {/* Short intro */}
         <div>
-          <label htmlFor="short_intro" className={LABEL_CLASS}>
+          <label htmlFor="short_intro" className={LABEL}>
             Short intro <span className="text-rose-600">*</span>
           </label>
           <textarea
-            id="short_intro"
-            name="short_intro"
-            required
-            maxLength={500}
-            rows={4}
-            placeholder="Tell listers a bit about yourself — who you are, what you're looking for, any important details."
-            value={form.short_intro}
-            onChange={handleChange}
-            className={INPUT_CLASS}
+            id="short_intro" name="short_intro" required maxLength={500} rows={4}
+            placeholder={`Hi, I'm a TUM student looking for a friendly WG or short-term room. I work remotely, keep the place tidy, and prefer a quiet building.`}
+            value={form.short_intro} onChange={handleChange} className={INPUT}
           />
           <p className="text-xs text-zinc-400 mt-1">
-            {form.short_intro.length}/500 characters
+            {form.short_intro.length} / 500
           </p>
         </div>
 
-        {/* Contact method + value */}
         <div>
-          <label className={LABEL_CLASS}>
-            Contact method <span className="text-rose-600">*</span>
+          <label className={LABEL}>
+            How should people contact you? <span className="text-rose-600">*</span>
           </label>
           <div className="flex gap-2">
             <select
-              name="contact_method"
-              value={form.contact_method}
-              onChange={handleChange}
+              name="contact_method" value={form.contact_method} onChange={handleChange}
               className="border border-zinc-300 bg-white px-3 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 shrink-0"
             >
               {CONTACT_METHODS.map((m) => (
-                <option key={m.value} value={m.value}>
-                  {m.label}
-                </option>
+                <option key={m.value} value={m.value}>{m.label}</option>
               ))}
             </select>
             <input
-              name="contact_value"
-              type="text"
-              required
-              maxLength={200}
+              name="contact_value" type="text" required maxLength={200}
               placeholder={CONTACT_PLACEHOLDERS[form.contact_method]}
-              value={form.contact_value}
-              onChange={handleChange}
-              className={`${INPUT_CLASS} flex-1`}
+              value={form.contact_value} onChange={handleChange}
+              className={`${INPUT} flex-1`}
             />
           </div>
-          <p className="text-xs text-zinc-500 mt-2 bg-zinc-50 border border-zinc-200 px-3 py-2">
+          <p className="text-xs text-zinc-500 mt-2 bg-zinc-50 border border-zinc-200 px-3 py-2 leading-relaxed">
             This contact information will be visible on your public RoomRush profile.
           </p>
         </div>
 
-        {/* Photo URL (optional) */}
         <div>
-          <label htmlFor="photo_url" className={LABEL_CLASS}>
-            Profile photo URL{" "}
+          <label htmlFor="photo_url" className={LABEL}>
+            Profile photo{" "}
             <span className="text-zinc-400 font-normal normal-case tracking-normal">
-              (optional)
+              — optional
             </span>
           </label>
           <input
-            id="photo_url"
-            name="photo_url"
-            type="url"
-            placeholder="https://…"
-            value={form.photo_url}
-            onChange={handleChange}
-            className={INPUT_CLASS}
+            id="photo_url" name="photo_url" type="url"
+            placeholder="https://link-to-your-photo.jpg"
+            value={form.photo_url} onChange={handleChange} className={INPUT}
           />
           <p className="text-xs text-zinc-400 mt-1">
-            Paste a direct link to an image. Leave blank to use initials.
+            Paste a direct image link. Leave blank to show your initial instead.
           </p>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white px-6 py-3 font-medium text-sm transition-colors self-start"
-        >
-          {loading ? "Creating profile…" : "Create profile"}
-        </button>
+        <div className="pt-2">
+          <button
+            type="submit" disabled={loading}
+            className="bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white px-6 py-3 font-medium text-sm transition-colors"
+          >
+            {loading ? "Creating profile…" : "Create profile"}
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -15,15 +15,16 @@ const CONTACT_METHODS = [
 ] as const;
 
 const CONTACT_PLACEHOLDERS: Record<string, string> = {
-  whatsapp: "+49 123 456 7890",
+  whatsapp: "+49 176 1234 5678",
   email: "you@example.com",
-  instagram: "@yourhandle",
+  instagram: "@yourhandle or profile URL",
   facebook: "https://facebook.com/yourprofile",
 };
 
-const INPUT_CLASS =
+const INPUT =
   "w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 placeholder:text-zinc-400";
-const LABEL_CLASS = "block text-xs font-semibold text-zinc-700 uppercase tracking-wide mb-1.5";
+const LABEL =
+  "block text-xs font-semibold text-zinc-700 uppercase tracking-wide mb-1.5";
 
 export default function EditRoomSeekerPage() {
   const router = useRouter();
@@ -50,13 +51,8 @@ export default function EditRoomSeekerPage() {
 
   useEffect(() => {
     const supabase = createClient();
-
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) {
-        setAuthLoading(false);
-        setProfileLoading(false);
-        return;
-      }
+      if (!session) { setAuthLoading(false); setProfileLoading(false); return; }
       const uid = session.user.id;
       setUserId(uid);
       setAuthLoading(false);
@@ -87,17 +83,14 @@ export default function EditRoomSeekerPage() {
       setProfileLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       setUserId(session?.user.id ?? "");
     });
-
     return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
-    if (!authLoading && !userId) {
-      router.push("/auth/login");
-    }
+    if (!authLoading && !userId) router.push("/auth/login");
   }, [authLoading, userId, router]);
 
   function handleChange(
@@ -116,9 +109,8 @@ export default function EditRoomSeekerPage() {
     setError("");
     setSuccess(false);
     setLoading(true);
-
     const supabase = createClient();
-    const { error: updateError } = await supabase
+    const { error: err } = await supabase
       .from("room_seeker_profiles")
       .update({
         name: form.name.trim(),
@@ -132,21 +124,15 @@ export default function EditRoomSeekerPage() {
         is_active: form.is_active,
       })
       .eq("user_id", userId);
-
     setLoading(false);
-
-    if (updateError) {
-      setError(updateError.message);
-      return;
-    }
-
+    if (err) { setError(err.message); return; }
     setSuccess(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   if (authLoading || profileLoading) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-24 text-center text-zinc-400 text-sm">
+      <div className="max-w-xl mx-auto px-4 py-24 text-center text-zinc-400 text-sm">
         Loading…
       </div>
     );
@@ -154,7 +140,7 @@ export default function EditRoomSeekerPage() {
 
   if (noProfile) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-24 text-center">
+      <div className="max-w-xl mx-auto px-4 py-24 text-center">
         <p className="font-display font-semibold text-xl text-black mb-2">
           You don&apos;t have a profile yet.
         </p>
@@ -172,12 +158,11 @@ export default function EditRoomSeekerPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
-      {/* Back link */}
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-xl mx-auto px-4 sm:px-6 py-10">
+      <div className="flex items-center justify-between mb-8">
         <Link
           href="/room-seekers"
-          className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-black transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-black transition-colors"
         >
           <ArrowLeft size={14} />
           Room Seekers
@@ -197,7 +182,7 @@ export default function EditRoomSeekerPage() {
           Your Profile
         </p>
         <h1 className="font-display font-bold text-2xl md:text-3xl text-black">
-          Edit your Room Seeker profile
+          Edit your profile
         </h1>
       </div>
 
@@ -206,190 +191,138 @@ export default function EditRoomSeekerPage() {
           Profile updated successfully.
         </div>
       )}
-
       {error && (
         <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm px-4 py-3 mb-6">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        {/* Visibility toggle */}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        {/* Visibility toggle — shown first so it's always visible */}
         <div className="flex items-start gap-3 bg-zinc-50 border border-zinc-200 px-4 py-4">
           <input
-            id="is_active"
-            name="is_active"
-            type="checkbox"
-            checked={form.is_active}
-            onChange={handleChange}
-            className="mt-0.5 accent-rose-600"
+            id="is_active" name="is_active" type="checkbox"
+            checked={form.is_active} onChange={handleChange}
+            className="mt-0.5 accent-rose-600 w-4 h-4 shrink-0"
           />
           <div>
-            <label htmlFor="is_active" className="text-sm font-medium text-zinc-800 cursor-pointer">
+            <label htmlFor="is_active" className="text-sm font-medium text-zinc-900 cursor-pointer">
               Show my profile publicly
             </label>
-            <p className="text-xs text-zinc-500 mt-0.5">
-              When unchecked your profile is hidden from the Room Seekers browse page.
+            <p className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
+              If turned off, your profile will not appear on the Room Seekers page.
             </p>
           </div>
         </div>
 
-        {/* Name */}
         <div>
-          <label htmlFor="name" className={LABEL_CLASS}>
+          <label htmlFor="name" className={LABEL}>
             Your name <span className="text-rose-600">*</span>
           </label>
           <input
-            id="name"
-            name="name"
-            type="text"
-            required
-            maxLength={100}
-            placeholder="e.g. Prashant"
-            value={form.name}
-            onChange={handleChange}
-            className={INPUT_CLASS}
+            id="name" name="name" type="text" required maxLength={100}
+            placeholder="Prashant"
+            value={form.name} onChange={handleChange} className={INPUT}
           />
         </div>
 
-        {/* Budget */}
         <div>
-          <label htmlFor="budget" className={LABEL_CLASS}>
+          <label htmlFor="budget" className={LABEL}>
             Budget <span className="text-rose-600">*</span>
           </label>
           <input
-            id="budget"
-            name="budget"
-            type="text"
-            required
-            maxLength={100}
-            placeholder="e.g. up to €750/mo"
-            value={form.budget}
-            onChange={handleChange}
-            className={INPUT_CLASS}
+            id="budget" name="budget" type="text" required maxLength={100}
+            placeholder="Up to €750 warm"
+            value={form.budget} onChange={handleChange} className={INPUT}
           />
         </div>
 
-        {/* Move-in date */}
         <div>
-          <label htmlFor="move_in_date" className={LABEL_CLASS}>
+          <label htmlFor="move_in_date" className={LABEL}>
             Move-in date <span className="text-rose-600">*</span>
           </label>
           <input
-            id="move_in_date"
-            name="move_in_date"
-            type="text"
-            required
-            maxLength={50}
-            placeholder="e.g. August 2025 or ASAP"
-            value={form.move_in_date}
-            onChange={handleChange}
-            className={INPUT_CLASS}
+            id="move_in_date" name="move_in_date" type="text" required maxLength={50}
+            placeholder="From August / ASAP / flexible"
+            value={form.move_in_date} onChange={handleChange} className={INPUT}
           />
         </div>
 
-        {/* Preferred area */}
         <div>
-          <label htmlFor="preferred_area" className={LABEL_CLASS}>
+          <label htmlFor="preferred_area" className={LABEL}>
             Preferred area <span className="text-rose-600">*</span>
           </label>
           <input
-            id="preferred_area"
-            name="preferred_area"
-            type="text"
-            required
-            maxLength={200}
-            placeholder="e.g. Munich / Schwabing / flexible"
-            value={form.preferred_area}
-            onChange={handleChange}
-            className={INPUT_CLASS}
+            id="preferred_area" name="preferred_area" type="text" required maxLength={200}
+            placeholder="Munich, Garching, or flexible"
+            value={form.preferred_area} onChange={handleChange} className={INPUT}
           />
         </div>
 
-        {/* Short intro */}
         <div>
-          <label htmlFor="short_intro" className={LABEL_CLASS}>
+          <label htmlFor="short_intro" className={LABEL}>
             Short intro <span className="text-rose-600">*</span>
           </label>
           <textarea
-            id="short_intro"
-            name="short_intro"
-            required
-            maxLength={500}
-            rows={4}
-            placeholder="Tell listers a bit about yourself."
-            value={form.short_intro}
-            onChange={handleChange}
-            className={INPUT_CLASS}
+            id="short_intro" name="short_intro" required maxLength={500} rows={4}
+            placeholder={`Hi, I'm a TUM student looking for a friendly WG or short-term room.`}
+            value={form.short_intro} onChange={handleChange} className={INPUT}
           />
           <p className="text-xs text-zinc-400 mt-1">
-            {form.short_intro.length}/500 characters
+            {form.short_intro.length} / 500
           </p>
         </div>
 
-        {/* Contact method + value */}
         <div>
-          <label className={LABEL_CLASS}>
-            Contact method <span className="text-rose-600">*</span>
+          <label className={LABEL}>
+            How should people contact you? <span className="text-rose-600">*</span>
           </label>
           <div className="flex gap-2">
             <select
-              name="contact_method"
-              value={form.contact_method}
-              onChange={handleChange}
+              name="contact_method" value={form.contact_method} onChange={handleChange}
               className="border border-zinc-300 bg-white px-3 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 shrink-0"
             >
               {CONTACT_METHODS.map((m) => (
-                <option key={m.value} value={m.value}>
-                  {m.label}
-                </option>
+                <option key={m.value} value={m.value}>{m.label}</option>
               ))}
             </select>
             <input
-              name="contact_value"
-              type="text"
-              required
-              maxLength={200}
+              name="contact_value" type="text" required maxLength={200}
               placeholder={CONTACT_PLACEHOLDERS[form.contact_method]}
-              value={form.contact_value}
-              onChange={handleChange}
-              className={`${INPUT_CLASS} flex-1`}
+              value={form.contact_value} onChange={handleChange}
+              className={`${INPUT} flex-1`}
             />
           </div>
-          <p className="text-xs text-zinc-500 mt-2 bg-zinc-50 border border-zinc-200 px-3 py-2">
+          <p className="text-xs text-zinc-500 mt-2 bg-zinc-50 border border-zinc-200 px-3 py-2 leading-relaxed">
             This contact information will be visible on your public RoomRush profile.
           </p>
         </div>
 
-        {/* Photo URL (optional) */}
         <div>
-          <label htmlFor="photo_url" className={LABEL_CLASS}>
-            Profile photo URL{" "}
+          <label htmlFor="photo_url" className={LABEL}>
+            Profile photo{" "}
             <span className="text-zinc-400 font-normal normal-case tracking-normal">
-              (optional)
+              — optional
             </span>
           </label>
           <input
-            id="photo_url"
-            name="photo_url"
-            type="url"
-            placeholder="https://…"
-            value={form.photo_url}
-            onChange={handleChange}
-            className={INPUT_CLASS}
+            id="photo_url" name="photo_url" type="url"
+            placeholder="https://link-to-your-photo.jpg"
+            value={form.photo_url} onChange={handleChange} className={INPUT}
           />
           <p className="text-xs text-zinc-400 mt-1">
-            Paste a direct link to an image. Leave blank to use initials.
+            Paste a direct image link. Leave blank to show your initial instead.
           </p>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white px-6 py-3 font-medium text-sm transition-colors self-start"
-        >
-          {loading ? "Saving…" : "Save changes"}
-        </button>
+        <div className="pt-2">
+          <button
+            type="submit" disabled={loading}
+            className="bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white px-6 py-3 font-medium text-sm transition-colors"
+          >
+            {loading ? "Saving…" : "Save changes"}
+          </button>
+        </div>
       </form>
     </div>
   );

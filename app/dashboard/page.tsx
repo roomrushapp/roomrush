@@ -293,13 +293,15 @@ export default function DashboardPage() {
                       <button
                         onClick={toggleSeekerActive}
                         disabled={seekerToggling}
+                        role="switch"
+                        aria-checked={seekerProfile.is_active}
                         aria-label="Toggle profile visibility"
-                        className={`relative w-10 h-5 transition-colors disabled:opacity-60 ${
+                        className={`relative w-11 h-6 rounded-full transition-colors disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-600 ${
                           seekerProfile.is_active ? "bg-green-500" : "bg-zinc-300"
                         }`}
                       >
                         <span
-                          className={`absolute top-0.5 w-4 h-4 bg-white transition-transform ${
+                          className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${
                             seekerProfile.is_active ? "translate-x-5" : "translate-x-0.5"
                           }`}
                         />

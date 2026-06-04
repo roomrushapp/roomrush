@@ -131,12 +131,7 @@ export default function EditRoomSeekerPage() {
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) {
-    const { name, value, type } = e.target;
-    if (type === "checkbox") {
-      setForm({ ...form, [name]: (e.target as HTMLInputElement).checked });
-    } else {
-      setForm({ ...form, [name]: value });
-    }
+    setForm({ ...form, [e.target.name]: e.target.value });
   }
 
   function handleAddFiles(files: File[], previews: string[]) {
@@ -260,19 +255,31 @@ export default function EditRoomSeekerPage() {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        {/* Visibility toggle */}
-        <div className="flex items-start gap-3 bg-zinc-50 border border-zinc-200 px-4 py-4">
-          <input
-            id="is_active" name="is_active" type="checkbox"
-            checked={form.is_active} onChange={handleChange}
-            className="mt-0.5 accent-rose-600 w-4 h-4 shrink-0"
-          />
+        {/* Visibility toggle — pill switch */}
+        <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 px-4 py-4">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={form.is_active}
+            onClick={() => setForm((f) => ({ ...f, is_active: !f.is_active }))}
+            className={`relative w-11 h-6 rounded-full transition-colors shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-600 ${
+              form.is_active ? "bg-green-500" : "bg-zinc-300"
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${
+                form.is_active ? "translate-x-5" : "translate-x-0.5"
+              }`}
+            />
+          </button>
           <div>
-            <label htmlFor="is_active" className="text-sm font-medium text-zinc-900 cursor-pointer">
-              Show my profile publicly
-            </label>
+            <span className={`text-sm font-semibold ${form.is_active ? "text-green-700" : "text-zinc-500"}`}>
+              {form.is_active ? "Public" : "Hidden"}
+            </span>
             <p className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
-              If turned off, your profile will not appear on the Room Seekers page.
+              {form.is_active
+                ? "Your profile is visible on the Room Seekers page."
+                : "Your profile is hidden from the Room Seekers page."}
             </p>
           </div>
         </div>
@@ -401,7 +408,11 @@ export default function EditRoomSeekerPage() {
             type="submit" disabled={loading}
             className="bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white px-6 py-3 font-medium text-sm transition-colors"
           >
-            {loading ? "Saving…" : "Save changes"}
+            {loading
+              ? pendingFiles.length > 0
+                ? "Uploading photos…"
+                : "Saving…"
+              : "Save changes"}
           </button>
         </div>
       </form>

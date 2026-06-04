@@ -39,10 +39,10 @@ export default async function RoomSeekersPage() {
   }
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12">
 
       {/* Browse toggle */}
-      <div className="mb-8">
+      <div className="mb-10">
         <BrowseToggle active="seekers" />
       </div>
 

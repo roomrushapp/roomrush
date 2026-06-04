@@ -70,7 +70,7 @@ export default function SeekerPhotoUpload({
           </div>
         ))}
 
-        {/* Pending (local preview) photos */}
+        {/* Pending (local preview) photos — no badge, clean preview */}
         {pendingPreviews.map((preview, i) => (
           <div key={`pend-${i}`} className="relative w-24 h-24 group">
             <Image
@@ -85,11 +85,6 @@ export default function SeekerPhotoUpload({
                 Main
               </span>
             )}
-            {/* Uploading indicator overlay */}
-            <div className="absolute inset-0 bg-black/10" />
-            <span className="absolute top-1 left-1 text-[9px] text-white bg-zinc-700/80 px-1 py-0.5 uppercase tracking-wide">
-              Pending
-            </span>
             <button
               type="button"
               onClick={() => onRemovePending(i)}
@@ -123,12 +118,19 @@ export default function SeekerPhotoUpload({
         onChange={handleFileChange}
       />
 
-      <p className="text-xs text-zinc-400 leading-relaxed">
-        Add up to {MAX_PHOTOS} photos. The first photo will appear on your profile card.
-        {total >= MAX_PHOTOS && (
-          <span className="ml-1 text-rose-500">Maximum {MAX_PHOTOS} photos reached.</span>
+      <div className="space-y-0.5">
+        <p className="text-xs text-zinc-400 leading-relaxed">
+          Add up to {MAX_PHOTOS} photos. The first photo will appear on your profile card.
+          {total >= MAX_PHOTOS && (
+            <span className="ml-1 text-rose-500">Maximum {MAX_PHOTOS} photos reached.</span>
+          )}
+        </p>
+        {pendingFiles.length > 0 && (
+          <p className="text-xs text-zinc-400">
+            New photos will upload when you save changes.
+          </p>
         )}
-      </p>
+      </div>
     </div>
   );
 }

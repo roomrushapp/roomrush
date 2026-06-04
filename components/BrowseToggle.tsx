@@ -10,20 +10,20 @@ export default function BrowseToggle({ active }: Props) {
       <div className="inline-flex bg-zinc-100 border border-zinc-200 p-1 gap-0.5">
         <Link
           href="/"
-          className={`px-6 py-2 text-sm font-semibold transition-colors whitespace-nowrap ${
+          className={`px-7 py-2.5 text-sm font-semibold transition-colors whitespace-nowrap ${
             active === "rooms"
               ? "bg-rose-600 text-white"
-              : "text-zinc-600 hover:text-black bg-transparent"
+              : "text-zinc-600 hover:text-black"
           }`}
         >
           Rooms
         </Link>
         <Link
           href="/room-seekers"
-          className={`px-6 py-2 text-sm font-semibold transition-colors whitespace-nowrap ${
+          className={`px-7 py-2.5 text-sm font-semibold transition-colors whitespace-nowrap ${
             active === "seekers"
               ? "bg-rose-600 text-white"
-              : "text-zinc-600 hover:text-black bg-transparent"
+              : "text-zinc-600 hover:text-black"
           }`}
         >
           Room Seekers

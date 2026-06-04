@@ -6,6 +6,8 @@ import { formatDate } from "@/lib/mockData";
 import { createClient } from "@/lib/supabase/client";
 import type { Listing, RoomSeekerProfile } from "@/types";
 import { Plus, Pencil, Trash2, LayoutDashboard, LogOut, MapPin, Calendar, Search } from "lucide-react";
+import Image from "next/image";
+import { resolveMainSeekerPhoto } from "@/lib/mockData";
 import { useRouter } from "next/navigation";
 
 type Tab = "listings" | "seeker";
@@ -317,10 +319,31 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  {/* Details */}
-                  <h2 className="font-display font-bold text-xl text-black mb-3">
-                    {seekerProfile.name}
-                  </h2>
+                  {/* Name + avatar */}
+                  <div className="flex items-center gap-3 mb-3">
+                    {(() => {
+                      const photo = resolveMainSeekerPhoto(seekerProfile.photo_urls, seekerProfile.photo_url);
+                      return photo ? (
+                        <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 border border-zinc-200">
+                          <Image src={photo} alt={seekerProfile.name} fill unoptimized className="object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-zinc-200 flex items-center justify-center shrink-0">
+                          <span className="font-display font-bold text-xl text-zinc-500">
+                            {seekerProfile.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      );
+                    })()}
+                    <div>
+                      <h2 className="font-display font-bold text-xl text-black leading-tight">
+                        {seekerProfile.name}
+                        {seekerProfile.age && (
+                          <span className="text-zinc-400 font-normal text-base ml-1">, {seekerProfile.age}</span>
+                        )}
+                      </h2>
+                    </div>
+                  </div>
                   <div className="flex flex-col gap-1.5 text-sm text-zinc-600 mb-4">
                     <div className="flex items-center gap-2">
                       <span className="text-zinc-400 text-xs w-20 shrink-0">Budget</span>

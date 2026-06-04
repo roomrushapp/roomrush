@@ -3,6 +3,7 @@ import Image from "next/image";
 import { MapPin, ArrowRight } from "lucide-react";
 import type { RoomSeekerProfile } from "@/types";
 import { contactHref, contactButtonLabel } from "@/lib/contactHelpers";
+import { resolveMainSeekerPhoto, formatMoveInDate } from "@/lib/mockData";
 
 type Props = {
   profile: RoomSeekerProfile;
@@ -11,14 +12,19 @@ type Props = {
 export default function RoomSeekerCard({ profile }: Props) {
   const href = contactHref(profile.contact_method, profile.contact_value);
   const btnLabel = contactButtonLabel(profile.contact_method);
+  const mainPhoto = resolveMainSeekerPhoto(profile.photo_urls, profile.photo_url);
+
+  const displayName = profile.age
+    ? `${profile.name}, ${profile.age}`
+    : profile.name;
 
   return (
     <div className="bg-white border border-zinc-200 overflow-hidden hover:border-zinc-400 transition-colors flex flex-col">
-      {/* Avatar / photo strip */}
+      {/* Photo / avatar strip */}
       <div className="relative w-full aspect-[3/2] bg-zinc-100 overflow-hidden flex items-center justify-center">
-        {profile.photo_url ? (
+        {mainPhoto ? (
           <Image
-            src={profile.photo_url}
+            src={mainPhoto}
             alt={profile.name}
             fill
             unoptimized
@@ -35,8 +41,6 @@ export default function RoomSeekerCard({ profile }: Props) {
             </div>
           </div>
         )}
-
-        {/* Seeking badge */}
         <span className="absolute top-3 left-3 bg-rose-600 text-white text-xs font-medium px-2 py-1 uppercase tracking-wide">
           Seeking
         </span>
@@ -44,14 +48,13 @@ export default function RoomSeekerCard({ profile }: Props) {
 
       {/* Content */}
       <div className="p-4 flex flex-col flex-1">
-        {/* Name */}
         <h3 className="font-display font-semibold text-base leading-snug text-black mb-1">
-          {profile.name}
+          {displayName}
         </h3>
 
-        {/* Move-in + budget on one line */}
+        {/* Move-in + budget */}
         <p className="text-zinc-500 text-xs mb-2">
-          Looking from {profile.move_in_date}
+          From {formatMoveInDate(profile.move_in_date)}
           <span className="mx-1.5 text-zinc-300">·</span>
           {profile.budget}
         </p>
@@ -62,7 +65,7 @@ export default function RoomSeekerCard({ profile }: Props) {
           <span className="truncate">{profile.preferred_area}</span>
         </div>
 
-        {/* Intro preview */}
+        {/* Intro */}
         <p className="text-zinc-500 text-sm leading-relaxed line-clamp-2 flex-1 mb-4 italic">
           &ldquo;{profile.short_intro}&rdquo;
         </p>

@@ -33,3 +33,39 @@ export const MUNICH_DISTRICTS = [
 ] as const;
 
 export type MunichDistrict = (typeof MUNICH_DISTRICTS)[number];
+
+/** Dropdown options for Room Seeker "Preferred area" field */
+export const SEEKER_PREFERRED_AREAS = [
+  "Flexible / Anywhere in Munich",
+  "Altstadt-Lehel",
+  "Maxvorstadt",
+  "Schwabing West",
+  "Schwabing-Freimann",
+  "Neuhausen-Nymphenburg",
+  "Glockenbachviertel",
+  "Isarvorstadt",
+  "Sendling",
+  "Sendling-Westpark",
+  "Schwanthalerhöhe",
+  "Au-Haidhausen",
+  "Haidhausen",
+  "Bogenhausen",
+  "Giesing",
+  "Berg am Laim",
+  "Ramersdorf-Perlach",
+  "Trudering-Riem",
+  "Moosach",
+  "Milbertshofen-Am Hart",
+  "Feldmoching-Hasenbergl",
+  "Pasing-Obermenzing",
+  "Laim",
+  "Nymphenburg",
+  "Großhadern",
+  "Garching",
+  "Freising",
+  "Martinsried",
+  "Oberschleißheim",
+  "Unterföhring",
+  "Neuried",
+  "Other",
+] as const;

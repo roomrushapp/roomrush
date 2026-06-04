@@ -2,7 +2,9 @@ export type RoomSeekerProfile = {
   id: string;
   user_id: string;
   name: string;
-  photo_url: string | null;
+  age: number | null;
+  photo_url: string | null;        // legacy — keep for backwards compat
+  photo_urls: string[];            // v2 — array of uploaded photos
   budget: string;
   move_in_date: string;
   preferred_area: string;

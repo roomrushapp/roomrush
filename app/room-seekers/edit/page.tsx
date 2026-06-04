@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { compressImage } from "@/lib/compressImage";
+import { SEEKER_PREFERRED_AREAS } from "@/lib/constants";
+import SeekerPhotoUpload from "@/components/SeekerPhotoUpload";
 import { ArrowLeft } from "lucide-react";
 import type { RoomSeekerProfile } from "@/types";
 
@@ -23,8 +26,34 @@ const CONTACT_PLACEHOLDERS: Record<string, string> = {
 
 const INPUT =
   "w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 placeholder:text-zinc-400";
+const SELECT =
+  "w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600";
 const LABEL =
   "block text-xs font-semibold text-zinc-700 uppercase tracking-wide mb-1.5";
+
+async function uploadPhotos(userId: string, files: File[]): Promise<string[]> {
+  if (files.length === 0) return [];
+  const supabase = createClient();
+  const urls: string[] = [];
+  for (const file of files) {
+    const processed = await compressImage(file);
+    const ext = processed.name.split(".").pop() ?? "webp";
+    const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage
+      .from("room-seeker-photos")
+      .upload(path, processed, { upsert: false, contentType: processed.type });
+    if (error) continue;
+    const { data } = supabase.storage.from("room-seeker-photos").getPublicUrl(path);
+    urls.push(data.publicUrl);
+  }
+  return urls;
+}
+
+/** Ensure the preferred_area value is one of our known options, else fall back to first */
+function resolveArea(stored: string): string {
+  const found = (SEEKER_PREFERRED_AREAS as readonly string[]).find((a) => a === stored);
+  return found ?? (SEEKER_PREFERRED_AREAS[0] as string);
+}
 
 export default function EditRoomSeekerPage() {
   const router = useRouter();
@@ -37,12 +66,17 @@ export default function EditRoomSeekerPage() {
   const [success, setSuccess] = useState(false);
   const [noProfile, setNoProfile] = useState(false);
 
+  // Photo state
+  const [existingUrls, setExistingUrls] = useState<string[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [pendingPreviews, setPendingPreviews] = useState<string[]>([]);
+
   const [form, setForm] = useState({
     name: "",
-    photo_url: "",
+    age: "",
     budget: "",
     move_in_date: "",
-    preferred_area: "",
+    preferred_area: SEEKER_PREFERRED_AREAS[0] as string,
     short_intro: "",
     contact_method: "whatsapp",
     contact_value: "",
@@ -68,12 +102,13 @@ export default function EditRoomSeekerPage() {
       } else {
         const p = data as RoomSeekerProfile;
         setProfileId(p.id);
+        setExistingUrls(Array.isArray(p.photo_urls) ? p.photo_urls : []);
         setForm({
           name: p.name,
-          photo_url: p.photo_url ?? "",
+          age: p.age != null ? String(p.age) : "",
           budget: p.budget,
           move_in_date: p.move_in_date,
-          preferred_area: p.preferred_area,
+          preferred_area: resolveArea(p.preferred_area),
           short_intro: p.short_intro,
           contact_method: p.contact_method,
           contact_value: p.contact_value,
@@ -104,28 +139,55 @@ export default function EditRoomSeekerPage() {
     }
   }
 
+  function handleAddFiles(files: File[], previews: string[]) {
+    setPendingFiles((prev) => [...prev, ...files]);
+    setPendingPreviews((prev) => [...prev, ...previews]);
+  }
+
+  function handleRemoveExisting(i: number) {
+    setExistingUrls((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
+  function handleRemovePending(i: number) {
+    URL.revokeObjectURL(pendingPreviews[i]);
+    setPendingFiles((prev) => prev.filter((_, idx) => idx !== i));
+    setPendingPreviews((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setSuccess(false);
     setLoading(true);
+
+    // Upload new files, combine with surviving existing URLs
+    const newUrls = await uploadPhotos(userId, pendingFiles);
+    const finalPhotoUrls = [...existingUrls, ...newUrls];
+
     const supabase = createClient();
     const { error: err } = await supabase
       .from("room_seeker_profiles")
       .update({
         name: form.name.trim(),
-        photo_url: form.photo_url.trim() || null,
+        age: form.age ? parseInt(form.age, 10) : null,
         budget: form.budget.trim(),
         move_in_date: form.move_in_date.trim(),
-        preferred_area: form.preferred_area.trim(),
+        preferred_area: form.preferred_area,
         short_intro: form.short_intro.trim(),
         contact_method: form.contact_method,
         contact_value: form.contact_value.trim(),
+        photo_urls: finalPhotoUrls,
         is_active: form.is_active,
       })
       .eq("user_id", userId);
+
     setLoading(false);
     if (err) { setError(err.message); return; }
+
+    // Reflect saved state
+    setExistingUrls(finalPhotoUrls);
+    setPendingFiles([]);
+    setPendingPreviews([]);
     setSuccess(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -198,7 +260,7 @@ export default function EditRoomSeekerPage() {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        {/* Visibility toggle — shown first so it's always visible */}
+        {/* Visibility toggle */}
         <div className="flex items-start gap-3 bg-zinc-50 border border-zinc-200 px-4 py-4">
           <input
             id="is_active" name="is_active" type="checkbox"
@@ -215,17 +277,32 @@ export default function EditRoomSeekerPage() {
           </div>
         </div>
 
-        <div>
-          <label htmlFor="name" className={LABEL}>
-            Your name <span className="text-rose-600">*</span>
-          </label>
-          <input
-            id="name" name="name" type="text" required maxLength={100}
-            placeholder="Prashant"
-            value={form.name} onChange={handleChange} className={INPUT}
-          />
+        {/* Name + Age */}
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <label htmlFor="name" className={LABEL}>
+              Your name <span className="text-rose-600">*</span>
+            </label>
+            <input
+              id="name" name="name" type="text" required maxLength={100}
+              placeholder="Prashant"
+              value={form.name} onChange={handleChange} className={INPUT}
+            />
+          </div>
+          <div className="w-24 shrink-0">
+            <label htmlFor="age" className={LABEL}>
+              Age{" "}
+              <span className="text-zinc-400 font-normal normal-case tracking-normal">opt.</span>
+            </label>
+            <input
+              id="age" name="age" type="number" min={16} max={80}
+              placeholder="24"
+              value={form.age} onChange={handleChange} className={INPUT}
+            />
+          </div>
         </div>
 
+        {/* Budget */}
         <div>
           <label htmlFor="budget" className={LABEL}>
             Budget <span className="text-rose-600">*</span>
@@ -237,42 +314,47 @@ export default function EditRoomSeekerPage() {
           />
         </div>
 
+        {/* Move-in date */}
         <div>
           <label htmlFor="move_in_date" className={LABEL}>
             Move-in date <span className="text-rose-600">*</span>
           </label>
           <input
-            id="move_in_date" name="move_in_date" type="text" required maxLength={50}
-            placeholder="From August / ASAP / flexible"
+            id="move_in_date" name="move_in_date" type="month" required
             value={form.move_in_date} onChange={handleChange} className={INPUT}
           />
+          <p className="text-xs text-zinc-400 mt-1">Select the earliest month you can move in.</p>
         </div>
 
+        {/* Preferred area */}
         <div>
           <label htmlFor="preferred_area" className={LABEL}>
             Preferred area <span className="text-rose-600">*</span>
           </label>
-          <input
-            id="preferred_area" name="preferred_area" type="text" required maxLength={200}
-            placeholder="Munich, Garching, or flexible"
-            value={form.preferred_area} onChange={handleChange} className={INPUT}
-          />
+          <select
+            id="preferred_area" name="preferred_area" required
+            value={form.preferred_area} onChange={handleChange} className={SELECT}
+          >
+            {SEEKER_PREFERRED_AREAS.map((area) => (
+              <option key={area} value={area}>{area}</option>
+            ))}
+          </select>
         </div>
 
+        {/* Short intro */}
         <div>
           <label htmlFor="short_intro" className={LABEL}>
             Short intro <span className="text-rose-600">*</span>
           </label>
           <textarea
             id="short_intro" name="short_intro" required maxLength={500} rows={4}
-            placeholder={`Hi, I'm a TUM student looking for a friendly WG or short-term room.`}
+            placeholder="Hi, I'm a TUM student looking for a friendly WG or short-term room."
             value={form.short_intro} onChange={handleChange} className={INPUT}
           />
-          <p className="text-xs text-zinc-400 mt-1">
-            {form.short_intro.length} / 500
-          </p>
+          <p className="text-xs text-zinc-400 mt-1">{form.short_intro.length} / 500</p>
         </div>
 
+        {/* Contact */}
         <div>
           <label className={LABEL}>
             How should people contact you? <span className="text-rose-600">*</span>
@@ -298,21 +380,20 @@ export default function EditRoomSeekerPage() {
           </p>
         </div>
 
+        {/* Photos */}
         <div>
-          <label htmlFor="photo_url" className={LABEL}>
-            Profile photo{" "}
-            <span className="text-zinc-400 font-normal normal-case tracking-normal">
-              — optional
-            </span>
+          <label className={LABEL}>
+            Profile photos{" "}
+            <span className="text-zinc-400 font-normal normal-case tracking-normal">— optional</span>
           </label>
-          <input
-            id="photo_url" name="photo_url" type="url"
-            placeholder="https://link-to-your-photo.jpg"
-            value={form.photo_url} onChange={handleChange} className={INPUT}
+          <SeekerPhotoUpload
+            existingUrls={existingUrls}
+            pendingFiles={pendingFiles}
+            pendingPreviews={pendingPreviews}
+            onAddFiles={handleAddFiles}
+            onRemoveExisting={handleRemoveExisting}
+            onRemovePending={handleRemovePending}
           />
-          <p className="text-xs text-zinc-400 mt-1">
-            Paste a direct image link. Leave blank to show your initial instead.
-          </p>
         </div>
 
         <div className="pt-2">

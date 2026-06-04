@@ -5,6 +5,8 @@ import { ArrowLeft, MapPin, Calendar, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { RoomSeekerProfile } from "@/types";
 import { contactHref, contactButtonLabel } from "@/lib/contactHelpers";
+import { resolveMainSeekerPhoto, formatMoveInDate } from "@/lib/mockData";
+import ProfileGallery from "@/components/ProfileGallery";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -39,16 +41,27 @@ export default async function RoomSeekerProfilePage({ params }: Props) {
   const profile = data as RoomSeekerProfile | null;
   if (!profile) notFound();
 
-  // Check if the viewer is the profile owner
   const { data: { user } } = await supabase.auth.getUser();
   const isOwner = user?.id === profile.user_id;
 
   const href = contactHref(profile.contact_method, profile.contact_value);
   const btnLabel = contactButtonLabel(profile.contact_method);
 
+  // Build photo list: prefer photo_urls (v2), fall back to photo_url (v1 legacy)
+  const allPhotos: string[] = Array.isArray(profile.photo_urls) && profile.photo_urls.length > 0
+    ? profile.photo_urls
+    : profile.photo_url
+      ? [profile.photo_url]
+      : [];
+
+  const mainPhoto = resolveMainSeekerPhoto(profile.photo_urls, profile.photo_url);
+
+  const displayName = profile.age
+    ? `${profile.name}, ${profile.age}`
+    : profile.name;
+
   return (
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-10">
-
       {/* Back + owner controls */}
       <div className="flex items-center justify-between mb-8">
         <Link
@@ -72,83 +85,74 @@ export default async function RoomSeekerProfilePage({ params }: Props) {
       {/* Profile card */}
       <div className="bg-white border border-zinc-200 overflow-hidden">
 
-        {/* Avatar section */}
-        <div className="relative bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center py-10">
-          {profile.photo_url ? (
-            <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 border-white/20">
-              <Image
-                src={profile.photo_url}
-                alt={profile.name}
-                fill
-                unoptimized
-                className="object-cover"
-              />
-            </div>
-          ) : (
+        {/* ── Photo gallery or avatar ── */}
+        {allPhotos.length > 0 ? (
+          <ProfileGallery photos={allPhotos} name={profile.name} />
+        ) : (
+          /* Fallback avatar */
+          <div className="relative bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center py-12">
             <div className="w-28 h-28 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center">
               <span className="font-display font-bold text-5xl text-white/80">
                 {profile.name.charAt(0).toUpperCase()}
               </span>
             </div>
-          )}
+            <span className="absolute top-4 left-4 bg-rose-600 text-white text-xs font-medium px-2 py-1 uppercase tracking-wide">
+              Seeking
+            </span>
+          </div>
+        )}
 
-          {/* Seeking pill */}
-          <span className="absolute top-4 left-4 bg-rose-600 text-white text-xs font-medium px-2 py-1 uppercase tracking-wide">
-            Seeking
-          </span>
-
-          {/* Inactive overlay */}
-          {!profile.is_active && (
-            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-              <span className="bg-white text-zinc-700 text-xs font-semibold px-3 py-1.5 uppercase tracking-wide">
-                Profile inactive
-              </span>
-            </div>
-          )}
-        </div>
+        {/* Inactive overlay shown on avatar only (gallery handles its own) */}
+        {!profile.is_active && allPhotos.length === 0 && (
+          <div className="bg-zinc-100 border-b border-zinc-200 px-4 py-2 text-center">
+            <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">
+              Profile inactive
+            </span>
+          </div>
+        )}
 
         {/* Content */}
         <div className="px-6 pt-6 pb-8 sm:px-8">
-          {/* Branding */}
           <p className="text-xs font-medium text-rose-600 uppercase tracking-widest mb-4">
             Room search profile on RoomRush
           </p>
 
-          {/* Name */}
           <h1 className="font-display font-bold text-2xl md:text-3xl text-black mb-4">
-            {profile.name}
+            {displayName}
           </h1>
 
-          {/* Key details */}
           <div className="flex flex-col gap-2 mb-6">
             <div className="flex items-center gap-2 text-zinc-600 text-sm">
               <Calendar size={14} className="text-zinc-400 shrink-0" />
               <span>
-                Looking from <strong className="text-black font-medium">{profile.move_in_date}</strong>
+                Looking from{" "}
+                <strong className="text-black font-medium">
+                  {formatMoveInDate(profile.move_in_date)}
+                </strong>
               </span>
             </div>
             <div className="flex items-center gap-2 text-zinc-600 text-sm">
               <MapPin size={14} className="text-zinc-400 shrink-0" />
               <span>
-                Preferred area: <strong className="text-black font-medium">{profile.preferred_area}</strong>
+                Preferred area:{" "}
+                <strong className="text-black font-medium">{profile.preferred_area}</strong>
               </span>
             </div>
             <div className="flex items-center gap-2 text-zinc-600 text-sm">
               <span className="text-zinc-400 text-xs font-bold w-3.5 shrink-0 text-center">€</span>
               <span>
-                Budget: <strong className="text-black font-medium">{profile.budget}</strong>
+                Budget:{" "}
+                <strong className="text-black font-medium">{profile.budget}</strong>
               </span>
             </div>
           </div>
 
-          {/* Intro */}
           <div className="bg-zinc-50 border border-zinc-100 px-4 py-4 mb-6">
             <p className="text-zinc-700 text-sm leading-relaxed whitespace-pre-wrap italic">
               &ldquo;{profile.short_intro}&rdquo;
             </p>
           </div>
 
-          {/* Contact button */}
           <a
             href={href}
             target="_blank"

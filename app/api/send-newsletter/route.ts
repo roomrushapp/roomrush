@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Use the service role key so this route can read and write newsletter_runs
@@ -19,6 +17,14 @@ function getAdminClient() {
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 async function sendNewsletter(triggeredBy: "cron" | "manual") {
+  if (!process.env.RESEND_API_KEY) {
+    return NextResponse.json(
+      { error: "Newsletter email service is not configured." },
+      { status: 500 }
+    );
+  }
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
   const runAt = new Date();
   console.log(`[Newsletter] Run started — trigger=${triggeredBy} utc=${runAt.toISOString()}`);
 

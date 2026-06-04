@@ -63,7 +63,10 @@ export default function Navbar() {
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-6">
               <Link href="/" className="text-sm text-zinc-600 hover:text-black transition-colors">
-                Listings
+                Rooms
+              </Link>
+              <Link href="/room-seekers" className="text-sm text-zinc-600 hover:text-black transition-colors">
+                Room Seekers
               </Link>
 
               {user ? (
@@ -130,7 +133,10 @@ export default function Navbar() {
       {open && (
         <div className="md:hidden border-t border-zinc-100 bg-white px-4 py-4 flex flex-col gap-4">
           <Link href="/" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
-            Listings
+            Rooms
+          </Link>
+          <Link href="/room-seekers" className="text-sm text-zinc-700" onClick={() => setOpen(false)}>
+            Room Seekers
           </Link>
 
           {user ? (

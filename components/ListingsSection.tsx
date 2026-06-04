@@ -21,6 +21,19 @@ export default function ListingsSection({ initialListings }: Props) {
 
   return (
     <section id="listings" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Tabs */}
+      <div className="flex items-center gap-1 mb-8 border-b border-zinc-200">
+        <span className="px-4 py-2.5 text-sm font-medium text-black border-b-2 border-rose-600 -mb-px">
+          Rooms
+        </span>
+        <Link
+          href="/room-seekers"
+          className="px-4 py-2.5 text-sm font-medium text-zinc-500 hover:text-black transition-colors border-b-2 border-transparent -mb-px"
+        >
+          Room Seekers
+        </Link>
+      </div>
+
       {/* Section header */}
       <div className="flex items-center justify-between mb-6">
         <div>

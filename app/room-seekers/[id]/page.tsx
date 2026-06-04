@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowLeft, MapPin, Calendar } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { RoomSeekerProfile } from "@/types";
 import { contactHref, contactButtonLabel } from "@/lib/contactHelpers";
@@ -39,20 +39,35 @@ export default async function RoomSeekerProfilePage({ params }: Props) {
   const profile = data as RoomSeekerProfile | null;
   if (!profile) notFound();
 
+  // Check if the viewer is the profile owner
+  const { data: { user } } = await supabase.auth.getUser();
+  const isOwner = user?.id === profile.user_id;
+
   const href = contactHref(profile.contact_method, profile.contact_value);
   const btnLabel = contactButtonLabel(profile.contact_method);
 
   return (
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-10">
 
-      {/* Back */}
-      <Link
-        href="/room-seekers"
-        className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-black transition-colors mb-8"
-      >
-        <ArrowLeft size={14} />
-        Room Seekers
-      </Link>
+      {/* Back + owner controls */}
+      <div className="flex items-center justify-between mb-8">
+        <Link
+          href="/room-seekers"
+          className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-black transition-colors"
+        >
+          <ArrowLeft size={14} />
+          Room Seekers
+        </Link>
+        {isOwner && (
+          <Link
+            href="/room-seekers/edit"
+            className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-black border border-zinc-300 hover:border-zinc-500 px-3 py-1.5 transition-colors"
+          >
+            <Pencil size={12} />
+            Edit profile
+          </Link>
+        )}
+      </div>
 
       {/* Profile card */}
       <div className="bg-white border border-zinc-200 overflow-hidden">

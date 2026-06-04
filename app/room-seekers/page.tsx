@@ -12,13 +12,31 @@ export const metadata = {
 
 export default async function RoomSeekersPage() {
   const supabase = await createClient();
-  const { data } = await supabase
+
+  // Fetch active profiles
+  const { data: profilesData } = await supabase
     .from("room_seeker_profiles")
     .select("*")
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
-  const profiles: RoomSeekerProfile[] = data ?? [];
+  const profiles: RoomSeekerProfile[] = profilesData ?? [];
+
+  // Check current user's state to smart-render the CTA
+  const { data: { user } } = await supabase.auth.getUser();
+  let ctaHref = "/room-seekers/create";
+  let ctaLabel = "Create your profile";
+  if (user) {
+    const { data: ownProfile } = await supabase
+      .from("room_seeker_profiles")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (ownProfile) {
+      ctaHref = "/room-seekers/edit";
+      ctaLabel = "Manage your profile";
+    }
+  }
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -44,7 +62,7 @@ export default async function RoomSeekersPage() {
         </p>
       </div>
 
-      {/* CTA banner */}
+      {/* Smart CTA banner */}
       <div className="bg-zinc-50 border border-zinc-200 px-5 py-5 mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <p className="font-medium text-black text-sm mb-0.5">
@@ -55,10 +73,10 @@ export default async function RoomSeekersPage() {
           </p>
         </div>
         <Link
-          href="/room-seekers/create"
+          href={ctaHref}
           className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 font-medium text-xs transition-colors whitespace-nowrap shrink-0 self-start sm:self-auto"
         >
-          Create your profile
+          {ctaLabel}
           <ArrowRight size={12} />
         </Link>
       </div>
@@ -76,10 +94,10 @@ export default async function RoomSeekersPage() {
             Create a profile and share it with listers and WG groups.
           </p>
           <Link
-            href="/room-seekers/create"
+            href={ctaHref}
             className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 font-medium text-sm transition-colors"
           >
-            Create your profile
+            {ctaLabel}
             <ArrowRight size={16} />
           </Link>
         </div>

@@ -21,7 +21,7 @@ export default function ListingsSection({ initialListings }: Props) {
   const showMidBanner = listings.length > MID_BANNER_AFTER;
 
   return (
-    <section id="listings" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <section id="listings" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 scroll-mt-16">
       {/* Browse toggle */}
       <div className="mb-8">
         <BrowseToggle active="rooms" />

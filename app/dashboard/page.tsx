@@ -15,6 +15,7 @@ export default function DashboardPage() {
   const [tab, setTab] = useState<Tab>("listings");
   const [listings, setListings] = useState<Listing[]>([]);
   const [seekerProfile, setSeekerProfile] = useState<RoomSeekerProfile | null | undefined>(undefined); // undefined = loading
+  const [seekerToggling, setSeekerToggling] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
 
@@ -64,6 +65,21 @@ export default function DashboardPage() {
     await supabase.auth.signOut();
     router.push("/");
     router.refresh();
+  }
+
+  async function toggleSeekerActive() {
+    if (!seekerProfile || seekerToggling) return;
+    setSeekerToggling(true);
+    const next = !seekerProfile.is_active;
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("room_seeker_profiles")
+      .update({ is_active: next })
+      .eq("id", seekerProfile.id);
+    if (!error) {
+      setSeekerProfile({ ...seekerProfile, is_active: next });
+    }
+    setSeekerToggling(false);
   }
 
   const liveListings = listings.filter((l) => l.is_active).length;
@@ -268,20 +284,37 @@ export default function DashboardPage() {
               <div className="max-w-lg">
                 {/* Profile card */}
                 <div className="border border-zinc-200 bg-white p-5 mb-4">
-                  {/* Status row */}
-                  <div className="flex items-center justify-between mb-4">
-                    <span className={`text-xs font-semibold uppercase tracking-wide px-2 py-1 ${
-                      seekerProfile.is_active
-                        ? "bg-green-50 text-green-700 border border-green-200"
-                        : "bg-zinc-100 text-zinc-500 border border-zinc-200"
-                    }`}>
-                      {seekerProfile.is_active ? "Public" : "Hidden"}
-                    </span>
-                    <p className="text-xs text-zinc-400">
-                      {seekerProfile.is_active
-                        ? "Your profile appears on the Room Seekers page."
-                        : "Your profile is hidden from the Room Seekers page."}
-                    </p>
+                  {/* Visibility toggle row */}
+                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-zinc-100">
+                    <div className="flex items-center gap-3">
+                      {/* Toggle switch */}
+                      <button
+                        onClick={toggleSeekerActive}
+                        disabled={seekerToggling}
+                        aria-label="Toggle profile visibility"
+                        className={`relative w-10 h-5 transition-colors disabled:opacity-60 ${
+                          seekerProfile.is_active ? "bg-green-500" : "bg-zinc-300"
+                        }`}
+                      >
+                        <span
+                          className={`absolute top-0.5 w-4 h-4 bg-white transition-transform ${
+                            seekerProfile.is_active ? "translate-x-5" : "translate-x-0.5"
+                          }`}
+                        />
+                      </button>
+                      <div>
+                        <span className={`text-sm font-semibold ${
+                          seekerProfile.is_active ? "text-green-700" : "text-zinc-500"
+                        }`}>
+                          {seekerToggling ? "Saving…" : seekerProfile.is_active ? "Public" : "Hidden"}
+                        </span>
+                        <p className="text-xs text-zinc-400 leading-snug mt-0.5">
+                          {seekerProfile.is_active
+                            ? "Your profile is visible on the Room Seekers page."
+                            : "Your profile is hidden from the Room Seekers page."}
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Details */}

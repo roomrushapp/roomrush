@@ -262,13 +262,13 @@ export default function EditRoomSeekerPage() {
             role="switch"
             aria-checked={form.is_active}
             onClick={() => setForm((f) => ({ ...f, is_active: !f.is_active }))}
-            className={`relative w-11 h-6 rounded-full transition-colors shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-600 ${
+            className={`relative inline-flex w-11 h-6 shrink-0 rounded-full overflow-hidden transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-600 ${
               form.is_active ? "bg-green-500" : "bg-zinc-300"
             }`}
           >
             <span
-              className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${
-                form.is_active ? "translate-x-5" : "translate-x-0.5"
+              className={`absolute top-[3px] left-0 w-[18px] h-[18px] bg-white rounded-full shadow-sm transition-transform ${
+                form.is_active ? "translate-x-[23px]" : "translate-x-[3px]"
               }`}
             />
           </button>

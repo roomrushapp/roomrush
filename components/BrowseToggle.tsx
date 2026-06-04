@@ -1,15 +1,27 @@
-import Link from "next/link";
+"use client";
 
-type Props = {
-  active: "rooms" | "seekers";
-};
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
-export default function BrowseToggle({ active }: Props) {
+export default function BrowseToggle({ active: activeProp }: { active?: "rooms" | "seekers" }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [optimistic, setOptimistic] = useState<"rooms" | "seekers" | null>(null);
+
+  const derived = activeProp ?? (pathname === "/room-seekers" ? "seekers" : "rooms");
+  const active = optimistic ?? derived;
+
+  function switchTab(tab: "rooms" | "seekers") {
+    setOptimistic(tab);
+    router.push(tab === "rooms" ? "/#listings" : "/room-seekers");
+  }
+
   return (
     <div className="flex justify-center">
       <div className="inline-flex bg-zinc-100 border border-zinc-200 p-1 gap-0.5">
-        <Link
-          href="/#listings"
+        <button
+          type="button"
+          onClick={() => switchTab("rooms")}
           className={`px-7 py-2.5 text-sm font-semibold transition-colors whitespace-nowrap ${
             active === "rooms"
               ? "bg-rose-600 text-white"
@@ -17,9 +29,10 @@ export default function BrowseToggle({ active }: Props) {
           }`}
         >
           Rooms
-        </Link>
-        <Link
-          href="/room-seekers"
+        </button>
+        <button
+          type="button"
+          onClick={() => switchTab("seekers")}
           className={`px-7 py-2.5 text-sm font-semibold transition-colors whitespace-nowrap ${
             active === "seekers"
               ? "bg-rose-600 text-white"
@@ -27,7 +40,7 @@ export default function BrowseToggle({ active }: Props) {
           }`}
         >
           Room Seekers
-        </Link>
+        </button>
       </div>
     </div>
   );

@@ -49,10 +49,15 @@ async function uploadPhotos(userId: string, files: File[]): Promise<string[]> {
   return urls;
 }
 
-/** Ensure the preferred_area value is one of our known options, else fall back to first */
-function resolveArea(stored: string): string {
-  const found = (SEEKER_PREFERRED_AREAS as readonly string[]).find((a) => a === stored);
-  return found ?? (SEEKER_PREFERRED_AREAS[0] as string);
+/**
+ * If stored value is in the known list, return it.
+ * If it's a custom value (not in list), return "Other" so the dropdown shows "Other"
+ * and the caller can set customArea to the stored value.
+ */
+function resolveArea(stored: string): { dropdownValue: string; customValue: string } {
+  const inList = (SEEKER_PREFERRED_AREAS as readonly string[]).includes(stored);
+  if (inList) return { dropdownValue: stored, customValue: "" };
+  return { dropdownValue: "Other", customValue: stored };
 }
 
 export default function EditRoomSeekerPage() {
@@ -71,6 +76,7 @@ export default function EditRoomSeekerPage() {
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [pendingPreviews, setPendingPreviews] = useState<string[]>([]);
 
+  const [customArea, setCustomArea] = useState("");
   const [form, setForm] = useState({
     name: "",
     age: "",
@@ -103,12 +109,14 @@ export default function EditRoomSeekerPage() {
         const p = data as RoomSeekerProfile;
         setProfileId(p.id);
         setExistingUrls(Array.isArray(p.photo_urls) ? p.photo_urls : []);
+        const { dropdownValue, customValue } = resolveArea(p.preferred_area);
+        setCustomArea(customValue);
         setForm({
           name: p.name,
           age: p.age != null ? String(p.age) : "",
           budget: p.budget,
           move_in_date: p.move_in_date,
-          preferred_area: resolveArea(p.preferred_area),
+          preferred_area: dropdownValue,
           short_intro: p.short_intro,
           contact_method: p.contact_method,
           contact_value: p.contact_value,
@@ -159,6 +167,18 @@ export default function EditRoomSeekerPage() {
     const newUrls = await uploadPhotos(userId, pendingFiles);
     const finalPhotoUrls = [...existingUrls, ...newUrls];
 
+    // Resolve preferred area: if "Other" selected, use custom text if provided
+    const resolvedArea =
+      form.preferred_area === "Other" && customArea.trim()
+        ? customArea.trim()
+        : form.preferred_area;
+
+    if (form.preferred_area === "Other" && !customArea.trim()) {
+      setError("Please enter your preferred area.");
+      setLoading(false);
+      return;
+    }
+
     const supabase = createClient();
     const { error: err } = await supabase
       .from("room_seeker_profiles")
@@ -167,7 +187,7 @@ export default function EditRoomSeekerPage() {
         age: form.age ? parseInt(form.age, 10) : null,
         budget: form.budget.trim(),
         move_in_date: form.move_in_date.trim(),
-        preferred_area: form.preferred_area,
+        preferred_area: resolvedArea,
         short_intro: form.short_intro.trim(),
         contact_method: form.contact_method,
         contact_value: form.contact_value.trim(),
@@ -346,6 +366,17 @@ export default function EditRoomSeekerPage() {
               <option key={area} value={area}>{area}</option>
             ))}
           </select>
+          {form.preferred_area === "Other" && (
+            <input
+              type="text"
+              required
+              placeholder="e.g. Dachau, Garching, near TUM, outside Munich"
+              value={customArea}
+              onChange={(e) => setCustomArea(e.target.value)}
+              className={`${INPUT} mt-2`}
+              aria-label="Enter preferred area"
+            />
+          )}
         </div>
 
         {/* Short intro */}

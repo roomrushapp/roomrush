@@ -33,10 +33,10 @@ export function contactLabel(method: ContactMethod): string {
 
 export function contactButtonLabel(method: ContactMethod): string {
   switch (method) {
-    case "whatsapp": return "Contact on WhatsApp";
-    case "email": return "Send email";
-    case "instagram": return "Open Instagram";
-    case "facebook": return "Open Facebook";
+    case "whatsapp": return "Contact via WhatsApp";
+    case "email": return "Contact via Email";
+    case "instagram": return "Contact via Instagram";
+    case "facebook": return "Contact via Facebook";
     default: return "Contact";
   }
 }

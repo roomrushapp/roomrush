@@ -7,6 +7,7 @@ import type { RoomSeekerProfile } from "@/types";
 import { contactHref, contactButtonLabel } from "@/lib/contactHelpers";
 import { resolveMainSeekerPhoto, formatMoveInDate } from "@/lib/mockData";
 import ProfileGallery from "@/components/ProfileGallery";
+import SeekerShareButton from "@/components/SeekerShareButton";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -68,7 +69,7 @@ export default async function RoomSeekerProfilePage({ params }: Props) {
     <div className="flex-1" style={{ background: "#111113" }}>
       <div className="max-w-xl mx-auto w-full px-4 sm:px-6 py-10">
 
-        {/* Back + owner controls */}
+        {/* Back + controls */}
         <div className="flex items-center justify-between mb-8">
           <Link
             href="/room-seekers"
@@ -77,7 +78,9 @@ export default async function RoomSeekerProfilePage({ params }: Props) {
             <ArrowLeft size={14} />
             Room Seekers
           </Link>
-          {isOwner && (
+          <div className="flex items-center gap-2">
+            <SeekerShareButton profile={profile} profileId={id} />
+            {isOwner && (
             <Link
               href="/room-seekers/edit"
               className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white border border-white/10 hover:border-white/25 px-3 py-1.5 rounded-lg transition-colors"
@@ -85,7 +88,8 @@ export default async function RoomSeekerProfilePage({ params }: Props) {
               <Pencil size={12} />
               Edit profile
             </Link>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Profile card */}

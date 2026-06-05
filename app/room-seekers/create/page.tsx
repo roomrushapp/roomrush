@@ -60,6 +60,7 @@ export default function CreateRoomSeekerPage() {
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [pendingPreviews, setPendingPreviews] = useState<string[]>([]);
 
+  const [customArea, setCustomArea] = useState("");
   const [form, setForm] = useState({
     name: "",
     age: "",
@@ -124,6 +125,18 @@ export default function CreateRoomSeekerPage() {
     // Upload photos first
     const uploadedUrls = await uploadPhotos(userId, pendingFiles);
 
+    // Resolve preferred area: if "Other" selected, use custom text if provided
+    const resolvedArea =
+      form.preferred_area === "Other" && customArea.trim()
+        ? customArea.trim()
+        : form.preferred_area;
+
+    if (form.preferred_area === "Other" && !customArea.trim()) {
+      setError("Please enter your preferred area.");
+      setLoading(false);
+      return;
+    }
+
     const supabase = createClient();
     const { error: err } = await supabase.from("room_seeker_profiles").insert({
       user_id: userId,
@@ -131,7 +144,7 @@ export default function CreateRoomSeekerPage() {
       age: form.age ? parseInt(form.age, 10) : null,
       budget: form.budget.trim(),
       move_in_date: form.move_in_date.trim(),
-      preferred_area: form.preferred_area,
+      preferred_area: resolvedArea,
       short_intro: form.short_intro.trim(),
       contact_method: form.contact_method,
       contact_value: form.contact_value.trim(),
@@ -252,6 +265,17 @@ export default function CreateRoomSeekerPage() {
               <option key={area} value={area}>{area}</option>
             ))}
           </select>
+          {form.preferred_area === "Other" && (
+            <input
+              type="text"
+              required
+              placeholder="e.g. Dachau, Garching, near TUM, outside Munich"
+              value={customArea}
+              onChange={(e) => setCustomArea(e.target.value)}
+              className={`${INPUT} mt-2`}
+              aria-label="Enter preferred area"
+            />
+          )}
         </div>
 
         {/* Short intro */}

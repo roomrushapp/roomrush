@@ -20,19 +20,45 @@ function formatBudget(raw: string): string {
   return trimmed;
 }
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getroomrush.de";
+
 export async function generateMetadata({ params }: Props) {
   const { id } = await params;
   const supabase = await createClient();
   const { data } = await supabase
     .from("room_seeker_profiles")
-    .select("name, preferred_area, budget")
+    .select("name, age, preferred_area, budget, move_in_date")
     .eq("id", id)
     .maybeSingle();
 
   if (!data) return { title: "Room Seeker | RoomRush" };
+
+  const title = data.age
+    ? `${data.name}, ${data.age} is looking for a room | RoomRush`
+    : `${data.name} is looking for a room | RoomRush`;
+
+  const parts: string[] = [];
+  if (data.move_in_date) parts.push(`Move in: ${formatMoveInDate(data.move_in_date)}`);
+  if (data.budget) parts.push(`Budget: ${formatBudget(data.budget)}`);
+  if (data.preferred_area) parts.push(`Area: ${data.preferred_area}`);
+  const description = parts.join(" · ");
+
+  const ogImage = `${SITE_URL}/api/og/seeker?id=${id}`;
+
   return {
-    title: `${data.name} – Room Seeker in ${data.preferred_area} | RoomRush`,
-    description: `${data.name} is looking for a room. Budget: ${data.budget}. Area: ${data.preferred_area}.`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
   };
 }
 
@@ -69,7 +95,7 @@ export default async function RoomSeekerProfilePage({ params }: Props) {
     <div className="flex-1" style={{ background: "#111113" }}>
       <div className="max-w-xl mx-auto w-full px-4 sm:px-6 py-10">
 
-        {/* Back + controls */}
+        {/* Back + owner edit */}
         <div className="flex items-center justify-between mb-8">
           <Link
             href="/room-seekers"
@@ -78,18 +104,15 @@ export default async function RoomSeekerProfilePage({ params }: Props) {
             <ArrowLeft size={14} />
             Room Seekers
           </Link>
-          <div className="flex items-center gap-2">
-            <SeekerShareButton profile={profile} profileId={id} />
-            {isOwner && (
+          {isOwner && (
             <Link
               href="/room-seekers/edit"
-              className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white border border-white/10 hover:border-white/25 px-3 py-1.5 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 text-sm text-zinc-300 hover:text-white border border-white/15 hover:border-white/30 px-4 py-2 rounded-lg transition-colors font-medium"
             >
-              <Pencil size={12} />
+              <Pencil size={13} />
               Edit profile
             </Link>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Profile card */}
@@ -178,6 +201,7 @@ export default async function RoomSeekerProfilePage({ params }: Props) {
               </div>
             )}
 
+            {/* Contact button */}
             <a
               href={href}
               target="_blank"
@@ -187,7 +211,10 @@ export default async function RoomSeekerProfilePage({ params }: Props) {
               {btnLabel}
             </a>
 
-            <p className="text-xs text-zinc-600 mt-3 text-center">
+            {/* Share button — full width, below contact */}
+            <SeekerShareButton profile={profile} profileId={id} fullWidth />
+
+            <p className="text-xs text-zinc-600 mt-4 text-center">
               Contact info is provided by the room seeker and visible on their public profile.
             </p>
           </div>

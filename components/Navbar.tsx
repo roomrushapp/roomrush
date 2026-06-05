@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Menu, X, LogOut } from "lucide-react";
@@ -34,12 +35,17 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-14">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-1.5">
-            <span className="font-display font-bold text-xl tracking-tight text-white">
-              Room
-            </span>
-            <span className="font-display font-bold text-xl tracking-tight text-rose-500">
-              Rush
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/icon.png"
+              alt="RoomRush"
+              width={28}
+              height={28}
+              className="shrink-0"
+              priority
+            />
+            <span className="font-display font-bold text-xl tracking-tight">
+              <span className="text-white">Room</span><span className="text-rose-500">Rush</span>
             </span>
           </Link>
 
@@ -48,7 +54,6 @@ export default function Navbar() {
             <Link href="/listings" className="text-sm text-zinc-400 hover:text-white transition-colors">
               Rooms
             </Link>
-
             {user ? (
               <>
                 <Link href="/dashboard" className="text-sm text-zinc-400 hover:text-white transition-colors">
@@ -114,15 +119,10 @@ export default function Navbar() {
           <Link href="/listings" className="text-sm text-zinc-400 hover:text-white transition-colors" onClick={() => setOpen(false)}>
             Rooms
           </Link>
-
           {user ? (
             <>
-              <Link href="/dashboard" className="text-sm text-zinc-400" onClick={() => setOpen(false)}>
-                Dashboard
-              </Link>
-              <Link href="/newsletter" className="text-sm text-zinc-400" onClick={() => setOpen(false)}>
-                Room Alerts
-              </Link>
+              <Link href="/dashboard" className="text-sm text-zinc-400" onClick={() => setOpen(false)}>Dashboard</Link>
+              <Link href="/newsletter" className="text-sm text-zinc-400" onClick={() => setOpen(false)}>Room Alerts</Link>
               <Link
                 href="/dashboard/listings/new"
                 className="bg-rose-600 text-white text-sm px-4 py-2 text-center font-medium rounded-lg"
@@ -139,12 +139,8 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/newsletter" className="text-sm text-zinc-400" onClick={() => setOpen(false)}>
-                Room Alerts
-              </Link>
-              <Link href="/auth/login" className="text-sm text-zinc-400" onClick={() => setOpen(false)}>
-                Log in
-              </Link>
+              <Link href="/newsletter" className="text-sm text-zinc-400" onClick={() => setOpen(false)}>Room Alerts</Link>
+              <Link href="/auth/login" className="text-sm text-zinc-400" onClick={() => setOpen(false)}>Log in</Link>
               <Link
                 href="/dashboard/listings/new"
                 className="bg-rose-600 text-white text-sm px-4 py-2 text-center font-medium rounded-lg"

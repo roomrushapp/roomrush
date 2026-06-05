@@ -11,15 +11,15 @@ export default function HomePage() {
   return (
     <div className="flex-1 flex flex-col bg-black text-white">
       <div className="flex-1 flex items-center">
-        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
-          <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
+          <div className="grid md:grid-cols-2 gap-10 md:gap-14 items-center">
 
             {/* Left: text + buttons */}
             <div>
               <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest mb-5">
                 Munich · Sublets Only
               </p>
-              <h1 className="font-display font-bold text-5xl md:text-6xl lg:text-7xl leading-none tracking-tight text-white mb-5">
+              <h1 className="font-display font-bold text-6xl md:text-7xl lg:text-8xl leading-none tracking-tight text-white mb-5">
                 SUBLET
                 <br />
                 MUNICH
@@ -64,7 +64,7 @@ export default function HomePage() {
 
             {/* Right: framed image with caption */}
             <div className="hidden md:flex flex-col">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-zinc-800">
+              <div className="relative aspect-[3/2] overflow-hidden rounded-2xl border border-zinc-800">
                 <Image
                   src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&q=80"
                   alt="Munich sublet living room"

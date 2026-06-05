@@ -1,19 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 
 const MAX_ATTEMPTS = 5;
-const COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+const COOLDOWN_MS = 5 * 60 * 1000;
 const STORAGE_KEY = "rr_login_state";
 
 interface LoginState {
   attempts: number;
-  cooldownUntil: number; // epoch ms, 0 = no cooldown
+  cooldownUntil: number;
 }
 
 function getLoginState(): LoginState {
@@ -23,25 +22,25 @@ function getLoginState(): LoginState {
   } catch {}
   return { attempts: 0, cooldownUntil: 0 };
 }
-
 function saveLoginState(state: LoginState) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {}
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
 }
-
 function clearLoginState() {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch {}
+  try { localStorage.removeItem(STORAGE_KEY); } catch {}
 }
-
 function formatSeconds(ms: number) {
   const s = Math.ceil(ms / 1000);
   const m = Math.floor(s / 60);
   const sec = s % 60;
   return m > 0 ? `${m}m ${sec}s` : `${sec}s`;
 }
+
+const inputClass =
+  "w-full rounded-lg px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-rose-500 transition-colors disabled:opacity-50";
+const inputStyle = {
+  background: "#1c1c1f",
+  border: "1px solid rgba(255,255,255,0.1)",
+};
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -50,11 +49,12 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(linkExpired ? "Your password reset link has expired. Please request a new one." : "");
+  const [error, setError] = useState(
+    linkExpired ? "Your password reset link has expired. Please request a new one." : ""
+  );
   const [loading, setLoading] = useState(false);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
 
-  // Restore cooldown from localStorage on mount and tick down
   useEffect(() => {
     const state = getLoginState();
     const remaining = state.cooldownUntil - Date.now();
@@ -68,7 +68,6 @@ function LoginForm() {
         const next = prev - 1000;
         if (next <= 0) {
           clearInterval(id);
-          // Reset attempt count once cooldown expires
           const state = getLoginState();
           saveLoginState({ ...state, cooldownUntil: 0, attempts: 0 });
           return 0;
@@ -82,26 +81,14 @@ function LoginForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-
     const state = getLoginState();
-
-    // Block submission during cooldown
     const remaining = state.cooldownUntil - Date.now();
-    if (remaining > 0) {
-      setCooldownRemaining(remaining);
-      return;
-    }
-
+    if (remaining > 0) { setCooldownRemaining(remaining); return; }
     setLoading(true);
     const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
     if (authError) {
       const newAttempts = state.attempts + 1;
-
       if (newAttempts >= MAX_ATTEMPTS) {
         const cooldownUntil = Date.now() + COOLDOWN_MS;
         saveLoginState({ attempts: newAttempts, cooldownUntil });
@@ -110,15 +97,11 @@ function LoginForm() {
       } else {
         saveLoginState({ ...state, attempts: newAttempts });
         const left = MAX_ATTEMPTS - newAttempts;
-        setError(
-          `Invalid email or password. ${left} attempt${left === 1 ? "" : "s"} remaining before a temporary lockout.`
-        );
+        setError(`Invalid email or password. ${left} attempt${left === 1 ? "" : "s"} remaining before a temporary lockout.`);
       }
-
       setLoading(false);
       return;
     }
-
     clearLoginState();
     window.location.href = "/dashboard";
   }
@@ -126,47 +109,45 @@ function LoginForm() {
   const isCoolingDown = cooldownRemaining > 0;
 
   return (
-    <div className="min-h-screen grid md:grid-cols-2">
+    <div className="flex-1 grid md:grid-cols-2">
       {/* ── LEFT: Form ── */}
-      <div className="flex flex-col items-center justify-center px-6 py-16 bg-white">
+      <div
+        className="flex flex-col items-center justify-center px-6 py-16"
+        style={{ background: "#0f0f11" }}
+      >
         <div className="w-full max-w-sm">
-          <Link href="/" className="block text-center mb-8">
-            <span className="font-display font-bold text-2xl text-rose-600">
-              RoomRush
-            </span>
+          {/* Logo */}
+          <Link href="/" className="block text-center mb-10">
+            <span className="font-display font-bold text-2xl text-white">Room<span className="text-rose-500">Rush</span></span>
           </Link>
 
-          <h1 className="font-display font-bold text-3xl text-black text-center mb-2">
+          <h1 className="font-display font-bold text-3xl text-white text-center mb-2">
             Welcome back
           </h1>
           <p className="text-sm text-zinc-500 text-center mb-8">
-            The fastest way to discover your next sublet.
+            Sign in to manage your listings, alerts, and room seeker profile.
           </p>
 
           {/* Cooldown banner */}
           {isCoolingDown && (
-            <div className="bg-amber-50 border border-amber-300 text-amber-800 text-sm px-4 py-3 mb-6">
-              <p className="font-semibold mb-0.5">Too many failed attempts</p>
-              <p>
-                Please wait{" "}
-                <span className="font-mono font-semibold">
-                  {formatSeconds(cooldownRemaining)}
-                </span>{" "}
-                before trying again.
+            <div className="rounded-lg px-4 py-3 mb-6 text-sm" style={{ background: "rgba(217,119,6,0.12)", border: "1px solid rgba(217,119,6,0.3)" }}>
+              <p className="font-semibold text-amber-400 mb-0.5">Too many failed attempts</p>
+              <p className="text-amber-500/80">
+                Please wait <span className="font-mono font-semibold">{formatSeconds(cooldownRemaining)}</span> before trying again.
               </p>
             </div>
           )}
 
-          {/* Error message */}
+          {/* Error */}
           {!isCoolingDown && error && (
-            <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm px-4 py-3 mb-6">
+            <div className="rounded-lg px-4 py-3 mb-6 text-sm text-rose-400" style={{ background: "rgba(225,29,72,0.1)", border: "1px solid rgba(225,29,72,0.25)" }}>
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div>
-              <label className="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wide">
+              <label className="block text-xs font-medium text-zinc-500 mb-1.5 uppercase tracking-wide">
                 Email address
               </label>
               <input
@@ -176,19 +157,17 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isCoolingDown}
-                className="w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 placeholder:text-zinc-400 disabled:opacity-50"
+                className={inputClass}
+                style={inputStyle}
               />
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wide">
                   Password
                 </label>
-                <Link
-                  href="/auth/forgot-password"
-                  className="text-xs text-rose-600 hover:text-rose-700"
-                >
+                <Link href="/auth/forgot-password" className="text-xs text-rose-500 hover:text-rose-400 transition-colors">
                   Forgot?
                 </Link>
               </div>
@@ -200,12 +179,13 @@ function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isCoolingDown}
-                  className="w-full border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-800 focus:outline-none focus:border-rose-600 pr-10 placeholder:text-zinc-400 disabled:opacity-50"
+                  className={`${inputClass} pr-10`}
+                  style={inputStyle}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -215,55 +195,40 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading || isCoolingDown}
-              className="w-full bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300 text-white py-3 font-medium text-sm transition-colors"
+              className="w-full bg-rose-600 hover:bg-rose-500 disabled:bg-rose-900 disabled:text-rose-600 text-white py-3 rounded-lg font-semibold text-sm transition-colors"
             >
-              {loading ? "Signing in…" : "Enter RoomRush"}
+              {loading ? "Signing in…" : "Sign in"}
             </button>
           </form>
 
           <p className="text-sm text-zinc-500 text-center mt-6">
             Don&apos;t have an account?{" "}
-            <Link
-              href="/auth/signup"
-              className="text-rose-600 hover:text-rose-700 font-medium"
-            >
+            <Link href="/auth/signup" className="text-rose-500 hover:text-rose-400 font-medium transition-colors">
               Sign up for free
             </Link>
           </p>
 
           <div className="flex justify-center gap-4 mt-8">
-            <Link
-              href="/legal/privacy"
-              className="text-xs text-zinc-400 hover:text-zinc-600"
-            >
-              Datenschutz
-            </Link>
-            <span className="text-xs text-zinc-300">·</span>
-            <Link
-              href="/legal/impressum"
-              className="text-xs text-zinc-400 hover:text-zinc-600"
-            >
-              Impressum
-            </Link>
+            <Link href="/legal/privacy" className="text-xs text-zinc-700 hover:text-zinc-400 transition-colors">Datenschutz</Link>
+            <span className="text-xs text-zinc-700">·</span>
+            <Link href="/legal/impressum" className="text-xs text-zinc-700 hover:text-zinc-400 transition-colors">Impressum</Link>
           </div>
         </div>
       </div>
 
       {/* ── RIGHT: Brand panel ── */}
-      <div className="hidden md:flex flex-col items-center justify-center bg-zinc-50 relative overflow-hidden px-10">
-        <p
-          className="font-display font-black text-[20vw] text-zinc-200 leading-none select-none absolute"
-          aria-hidden
-        >
+      <div className="hidden md:flex flex-col items-center justify-center bg-black relative overflow-hidden px-10">
+        <p className="font-display font-black text-[18vw] text-zinc-900 leading-none select-none absolute" aria-hidden>
           RR
         </p>
         <div className="relative z-10 max-w-xs">
-          <div className="w-8 h-1 bg-rose-600 mb-6" />
-          <blockquote className="font-display font-bold text-2xl text-black leading-snug mb-4">
-            &ldquo;Found a place in Munich in under 2 minutes. High velocity
-            indeed.&rdquo;
-          </blockquote>
-          <p className="text-sm text-zinc-500">— James K., Power User</p>
+          <div className="w-8 h-0.5 bg-rose-600 mb-6" />
+          <h2 className="font-display font-bold text-3xl text-white leading-tight mb-4">
+            Fast access to active Munich sublets.
+          </h2>
+          <p className="text-zinc-500 text-sm leading-relaxed">
+            Browse rooms, manage alerts, post listings, or update your RoomRush profile.
+          </p>
         </div>
       </div>
     </div>

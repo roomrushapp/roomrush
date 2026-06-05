@@ -37,12 +37,12 @@ export default async function RoomSeekersPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#111113" }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16">
+    <div className="flex-1 flex flex-col" style={{ background: "#111113" }}>
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-10 pb-16 flex-1">
 
         {/* Browse toggle */}
         <div className="mb-10">
-          <BrowseToggle active="seekers" />
+          <BrowseToggle active="seekers" variant="dark" />
         </div>
 
         {/* Intro section — two columns on desktop */}
@@ -57,7 +57,7 @@ export default async function RoomSeekersPage() {
             <p className="text-zinc-400 text-sm leading-relaxed max-w-md">
               Students, interns, and young professionals searching for WGs, sublets, and furnished rooms.
             </p>
-            <p className="text-zinc-500 text-xs mt-3">
+            <p className="text-zinc-600 text-xs mt-3">
               {profiles.length} active profile{profiles.length !== 1 ? "s" : ""}
             </p>
           </div>
@@ -93,7 +93,7 @@ export default async function RoomSeekersPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center sm:justify-items-stretch">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {profiles.map((profile) => (
               <RoomSeekerCard key={profile.id} profile={profile} />
             ))}

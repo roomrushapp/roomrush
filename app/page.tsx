@@ -11,7 +11,7 @@ export default function HomePage() {
   return (
     <div className="flex-1 flex flex-col bg-black text-white">
       <div className="flex-1 flex items-center">
-        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
           <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
 
             {/* Left: text + buttons */}

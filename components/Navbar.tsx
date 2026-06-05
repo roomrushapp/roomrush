@@ -44,7 +44,7 @@ export default function Navbar() {
               className="shrink-0"
               priority
             />
-            <span className="font-display font-bold text-xl tracking-tight"><span className="text-white">Room</span><span className="text-rose-500">Rush</span></span>
+            <span className="font-display font-bold text-xl text-white" style={{ letterSpacing: "-0.01em" }}>Room<span className="text-rose-500">Rush</span></span>
           </Link>
 
           {/* Desktop nav */}

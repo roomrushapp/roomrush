@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight, Calendar, Wallet } from "lucide-react";
 import type { RoomSeekerProfile } from "@/types";
 import { contactHref, contactButtonLabel } from "@/lib/contactHelpers";
 import { resolveMainSeekerPhoto, formatMoveInDate } from "@/lib/mockData";
@@ -8,6 +8,14 @@ import { resolveMainSeekerPhoto, formatMoveInDate } from "@/lib/mockData";
 type Props = {
   profile: RoomSeekerProfile;
 };
+
+function formatBudget(raw: string): string {
+  const trimmed = raw.trim();
+  // If it's purely numeric, prefix with €
+  if (/^\d+$/.test(trimmed)) return `€${trimmed}`;
+  // If already has € or other currency symbol, return as-is
+  return trimmed;
+}
 
 export default function RoomSeekerCard({ profile }: Props) {
   const href = contactHref(profile.contact_method, profile.contact_value);
@@ -19,9 +27,16 @@ export default function RoomSeekerCard({ profile }: Props) {
     : profile.name;
 
   return (
-    <div className="bg-white border border-zinc-200 overflow-hidden hover:border-zinc-400 transition-colors flex flex-col">
+    <div
+      className="rounded-2xl overflow-hidden flex flex-col w-full transition-all duration-200 hover:translate-y-[-2px]"
+      style={{
+        background: "#1c1c1f",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 2px 16px rgba(0,0,0,0.4)",
+      }}
+    >
       {/* Photo / avatar strip */}
-      <div className="relative w-full aspect-[3/2] bg-zinc-100 overflow-hidden flex items-center justify-center">
+      <div className="relative w-full aspect-[3/2] overflow-hidden flex items-center justify-center" style={{ background: "#2a2a2e" }}>
         {mainPhoto ? (
           <Image
             src={mainPhoto}
@@ -33,48 +48,60 @@ export default function RoomSeekerCard({ profile }: Props) {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
-            <div className="w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
-              <span className="font-display font-bold text-3xl text-white/80">
+          <div className="w-full h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1e1e22, #2a2a30)" }}>
+            <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)" }}>
+              <span className="font-display font-bold text-3xl text-white/70">
                 {profile.name.charAt(0).toUpperCase()}
               </span>
             </div>
           </div>
         )}
-        <span className="absolute top-3 left-3 bg-rose-600 text-white text-xs font-medium px-2 py-1 uppercase tracking-wide">
-          Seeking
+        <span className="absolute top-3 left-3 bg-rose-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full tracking-wide">
+          Looking for a room
         </span>
       </div>
 
       {/* Content */}
       <div className="p-4 flex flex-col flex-1">
-        <h3 className="font-display font-semibold text-base leading-snug text-black mb-1">
+        <h3 className="font-display font-bold text-base leading-snug text-white mb-3">
           {displayName}
         </h3>
 
-        {/* Move-in + budget */}
-        <p className="text-zinc-500 text-xs mb-2">
-          From {formatMoveInDate(profile.move_in_date)}
-          <span className="mx-1.5 text-zinc-300">·</span>
-          {profile.budget}
-        </p>
-
-        {/* Area */}
-        <div className="flex items-center gap-1 text-zinc-400 text-xs mb-3">
-          <MapPin size={11} className="shrink-0" />
-          <span className="truncate">{profile.preferred_area}</span>
+        {/* Key details as pills/rows */}
+        <div className="flex flex-col gap-1.5 mb-3">
+          {profile.move_in_date && (
+            <div className="flex items-center gap-2 text-xs text-zinc-400">
+              <Calendar size={12} className="text-rose-500 shrink-0" />
+              <span>Move in: <span className="text-zinc-300">{formatMoveInDate(profile.move_in_date)}</span></span>
+            </div>
+          )}
+          {profile.budget && (
+            <div className="flex items-center gap-2 text-xs text-zinc-400">
+              <Wallet size={12} className="text-rose-500 shrink-0" />
+              <span>Budget: <span className="text-zinc-300">{formatBudget(profile.budget)}</span></span>
+            </div>
+          )}
+          {profile.preferred_area && (
+            <div className="flex items-center gap-2 text-xs text-zinc-400">
+              <MapPin size={12} className="text-rose-500 shrink-0" />
+              <span className="truncate text-zinc-300">{profile.preferred_area}</span>
+            </div>
+          )}
         </div>
 
-        {/* Intro */}
-        <p className="text-zinc-500 text-sm leading-relaxed line-clamp-2 flex-1 mb-4 italic">
-          &ldquo;{profile.short_intro}&rdquo;
-        </p>
+        {/* Intro quote */}
+        {profile.short_intro && (
+          <p className="text-zinc-500 text-sm leading-relaxed line-clamp-2 flex-1 mb-4 italic" style={{ borderLeft: "2px solid rgba(244,63,94,0.3)", paddingLeft: "10px" }}>
+            &ldquo;{profile.short_intro}&rdquo;
+          </p>
+        )}
 
         {/* Buttons */}
-        <div className="flex items-center gap-2 border-t border-zinc-100 pt-3 mt-auto">
+        <div className="flex items-center gap-2 pt-3 mt-auto" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
           <Link
             href={`/room-seekers/${profile.id}`}
-            className="flex-1 flex items-center justify-center gap-1 border border-zinc-200 hover:border-zinc-400 text-zinc-600 hover:text-black text-xs px-3 py-2 transition-colors font-medium"
+            className="flex-1 flex items-center justify-center gap-1 text-zinc-300 hover:text-white text-xs px-3 py-2.5 rounded-xl font-medium transition-colors"
+            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
           >
             View profile
             <ArrowRight size={11} />
@@ -83,7 +110,7 @@ export default function RoomSeekerCard({ profile }: Props) {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 flex items-center justify-center bg-rose-600 hover:bg-rose-700 text-white text-xs px-3 py-2 transition-colors font-medium truncate"
+            className="flex-1 flex items-center justify-center bg-rose-600 hover:bg-rose-500 text-white text-xs px-3 py-2.5 rounded-xl transition-colors font-medium truncate"
             title={btnLabel}
           >
             Contact

@@ -65,8 +65,8 @@ export default async function RoomSeekerProfilePage({ params }: Props) {
     : profile.name;
 
   return (
-    <div className="flex-1 flex flex-col" style={{ background: "#111113" }}>
-      <div className="max-w-xl mx-auto w-full px-4 sm:px-6 py-10 flex-1">
+    <div className="flex-1" style={{ background: "#111113" }}>
+      <div className="max-w-xl mx-auto w-full px-4 sm:px-6 py-10">
 
         {/* Back + owner controls */}
         <div className="flex items-center justify-between mb-8">

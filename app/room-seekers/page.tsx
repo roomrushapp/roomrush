@@ -37,8 +37,8 @@ export default async function RoomSeekersPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col" style={{ background: "#111113" }}>
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-10 pb-16 flex-1">
+    <div className="flex-1" style={{ background: "#111113" }}>
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-10 pb-10">
 
         {/* Browse toggle */}
         <div className="mb-10">
@@ -91,6 +91,11 @@ export default async function RoomSeekersPage() {
               {ctaLabel}
               <ArrowRight size={16} />
             </Link>
+          </div>
+        ) : profiles.length === 1 ? (
+          /* Single card: centered, max width so it doesn't span full page */
+          <div className="max-w-sm mx-auto">
+            <RoomSeekerCard profile={profiles[0]} />
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

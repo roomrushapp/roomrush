@@ -13,13 +13,13 @@ export default function BrowseToggle({ active: activeProp, variant }: Props) {
   const router = useRouter();
   const [optimistic, setOptimistic] = useState<"rooms" | "seekers" | null>(null);
 
-  const derived = activeProp ?? (pathname === "/room-seekers" ? "seekers" : "rooms");
+  const derived = activeProp ?? (pathname === "/room-seekers" ? "seekers" : pathname === "/listings" ? "rooms" : "rooms");
   const active = optimistic ?? derived;
   const dark = variant === "dark" || activeProp === "seekers";
 
   function switchTab(tab: "rooms" | "seekers") {
     setOptimistic(tab);
-    router.push(tab === "rooms" ? "/#listings" : "/room-seekers");
+    router.push(tab === "rooms" ? "/listings" : "/room-seekers");
   }
 
   const pillBg = dark ? "rgba(255,255,255,0.1)" : "rgb(228 228 231)";

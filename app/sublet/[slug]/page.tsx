@@ -15,6 +15,7 @@ import MobileStickyContact from "@/components/MobileStickyContact";
 
 
 import { generateOgTitle, generateOgDescription } from "@/lib/og-utils";
+import ListingCard from "@/components/ListingCard";
 
 const BASE_URL = "https://www.getroomrush.de";
 
@@ -130,6 +131,14 @@ export default async function SubletDetailPage({ params }: Props) {
     .single();
 
   if (!listing) notFound();
+
+  const { data: moreListings } = await supabase
+    .from("listings")
+    .select("id, title, slug, location, rent, available_from, available_until, image_urls, views_count, created_at, is_active")
+    .eq("is_active", true)
+    .neq("id", listing.id)
+    .order("created_at", { ascending: false })
+    .limit(3);
 
   const { count: rawInterestedCount } = await supabase
     .from("listing_events")
@@ -269,6 +278,43 @@ export default async function SubletDetailPage({ params }: Props) {
         rent={listing.rent}
         contactCardId="contact-card"
       />
+
+      {/* ── MORE AVAILABLE ROOMS ──
+          Outer: overflow-hidden clips any child that tries to escape the page width.
+          Mobile scroll row: overflow-x-auto on a block element inside the clip boundary.
+          Cards: shrink-0 so they don't compress; fixed vw width so they peek naturally.
+      */}
+      {moreListings && moreListings.length > 0 && (
+        <div className="mt-12 w-full max-w-full overflow-hidden">
+          <h2 className="font-display font-bold text-2xl text-black mb-1">More available rooms</h2>
+          <p className="text-zinc-500 text-sm mb-4">Other active sublets you can check.</p>
+
+          {/* Desktop: normal 3-column grid */}
+          <div className="hidden sm:grid sm:grid-cols-3 sm:gap-4">
+            {moreListings.map((item) => (
+              <ListingCard key={item.id} listing={item as any} />
+            ))}
+          </div>
+
+          {/* Mobile: horizontal scroll carousel — clipped by parent overflow-hidden */}
+          <div className="sm:hidden overflow-x-auto">
+            <div className="flex gap-3 pb-2 snap-x snap-mandatory">
+              {moreListings.map((item) => (
+                <div key={item.id} className="shrink-0 w-[82vw] max-w-[320px] snap-start">
+                  <ListingCard listing={item as any} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Link
+            href="/listings"
+            className="inline-block mt-4 text-sm text-rose-600 hover:text-rose-700 font-medium transition-colors"
+          >
+            View all rooms →
+          </Link>
+        </div>
+      )}
 
       {/* ── ROOM ALERTS CARD ── */}
       <div className="max-w-md mt-4 border border-zinc-200 bg-zinc-50 p-5">

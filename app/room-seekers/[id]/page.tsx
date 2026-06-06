@@ -47,7 +47,8 @@ export async function generateMetadata({ params }: Props) {
   if (cleanArea) parts.push(`Area: ${cleanArea}`);
   const description = parts.join(" · ");
 
-  const ogImage = `${SITE_URL}/api/og/seeker?id=${id}`;
+  const profileUrl = `${SITE_URL}/room-seekers/${id}`;
+  const ogImage = `${SITE_URL}/api/og/seeker?id=${id}&v=2`;
 
   return {
     title,
@@ -55,6 +56,8 @@ export async function generateMetadata({ params }: Props) {
     openGraph: {
       title,
       description,
+      url: profileUrl,
+      type: "website",
       images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
     },
     twitter: {

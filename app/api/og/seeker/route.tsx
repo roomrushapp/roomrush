@@ -50,6 +50,29 @@ function formatBudget(raw: string): string {
   return t;
 }
 
+/**
+ * Pre-fetch a remote image and return it as a base64 data URL so Satori
+ * never needs to make its own outbound fetch (which can fail silently on
+ * redirects, CORS, or timeouts and crash the whole ImageResponse).
+ *
+ * Returns null on any error so the caller can fall back to a monogram.
+ */
+async function fetchPhotoAsDataUrl(url: string): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const contentType = res.headers.get("content-type") ?? "image/jpeg";
+    const buffer = await res.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString("base64");
+    return `data:${contentType};base64,${base64}`;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
@@ -61,7 +84,7 @@ export async function GET(req: NextRequest) {
   const supabase = createAdminClient();
   const { data } = await supabase
     .from("room_seeker_profiles")
-    .select("name, age, budget, move_in_date, preferred_area, short_intro, photo_urls, photo_url")
+    .select("name, age, budget, move_in_date, preferred_area, photo_urls, photo_url")
     .eq("id", id)
     .maybeSingle();
 
@@ -78,13 +101,19 @@ export async function GET(req: NextRequest) {
   const rawArea = data.preferred_area?.trim() ?? "";
   const area = rawArea && !VAGUE.has(rawArea.toLowerCase()) ? rawArea : null;
 
-  // Resolve photo: photo_urls array (v2) first, then photo_url (v1)
-  const photo: string | null =
+  // Resolve the raw photo URL (photo_urls v2 array takes priority over legacy photo_url)
+  const rawPhotoUrl: string | null =
     (Array.isArray(data.photo_urls) && data.photo_urls.length > 0)
       ? data.photo_urls[0]
       : data.photo_url ?? null;
 
-  return new ImageResponse(
+  // Pre-fetch the photo as a data URL so Satori doesn't have to fetch it
+  // itself (which can crash ImageResponse on redirect / CORS / timeout).
+  const photoDataUrl: string | null = rawPhotoUrl
+    ? await fetchPhotoAsDataUrl(rawPhotoUrl)
+    : null;
+
+  const jsx = (
     <div
       style={{
         width: W, height: H,
@@ -215,15 +244,11 @@ export async function GET(req: NextRequest) {
             position: "relative",
           }}
         >
-          {photo ? (
+          {photoDataUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={photo}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
+              src={photoDataUrl}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
           ) : (
             <span
@@ -252,9 +277,17 @@ export async function GET(req: NextRequest) {
           display: "flex",
         }}
       />
-    </div>,
-    { width: W, height: H, fonts, headers: CACHE_HEADERS },
+    </div>
   );
+
+  try {
+    return new ImageResponse(jsx, { width: W, height: H, fonts, headers: CACHE_HEADERS });
+  } catch {
+    // If ImageResponse itself fails for any reason, return a safe branded fallback
+    return new ImageResponse(<Fallback fontFamily={fontFamily} />, {
+      width: W, height: H, fonts, headers: CACHE_HEADERS,
+    });
+  }
 }
 
 function Fallback({ fontFamily }: { fontFamily: string }) {

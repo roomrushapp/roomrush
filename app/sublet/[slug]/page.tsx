@@ -143,7 +143,7 @@ export default async function SubletDetailPage({ params }: Props) {
   const showInterestedUsers = interestedUsers >= MIN_PUBLIC_INTERESTED_USERS;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-28 md:pb-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-28 md:pb-8 min-w-0">
       <ViewTracker listingId={listing.id} />
       <Link href="/" className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-black mb-6 transition-colors">
         <ArrowLeft size={14} />

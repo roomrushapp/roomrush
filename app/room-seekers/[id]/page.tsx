@@ -37,10 +37,14 @@ export async function generateMetadata({ params }: Props) {
     ? `${data.name}, ${data.age} is looking for a room | RoomRush`
     : `${data.name} is looking for a room | RoomRush`;
 
+  const VAGUE = new Set(["other", "flexible", "anywhere", "any", ""]);
+  const rawArea = data.preferred_area?.trim() ?? "";
+  const cleanArea = rawArea && !VAGUE.has(rawArea.toLowerCase()) ? rawArea : null;
+
   const parts: string[] = [];
   if (data.move_in_date) parts.push(`Move in: ${formatMoveInDate(data.move_in_date)}`);
   if (data.budget) parts.push(`Budget: ${formatBudget(data.budget)}`);
-  if (data.preferred_area) parts.push(`Area: ${data.preferred_area}`);
+  if (cleanArea) parts.push(`Area: ${cleanArea}`);
   const description = parts.join(" · ");
 
   const ogImage = `${SITE_URL}/api/og/seeker?id=${id}`;

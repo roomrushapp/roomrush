@@ -74,7 +74,9 @@ export async function GET(req: NextRequest) {
   const nameAge = data.age ? `${data.name}, ${data.age}` : data.name;
   const moveIn = data.move_in_date ? formatMoveIn(data.move_in_date) : null;
   const budget = data.budget ? formatBudget(data.budget) : null;
-  const area = data.preferred_area || null;
+  const VAGUE = new Set(["other", "flexible", "anywhere", "any", ""]);
+  const rawArea = data.preferred_area?.trim() ?? "";
+  const area = rawArea && !VAGUE.has(rawArea.toLowerCase()) ? rawArea : null;
 
   // Resolve photo: photo_urls array (v2) first, then photo_url (v1)
   const photo: string | null =

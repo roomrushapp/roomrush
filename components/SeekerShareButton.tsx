@@ -18,18 +18,24 @@ function formatBudget(raw: string): string {
   return t;
 }
 
+const VAGUE_AREAS = new Set(["other", "flexible", "anywhere", "any", ""]);
+
+function cleanArea(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  if (VAGUE_AREAS.has(trimmed.toLowerCase())) return null;
+  return trimmed;
+}
+
 function buildShareBody(profile: RoomSeekerProfile): string {
   const lines: string[] = [];
   const nameAge = profile.age ? `${profile.name}, ${profile.age}` : profile.name;
-  lines.push(`${nameAge} is looking for a room in Munich 🏠`);
+  lines.push(`${nameAge} is looking for a room 🏠`);
   lines.push("");
   if (profile.move_in_date) lines.push(`Move in: ${formatMoveInDate(profile.move_in_date)}`);
   if (profile.budget) lines.push(`Budget: ${formatBudget(profile.budget)}`);
-  if (profile.preferred_area) lines.push(`Area: ${profile.preferred_area}`);
-  if (profile.short_intro) {
-    lines.push("");
-    lines.push(`"${profile.short_intro}"`);
-  }
+  const area = cleanArea(profile.preferred_area);
+  if (area) lines.push(`Area: ${area}`);
   return lines.join("\n");
 }
 

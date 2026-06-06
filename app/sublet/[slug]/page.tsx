@@ -15,6 +15,7 @@ import MobileStickyContact from "@/components/MobileStickyContact";
 
 
 import { generateOgTitle, generateOgDescription } from "@/lib/og-utils";
+import ListingCard from "@/components/ListingCard";
 
 const BASE_URL = "https://www.getroomrush.de";
 
@@ -130,6 +131,14 @@ export default async function SubletDetailPage({ params }: Props) {
     .single();
 
   if (!listing) notFound();
+
+  const { data: moreListings } = await supabase
+    .from("listings")
+    .select("id, title, slug, location, rent, available_from, available_until, image_urls, views_count, created_at, is_active")
+    .eq("is_active", true)
+    .neq("id", listing.id)
+    .order("created_at", { ascending: false })
+    .limit(3);
 
   const { count: rawInterestedCount } = await supabase
     .from("listing_events")
@@ -269,6 +278,31 @@ export default async function SubletDetailPage({ params }: Props) {
         rent={listing.rent}
         contactCardId="contact-card"
       />
+
+      {/* ── MORE AVAILABLE ROOMS ── */}
+      {moreListings && moreListings.length > 0 && (
+        <div className="mt-12">
+          <div className="mb-4">
+            <h2 className="font-display font-bold text-2xl text-black">More available rooms</h2>
+            <p className="text-zinc-500 text-sm mt-1">Other active sublets you can check.</p>
+          </div>
+
+          {/* Mobile: horizontal scroll; Desktop: 3-col grid */}
+          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0">
+            {moreListings.map((item) => (
+              <div key={item.id} className="min-w-[75vw] snap-start sm:min-w-0">
+                <ListingCard listing={item as any} />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4">
+            <Link href="/listings" className="text-sm text-rose-600 hover:text-rose-700 font-medium transition-colors">
+              View all rooms →
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* ── ROOM ALERTS CARD ── */}
       <div className="max-w-md mt-4 border border-zinc-200 bg-zinc-50 p-5">

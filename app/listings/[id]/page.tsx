@@ -6,13 +6,14 @@ import type { Metadata } from "next";
 import { formatDate } from "@/lib/mockData";
 import { createClient } from "@/lib/supabase/server";
 import { MapPin, Calendar, ArrowLeft, Eye, Users } from "lucide-react";
+import Image from "next/image";
 import ImageLightbox from "@/components/ImageLightbox";
 import ShareButtons from "@/components/ShareButtons";
 import ContactButtons from "@/components/ContactButtons";
 import ReportListingButton from "@/components/ReportListingButton";
 import ViewTracker from "@/components/ViewTracker";
 import { generateOgTitle, generateOgDescription } from "@/lib/og-utils";
-import ListingCard from "@/components/ListingCard";
+import NoPhotoPlaceholder from "@/components/NoPhotoPlaceholder";
 
 const BASE_URL = "https://www.getroomrush.de";
 
@@ -271,23 +272,53 @@ export default async function ListingDetailPage({ params }: Props) {
       {/* ── MORE AVAILABLE ROOMS ── */}
       {moreListings && moreListings.length > 0 && (
         <div className="mt-12">
-          <div className="mb-4">
-            <h2 className="font-display font-bold text-2xl text-black">More available rooms</h2>
-            <p className="text-zinc-500 text-sm mt-1">Other active sublets you can check.</p>
-          </div>
+          <h2 className="font-display font-bold text-2xl text-black">More available rooms</h2>
+          <p className="text-zinc-500 text-sm mt-1 mb-6">
+            Not the perfect fit? Explore more rooms currently available on RoomRush.
+          </p>
 
-          {/* Mobile: horizontal scroll; Desktop: 3-col grid */}
-          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0">
-            {moreListings.map((item) => (
-              <div key={item.id} className="min-w-[75vw] snap-start sm:min-w-0">
-                <ListingCard listing={item as any} />
-              </div>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {moreListings.map((item) => {
+              const href = item.slug ? `/sublet/${item.slug}` : `/listings/${item.id}`;
+              const thumb = item.image_urls?.[0] ?? null;
+              return (
+                <Link
+                  key={item.id}
+                  href={href}
+                  className="flex items-start gap-3 border border-zinc-200 bg-white hover:border-zinc-400 transition-colors p-3 group min-w-0"
+                >
+                  <div className="relative w-20 h-16 shrink-0 bg-zinc-100 overflow-hidden">
+                    {thumb ? (
+                      <Image
+                        src={thumb}
+                        alt={item.title}
+                        fill
+                        unoptimized
+                        className="object-cover"
+                        sizes="80px"
+                      />
+                    ) : (
+                      <NoPhotoPlaceholder />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm text-black group-hover:text-rose-600 transition-colors break-words line-clamp-2 leading-snug mb-1">
+                      {item.title}
+                    </p>
+                    <p className="font-display font-bold text-rose-600 text-sm">
+                      €{item.rent.toLocaleString()}
+                      <span className="text-xs text-zinc-400 font-normal">/mo</span>
+                    </p>
+                    <p className="text-xs text-zinc-400 truncate mt-0.5">{item.location}, Munich</p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
 
           <div className="mt-4">
             <Link href="/listings" className="text-sm text-rose-600 hover:text-rose-700 font-medium transition-colors">
-              View all rooms →
+              Browse all rooms →
             </Link>
           </div>
         </div>

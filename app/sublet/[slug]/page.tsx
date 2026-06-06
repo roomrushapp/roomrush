@@ -287,13 +287,20 @@ export default async function SubletDetailPage({ params }: Props) {
             <p className="text-zinc-500 text-sm mt-1">Other active sublets you can check.</p>
           </div>
 
-          {/* Mobile: horizontal scroll; Desktop: 3-col grid */}
-          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0">
+          {/* Mobile: horizontal scroll carousel; Desktop: 3-col grid */}
+          <div className="hidden sm:grid sm:grid-cols-3 sm:gap-4">
             {moreListings.map((item) => (
-              <div key={item.id} className="min-w-[75vw] snap-start sm:min-w-0">
-                <ListingCard listing={item as any} />
-              </div>
+              <ListingCard key={item.id} listing={item as any} />
             ))}
+          </div>
+          <div className="sm:hidden -mx-4 overflow-x-auto">
+            <div className="flex gap-3 px-4 pb-2 snap-x snap-mandatory">
+              {moreListings.map((item) => (
+                <div key={item.id} className="w-[80vw] max-w-[320px] shrink-0 snap-start">
+                  <ListingCard listing={item as any} />
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="mt-4">

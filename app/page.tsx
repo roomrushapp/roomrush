@@ -27,7 +27,7 @@ export default function HomePage() {
                 <span className="text-rose-600">NOW.</span>
               </h1>
               <p className="text-zinc-400 text-base md:text-lg max-w-sm mb-10">
-                Munich rooms and sublets, made faster and safer.
+                Munich and nearby rooms & sublets, made faster and safer.
               </p>
 
               {/* 4-button row */}
@@ -82,7 +82,7 @@ export default function HomePage() {
                 }}
               >
                 <p className="text-zinc-400 text-xs font-medium tracking-wide">
-                  Active sublets. No noise. Direct contact.
+                  Active rooms & sublets. No noise. Direct contact.
                 </p>
                 <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shrink-0" />
               </div>

@@ -20,7 +20,7 @@ function formatBudget(raw: string): string {
   return trimmed;
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.getroomrush.de";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getroomrush.de";
 
 export async function generateMetadata({ params }: Props) {
   const { id } = await params;

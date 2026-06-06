@@ -51,24 +51,25 @@ function formatBudget(raw: string): string {
 }
 
 /**
- * Fetch a remote image and return it as a base64 data URL.
- * Satori must not make its own outbound fetch (redirects / CORS break it).
- * Returns null on any failure so the caller falls back to the monogram.
+ * Render JSX to PNG via Satori and return a Response.
+ *
+ * IMPORTANT: `new ImageResponse(jsx)` is LAZY — Satori renders during body
+ * streaming, after `new ImageResponse()` returns. A try/catch around
+ * `new ImageResponse()` therefore never catches render-time crashes.
+ *
+ * The fix: call `.arrayBuffer()` inside the try block, which forces Satori
+ * to complete the render immediately so any error IS caught.
  */
-async function fetchPhotoAsDataUrl(url: string): Promise<string | null> {
-  try {
-    const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch(url, { signal: controller.signal });
-    clearTimeout(tid);
-    if (!res.ok) return null;
-    const contentType = res.headers.get("content-type") ?? "image/jpeg";
-    const buf = await res.arrayBuffer();
-    const b64 = Buffer.from(buf).toString("base64");
-    return `data:${contentType};base64,${b64}`;
-  } catch {
-    return null;
-  }
+async function renderImage(
+  jsx: React.ReactElement,
+  fonts: ReturnType<typeof buildFonts>,
+): Promise<Response> {
+  const ir = new ImageResponse(jsx, { width: W, height: H, fonts });
+  const buf = await ir.arrayBuffer();
+  return new Response(buf, {
+    status: 200,
+    headers: { "Content-Type": "image/png", ...CACHE_HEADERS },
+  });
 }
 
 export async function GET(req: NextRequest) {
@@ -79,67 +80,90 @@ export async function GET(req: NextRequest) {
   const fonts = buildFonts();
   const fontFamily = fonts.length > 0 ? "Inter" : "sans-serif";
 
+  // ── Step 1: fetch profile data (safe) ────────────────────────────────────
+  type ProfileRow = {
+    name: string;
+    age: number | null;
+    budget: string | null;
+    move_in_date: string | null;
+    preferred_area: string | null;
+  };
+  let profile: ProfileRow | null = null;
   try {
     const supabase = createAdminClient();
     const { data } = await supabase
       .from("room_seeker_profiles")
-      .select("name, age, budget, move_in_date, preferred_area, photo_urls, photo_url")
+      .select("name, age, budget, move_in_date, preferred_area")
       .eq("id", id)
       .maybeSingle();
-
-    if (!data) {
-      return new ImageResponse(<Fallback fontFamily={fontFamily} />, {
-        width: W, height: H, fonts, headers: CACHE_HEADERS,
-      });
-    }
-
-    const nameAge = data.age ? `${data.name}, ${data.age}` : data.name;
-    const moveIn = data.move_in_date ? formatMoveIn(data.move_in_date) : null;
-    const budget = data.budget ? formatBudget(data.budget) : null;
-    const VAGUE = new Set(["other", "flexible", "anywhere", "any", ""]);
-    const rawArea = data.preferred_area?.trim() ?? "";
-    const area = rawArea && !VAGUE.has(rawArea.toLowerCase()) ? rawArea : null;
-
-    // Resolve raw photo URL — photo_urls array (v2) takes priority
-    const rawPhotoUrl: string | null =
-      Array.isArray(data.photo_urls) && data.photo_urls.length > 0
-        ? data.photo_urls[0]
-        : data.photo_url ?? null;
-
-    // Pre-fetch as base64 so Satori never makes its own outbound request
-    const photoDataUrl: string | null = rawPhotoUrl
-      ? await fetchPhotoAsDataUrl(rawPhotoUrl)
-      : null;
-
-    return new ImageResponse(
-      <ProfileCard
-        fontFamily={fontFamily}
-        nameAge={nameAge}
-        firstName={data.name ?? "?"}
-        moveIn={moveIn}
-        budget={budget}
-        area={area}
-        photoDataUrl={photoDataUrl}
-      />,
-      { width: W, height: H, fonts, headers: CACHE_HEADERS },
-    );
+    profile = data as ProfileRow | null;
   } catch {
-    // Any error (DB, render, etc.) → safe branded fallback, never a 500
-    return new ImageResponse(<Fallback fontFamily={fontFamily} />, {
-      width: W, height: H, fonts, headers: CACHE_HEADERS,
+    // DB unreachable → show branded fallback
+  }
+
+  // ── Step 2: build derived display values ─────────────────────────────────
+  const nameAge = profile
+    ? profile.age
+      ? `${profile.name}, ${profile.age}`
+      : profile.name
+    : null;
+
+  const moveIn =
+    profile?.move_in_date ? formatMoveIn(profile.move_in_date) : null;
+  const budget = profile?.budget ? formatBudget(profile.budget) : null;
+
+  const VAGUE = new Set(["other", "flexible", "anywhere", "any", ""]);
+  const rawArea = profile?.preferred_area?.trim() ?? "";
+  const area = rawArea && !VAGUE.has(rawArea.toLowerCase()) ? rawArea : null;
+
+  // ── Step 3: render — innermost fallback always wins ───────────────────────
+  // Try full profile card
+  if (nameAge) {
+    try {
+      return await renderImage(
+        <ProfileCard
+          fontFamily={fontFamily}
+          nameAge={nameAge}
+          firstName={(profile?.name ?? "?")[0].toUpperCase()}
+          moveIn={moveIn}
+          budget={budget}
+          area={area}
+        />,
+        fonts,
+      );
+    } catch {
+      // Satori render crash → fall through to branded fallback
+    }
+  }
+
+  // Branded fallback (no profile / render crash)
+  try {
+    return await renderImage(<Fallback fontFamily={fontFamily} />, fonts);
+  } catch {
+    // Absolute last resort — plain text so we never return 500
+    return new Response("image unavailable", {
+      status: 200,
+      headers: { "Content-Type": "text/plain" },
     });
   }
 }
 
-// ─── Profile card ──────────────────────────────────────────────────────────────
-// Only uses CSS properties Satori reliably supports in production:
-//   - No radial-gradient (crashes Satori on some runtimes)
-//   - No overflow:hidden on non-root elements with border-radius (clips nothing in Satori)
-//   - Photo is clipped via borderRadius on the <img> itself, not a wrapper
-//   - lineHeight is an integer (1), not a float
+// ─── Profile card ─────────────────────────────────────────────────────────────
+// Rules kept for Satori compatibility:
+//   • No radial-gradient
+//   • No overflow:hidden on non-root elements with border-radius
+//   • No flex:1 (use explicit widths instead)
+//   • No percentage strings in absolute positioning
+//   • lineHeight is integer 1, not a float
+//   • No profile photo (avoids outbound fetch / base64 issues entirely)
 
 function ProfileCard({
-  fontFamily, nameAge, firstName, moveIn, budget, area, photoDataUrl,
+  fontFamily,
+  nameAge,
+  firstName,
+  moveIn,
+  budget,
+  area,
 }: {
   fontFamily: string;
   nameAge: string;
@@ -147,7 +171,6 @@ function ProfileCard({
   moveIn: string | null;
   budget: string | null;
   area: string | null;
-  photoDataUrl: string | null;
 }) {
   return (
     <div
@@ -155,43 +178,23 @@ function ProfileCard({
         width: W,
         height: H,
         display: "flex",
+        flexDirection: "row",
         fontFamily,
-        background: "#111113",
-        position: "relative",
+        backgroundColor: "#111113",
       }}
     >
-      {/* Subtle top-right accent — linear-gradient only, no radial */}
+      {/* Left info column — explicit width, no flex:1 */}
       <div
         style={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          width: 500,
-          height: 500,
-          background: "linear-gradient(225deg, rgba(225,29,72,0.12) 0%, transparent 60%)",
-          display: "flex",
-        }}
-      />
-
-      {/* Left: info column */}
-      <div
-        style={{
-          flex: 1,
+          width: 820,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           padding: "60px 64px",
         }}
       >
-        {/* Label pill */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 28,
-          }}
-        >
+        {/* Label */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
           <div
             style={{
               width: 8,
@@ -201,15 +204,7 @@ function ProfileCard({
               display: "flex",
             }}
           />
-          <span
-            style={{
-              color: ROSE,
-              fontSize: 16,
-              fontWeight: 700,
-              letterSpacing: "0.1em",
-              display: "flex",
-            }}
-          >
+          <span style={{ color: ROSE, fontSize: 16, fontWeight: 700, letterSpacing: "0.1em", display: "flex" }}>
             ROOM SEEKER · ROOMRUSH
           </span>
         </div>
@@ -233,176 +228,70 @@ function ProfileCard({
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {moveIn && (
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <span
-                style={{
-                  color: "rgba(255,255,255,0.35)",
-                  fontSize: 20,
-                  display: "flex",
-                  width: 96,
-                }}
-              >
-                Move in
-              </span>
-              <span
-                style={{
-                  color: "rgba(255,255,255,0.85)",
-                  fontSize: 20,
-                  fontWeight: 700,
-                  display: "flex",
-                }}
-              >
-                {moveIn}
-              </span>
+              <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 20, display: "flex", width: 96 }}>Move in</span>
+              <span style={{ color: "rgba(255,255,255,0.85)", fontSize: 20, fontWeight: 700, display: "flex" }}>{moveIn}</span>
             </div>
           )}
           {budget && (
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <span
-                style={{
-                  color: "rgba(255,255,255,0.35)",
-                  fontSize: 20,
-                  display: "flex",
-                  width: 96,
-                }}
-              >
-                Budget
-              </span>
-              <span
-                style={{
-                  color: "rgba(255,255,255,0.85)",
-                  fontSize: 20,
-                  fontWeight: 700,
-                  display: "flex",
-                }}
-              >
-                {budget}
-              </span>
+              <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 20, display: "flex", width: 96 }}>Budget</span>
+              <span style={{ color: "rgba(255,255,255,0.85)", fontSize: 20, fontWeight: 700, display: "flex" }}>{budget}</span>
             </div>
           )}
           {area && (
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <span
-                style={{
-                  color: "rgba(255,255,255,0.35)",
-                  fontSize: 20,
-                  display: "flex",
-                  width: 96,
-                }}
-              >
-                Area
-              </span>
-              <span
-                style={{
-                  color: "rgba(255,255,255,0.85)",
-                  fontSize: 20,
-                  fontWeight: 700,
-                  display: "flex",
-                }}
-              >
-                {area}
-              </span>
+              <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 20, display: "flex", width: 96 }}>Area</span>
+              <span style={{ color: "rgba(255,255,255,0.85)", fontSize: 20, fontWeight: 700, display: "flex" }}>{area}</span>
             </div>
           )}
         </div>
 
         {/* RoomRush wordmark */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            marginTop: 52,
-          }}
-        >
-          <span
-            style={{ color: "#ffffff", fontSize: 22, fontWeight: 700, display: "flex" }}
-          >
-            Room
-          </span>
-          <span
-            style={{ color: ROSE, fontSize: 22, fontWeight: 700, display: "flex" }}
-          >
-            Rush
-          </span>
-          <span
-            style={{
-              color: "rgba(255,255,255,0.25)",
-              fontSize: 18,
-              marginLeft: 4,
-              display: "flex",
-            }}
-          >
-            · Munich
-          </span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 52 }}>
+          <span style={{ color: "#ffffff", fontSize: 22, fontWeight: 700, display: "flex" }}>Room</span>
+          <span style={{ color: ROSE, fontSize: 22, fontWeight: 700, display: "flex" }}>Rush</span>
+          <span style={{ color: "rgba(255,255,255,0.25)", fontSize: 18, marginLeft: 4, display: "flex" }}>· Munich</span>
         </div>
       </div>
 
-      {/* Vertical divider */}
+      {/* Right monogram column */}
       <div
         style={{
-          position: "absolute",
-          top: "10%",
-          bottom: "10%",
-          right: 360,
-          width: 1,
-          background: "rgba(255,255,255,0.07)",
-          display: "flex",
-        }}
-      />
-
-      {/* Right: photo or monogram */}
-      <div
-        style={{
-          width: 320,
+          width: 380,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          backgroundColor: "rgba(255,255,255,0.03)",
         }}
       >
-        {photoDataUrl ? (
-          // Border-radius on <img> itself — Satori clips img correctly this way
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={photoDataUrl}
+        <div
+          style={{
+            width: 200,
+            height: 200,
+            borderRadius: "50%",
+            backgroundColor: "rgba(255,255,255,0.07)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <span
             style={{
-              width: 240,
-              height: 240,
-              borderRadius: "50%",
-              objectFit: "cover",
-              border: "3px solid rgba(255,255,255,0.12)",
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: 240,
-              height: 240,
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.06)",
-              border: "3px solid rgba(255,255,255,0.1)",
+              fontSize: 88,
+              fontWeight: 700,
+              color: "rgba(255,255,255,0.35)",
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
             }}
           >
-            <span
-              style={{
-                fontSize: 96,
-                fontWeight: 700,
-                color: "rgba(255,255,255,0.3)",
-                display: "flex",
-              }}
-            >
-              {firstName.charAt(0).toUpperCase()}
-            </span>
-          </div>
-        )}
+            {firstName}
+          </span>
+        </div>
       </div>
     </div>
   );
 }
 
-// ─── Branded fallback (no profile / any error) ────────────────────────────────
+// ─── Branded fallback ─────────────────────────────────────────────────────────
 
 function Fallback({ fontFamily }: { fontFamily: string }) {
   return (
@@ -410,7 +299,7 @@ function Fallback({ fontFamily }: { fontFamily: string }) {
       style={{
         width: W,
         height: H,
-        background: "#111113",
+        backgroundColor: "#111113",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -418,29 +307,12 @@ function Fallback({ fontFamily }: { fontFamily: string }) {
         fontFamily,
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          marginBottom: 16,
-        }}
-      >
-        <span
-          style={{ color: "#ffffff", fontSize: 40, fontWeight: 700, display: "flex" }}
-        >
-          Room
-        </span>
-        <span
-          style={{ color: ROSE, fontSize: 40, fontWeight: 700, display: "flex" }}
-        >
-          Rush
-        </span>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+        <span style={{ color: "#ffffff", fontSize: 40, fontWeight: 700, display: "flex" }}>Room</span>
+        <span style={{ color: ROSE, fontSize: 40, fontWeight: 700, display: "flex" }}>Rush</span>
       </div>
-      <span
-        style={{ color: "rgba(255,255,255,0.4)", fontSize: 22, display: "flex" }}
-      >
-        Room Seekers · Munich
+      <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 22, display: "flex" }}>
+        Looking for a room in Munich
       </span>
     </div>
   );

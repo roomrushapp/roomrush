@@ -17,7 +17,7 @@ export default function HomePage() {
             {/* Left: text + buttons */}
             <div>
               <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest mb-5">
-                Munich · Sublets Only
+                Munich · Rooms & Sublets
               </p>
               <h1 className="font-display font-bold text-6xl md:text-7xl lg:text-8xl leading-none tracking-tight text-white mb-5">
                 SUBLET
@@ -27,7 +27,7 @@ export default function HomePage() {
                 <span className="text-rose-600">NOW.</span>
               </h1>
               <p className="text-zinc-400 text-base md:text-lg max-w-sm mb-10">
-                Munich and nearby sublets, made faster and safer.
+                Munich rooms and sublets, made faster and safer.
               </p>
 
               {/* 4-button row */}

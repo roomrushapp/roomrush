@@ -293,8 +293,8 @@ export default async function SubletDetailPage({ params }: Props) {
               <ListingCard key={item.id} listing={item as any} />
             ))}
           </div>
-          <div className="sm:hidden -mx-4 overflow-x-auto">
-            <div className="flex gap-3 px-4 pb-2 snap-x snap-mandatory">
+          <div className="sm:hidden w-full overflow-x-auto">
+            <div className="flex gap-3 pb-2 snap-x snap-mandatory">
               {moreListings.map((item) => (
                 <div key={item.id} className="w-[80vw] max-w-[320px] shrink-0 snap-start">
                   <ListingCard listing={item as any} />

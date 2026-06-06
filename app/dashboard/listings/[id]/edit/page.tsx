@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { MUNICH_DISTRICTS } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
-import { compressImage } from "@/lib/compressImage";
+import { compressListingImage } from "@/lib/compressImage";
 import { ArrowLeft, ImagePlus, X } from "lucide-react";
 
 const MAX_IMAGES = 5;
@@ -133,7 +133,7 @@ export default function EditListingPage({ params }: Props) {
     const urls: string[] = [];
 
     for (const file of newFiles) {
-      const processed = await compressImage(file);
+      const processed = await compressListingImage(file);
       const ext = processed.name.split(".").pop();
       const path = `${userId}/${id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error } = await supabase.storage

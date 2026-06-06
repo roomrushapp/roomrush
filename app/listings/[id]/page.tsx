@@ -150,7 +150,7 @@ export default async function ListingDetailPage({ params }: Props) {
   const showInterestedUsers = interestedUsers >= MIN_PUBLIC_INTERESTED_USERS;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-w-0 overflow-x-hidden">
       <ViewTracker listingId={listing.id} />
       <Link href="/" className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-black mb-6 transition-colors">
         <ArrowLeft size={14} />
@@ -163,7 +163,7 @@ export default async function ListingDetailPage({ params }: Props) {
       {/* Two-column layout */}
       <div className="grid md:grid-cols-3 gap-10">
         {/* Left: content */}
-        <div className="md:col-span-2">
+        <div className="md:col-span-2 min-w-0">
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <span className="bg-rose-600 text-white text-xs font-medium px-3 py-1 uppercase tracking-wide">
               {listing.location}
@@ -183,7 +183,7 @@ export default async function ListingDetailPage({ params }: Props) {
             </div>
           </div>
 
-          <h1 className="font-display font-bold text-3xl md:text-4xl text-black leading-tight mb-6">
+          <h1 className="font-display font-bold text-3xl md:text-4xl text-black leading-tight mb-6 break-words">
             {listing.title}
           </h1>
 
@@ -226,7 +226,7 @@ export default async function ListingDetailPage({ params }: Props) {
           {/* Description */}
           <div className="mb-8">
             <h2 className="font-display font-bold text-lg mb-3">About this space</h2>
-            <p className="text-zinc-600 leading-relaxed whitespace-pre-line">{listing.description}</p>
+            <p className="text-zinc-600 leading-relaxed whitespace-pre-line break-words min-w-0">{listing.description}</p>
           </div>
         </div>
 

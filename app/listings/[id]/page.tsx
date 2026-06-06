@@ -285,9 +285,9 @@ export default async function ListingDetailPage({ params }: Props) {
                 <Link
                   key={item.id}
                   href={href}
-                  className="flex items-start gap-3 border border-zinc-200 bg-white hover:border-zinc-400 transition-colors p-3 group min-w-0"
+                  className="flex items-start gap-3 rounded-lg border border-zinc-200 bg-white p-3 shadow-sm hover:shadow-md hover:border-zinc-300 transition-all group min-w-0"
                 >
-                  <div className="relative w-20 h-16 shrink-0 bg-zinc-100 overflow-hidden">
+                  <div className="relative w-24 h-20 shrink-0 rounded-md bg-zinc-100 overflow-hidden">
                     {thumb ? (
                       <Image
                         src={thumb}
@@ -295,21 +295,23 @@ export default async function ListingDetailPage({ params }: Props) {
                         fill
                         unoptimized
                         className="object-cover"
-                        sizes="80px"
+                        sizes="96px"
                       />
                     ) : (
                       <NoPhotoPlaceholder />
                     )}
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-sm text-black group-hover:text-rose-600 transition-colors break-words line-clamp-2 leading-snug mb-1">
+                  <div className="min-w-0 flex-1 py-0.5">
+                    <p className="font-semibold text-sm text-black group-hover:text-rose-600 transition-colors break-words line-clamp-2 leading-snug mb-1.5">
                       {item.title}
                     </p>
-                    <p className="font-display font-bold text-rose-600 text-sm">
+                    <p className="font-display font-bold text-rose-600 text-sm mb-2">
                       €{item.rent.toLocaleString()}
                       <span className="text-xs text-zinc-400 font-normal">/mo</span>
                     </p>
-                    <p className="text-xs text-zinc-400 truncate mt-0.5">{item.location}, Munich</p>
+                    <p className="text-xs font-medium text-rose-500 group-hover:text-rose-700 transition-colors">
+                      View room →
+                    </p>
                   </div>
                 </Link>
               );

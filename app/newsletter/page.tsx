@@ -10,35 +10,38 @@ export const metadata: Metadata = {
     "Free email digest or priority WhatsApp alerts for new Munich room listings.",
 };
 
-/* ── Comparison data ── */
 type RowValue = string | true | false;
 
-const rows: { label: string; free: RowValue; paid: RowValue }[] = [
-  { label: "Timing",                   free: "Mon, Wed, Fri at 10 pm",       paid: "Instantly when posted" },
-  { label: "Includes",                 free: "Listings from the last few days", paid: "New listings as they go live" },
-  { label: "Where",                    free: "Email",                         paid: "Private WhatsApp group" },
-  { label: "Direct listing links",     free: true,                            paid: true },
-  { label: "Earlier chance to contact",free: false,                           paid: true },
-  { label: "Price",                    free: "Free",                          paid: "Planned €2.99/month" },
-  { label: "Status",                   free: "Available now",                 paid: "Waitlist open" },
+const freeRows: { label: string; value: RowValue }[] = [
+  { label: "Timing",                    value: "Mon, Wed, Fri at 10 pm" },
+  { label: "Includes",                  value: "Listings from the last few days" },
+  { label: "Where",                     value: "Email" },
+  { label: "Direct listing links",      value: true },
+  { label: "Earlier chance to contact", value: false },
+  { label: "Price",                     value: "Free" },
+  { label: "Status",                    value: "Available now" },
 ];
 
-function FreeCell({ value }: { value: RowValue }) {
-  if (value === true)  return <Check size={15} className="text-emerald-400" />;
-  if (value === false) return <Minus size={15} className="text-zinc-600" />;
-  return <span className="text-zinc-300 text-sm">{value}</span>;
-}
+const priorityRows: { label: string; value: RowValue }[] = [
+  { label: "Timing",                    value: "Instantly when posted" },
+  { label: "Includes",                  value: "New listings as they go live" },
+  { label: "Where",                     value: "Private WhatsApp group" },
+  { label: "Direct listing links",      value: true },
+  { label: "Earlier chance to contact", value: true },
+  { label: "Price",                     value: "Planned €2.99/month" },
+  { label: "Status",                    value: "Waitlist open" },
+];
 
-function PaidCell({ value }: { value: RowValue }) {
-  if (value === true)  return <Check size={15} className="text-emerald-400" />;
-  if (value === false) return <Minus size={15} className="text-zinc-600" />;
-  return <span className="text-zinc-200 text-sm font-medium">{value}</span>;
+function RowValue({ value }: { value: RowValue }) {
+  if (value === true)  return <Check size={14} className="text-emerald-400 shrink-0" />;
+  if (value === false) return <Minus size={14} className="text-zinc-600 shrink-0" />;
+  return <span className="text-zinc-300 text-sm">{value}</span>;
 }
 
 export default function NewsletterPage() {
   return (
     <div className="bg-zinc-950 text-white min-h-screen">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
 
         {/* Back link */}
         <div className="pt-8 pb-5">
@@ -51,12 +54,12 @@ export default function NewsletterPage() {
           </Link>
         </div>
 
-        {/* ── Hero ── */}
+        {/* Hero */}
         <div className="mb-8">
           <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest mb-2">
             Room Alerts · Munich
           </p>
-          <h1 className="font-display font-bold text-3xl md:text-4xl leading-tight text-white mb-2">
+          <h1 className="font-display font-bold text-2xl sm:text-3xl leading-tight text-white mb-2">
             Get new Munich room listings<br className="hidden sm:block" /> by email or WhatsApp
           </h1>
           <p className="text-zinc-400 text-sm">
@@ -64,58 +67,11 @@ export default function NewsletterPage() {
           </p>
         </div>
 
-        {/* ── Comparison card ── */}
-        <div className="border border-zinc-800 bg-zinc-900 overflow-hidden mb-3">
-
-          {/* Column headers */}
-          <div className="grid grid-cols-[minmax(120px,1fr)_1fr_1fr] border-b border-zinc-800">
-            <div className="px-5 py-4" />
-            <div className="px-5 py-4 border-r border-zinc-800">
-              <p className="text-sm font-semibold text-white leading-snug">Free Room Digest</p>
-              <span className="inline-block mt-1.5 text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-0.5">
-                Free
-              </span>
-            </div>
-            {/* Priority column header — accented */}
-            <div className="px-5 py-4 bg-amber-400/[0.04] border-t-2 border-t-amber-500/40">
-              <p className="text-sm font-semibold text-white leading-snug">Priority WhatsApp Alerts</p>
-              <span className="inline-block mt-1.5 text-xs font-semibold text-amber-400 bg-amber-400/10 px-2 py-0.5">
-                Waitlist open
-              </span>
-            </div>
-          </div>
-
-          {/* Rows */}
-          {rows.map((row, i) => (
-            <div
-              key={row.label}
-              className={`grid grid-cols-[minmax(120px,1fr)_1fr_1fr] ${
-                i < rows.length - 1 ? "border-b border-zinc-800/50" : ""
-              }`}
-            >
-              <div className="px-5 py-3 flex items-center">
-                <span className="text-xs text-zinc-500 font-medium">{row.label}</span>
-              </div>
-              <div className="px-5 py-3 flex items-center border-r border-zinc-800/50">
-                <FreeCell value={row.free} />
-              </div>
-              <div className="px-5 py-3 flex items-center bg-amber-400/[0.03]">
-                <PaidCell value={row.paid} />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Comparison footnote */}
-        <p className="text-zinc-500 text-xs mb-10">
-          Free digest helps you catch up. Priority alerts help you react faster.
-        </p>
-
-        {/* ── Signup cards ── */}
+        {/* Option cards */}
         <div className="grid sm:grid-cols-2 gap-5 items-start">
 
           {/* Free digest card */}
-          <div className="border border-zinc-700 bg-zinc-900 p-6 flex flex-col h-full">
+          <div className="border border-zinc-700 bg-zinc-900 p-6 flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest">
                 Free Digest
@@ -124,38 +80,67 @@ export default function NewsletterPage() {
                 Free
               </span>
             </div>
+
             <h2 className="font-display font-bold text-xl text-white mb-1">
-              Join the free digest
+              Free Room Digest
             </h2>
             <p className="text-zinc-400 text-sm mb-5">
-              Get listings from the last few days every Mon, Wed, Fri at 10 pm.
+              For staying updated casually.
             </p>
-            <DigestSignupForm />
+
+            {/* Comparison rows */}
+            <div className="flex flex-col gap-2.5 mb-6">
+              {freeRows.map((row) => (
+                <div key={row.label} className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-zinc-500 font-medium shrink-0">{row.label}</span>
+                  <RowValue value={row.value} />
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t border-zinc-800 pt-5">
+              <DigestSignupForm />
+            </div>
           </div>
 
           {/* Priority alerts card */}
-          <div className="border border-zinc-700 bg-zinc-900 p-6 flex flex-col h-full">
+          <div className="border border-amber-500/30 bg-amber-400/[0.03] p-6 flex flex-col">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest">
+              <p className="text-amber-500 text-xs font-semibold uppercase tracking-widest">
                 Priority Alerts
               </p>
               <span className="text-xs font-semibold text-amber-400 bg-amber-400/10 px-2 py-0.5">
                 Waitlist
               </span>
             </div>
+
             <h2 className="font-display font-bold text-xl text-white mb-1">
-              Join the WhatsApp waitlist
+              Priority WhatsApp Alerts
             </h2>
             <p className="text-zinc-400 text-sm mb-5">
-              Get instant WhatsApp alerts when new listings are posted on RoomRush.
+              For searching actively right now.
             </p>
-            <WaitlistSignup />
+
+            {/* Comparison rows */}
+            <div className="flex flex-col gap-2.5 mb-6">
+              {priorityRows.map((row) => (
+                <div key={row.label} className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-zinc-500 font-medium shrink-0">{row.label}</span>
+                  <RowValue value={row.value} />
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t border-zinc-800 pt-5">
+              <WaitlistSignup />
+            </div>
           </div>
 
         </div>
 
-        <p className="text-zinc-600 text-xs mt-8">
-          Used by students, interns, and young professionals relocating to Munich. GDPR-compliant.
+        {/* Footer line */}
+        <p className="text-zinc-600 text-xs mt-6">
+          Free digest helps you catch up. Priority alerts help you react faster.
         </p>
 
       </div>

@@ -60,7 +60,7 @@ export default function NewsletterPage() {
         <div className="grid sm:grid-cols-2 gap-5 items-start">
 
           {/* Free digest card */}
-          <div className="group border border-zinc-700 bg-zinc-900 p-6 flex flex-col transition-all duration-200 hover:border-zinc-500 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/40">
+          <div className="group border border-zinc-700 bg-zinc-900 p-6 flex flex-col transition-all duration-200 hover:border-zinc-500 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/40 active:scale-[0.99] active:border-zinc-500">
             <div className="flex items-center justify-between mb-4">
               <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest">
                 Free Digest
@@ -92,7 +92,7 @@ export default function NewsletterPage() {
           </div>
 
           {/* Priority alerts card */}
-          <div className="group border border-zinc-700 bg-zinc-900 p-6 flex flex-col transition-all duration-200 hover:border-amber-500/50 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-amber-900/20" style={{ borderTopColor: "rgb(217 119 6 / 0.5)", borderTopWidth: "2px" }}>
+          <div className="group border border-zinc-700 bg-zinc-900 p-6 flex flex-col transition-all duration-200 hover:border-amber-500/50 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-amber-900/20 active:scale-[0.99] active:border-amber-500/50" style={{ borderTopColor: "rgb(217 119 6 / 0.5)", borderTopWidth: "2px" }}>
             <div className="flex items-center justify-between mb-4">
               <p className="text-amber-500 text-xs font-semibold uppercase tracking-widest">
                 Priority Alerts

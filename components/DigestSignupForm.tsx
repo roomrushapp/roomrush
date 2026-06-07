@@ -72,22 +72,22 @@ export default function DigestSignupForm() {
           placeholder="your@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 text-sm px-4 py-3 pl-9 outline-none transition-colors focus:border-rose-500 focus:ring-1 focus:ring-rose-500/30"
+          className="w-full min-h-[44px] bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 text-sm px-4 py-3 pl-9 outline-none transition-colors focus:border-rose-500 focus:ring-1 focus:ring-rose-500/30"
         />
       </div>
 
       <button
         type="submit"
         disabled={status === "loading"}
-        className="group/btn inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white w-full px-5 py-3 font-medium text-sm transition-all active:scale-[0.97]"
+        className="group/btn inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-500 active:bg-rose-700 active:scale-[0.98] disabled:opacity-50 text-white w-full px-5 py-3 min-h-[44px] font-medium text-sm transition-all duration-150"
       >
         {status === "loading" ? "Subscribing…" : "Join free digest"}
         {status !== "loading" && (
-          <ArrowRight size={15} className="transition-transform duration-150 group-hover/btn:translate-x-0.5" />
+          <ArrowRight size={15} className="transition-transform duration-150 group-hover/btn:translate-x-0.5 group-active/btn:translate-x-0.5" />
         )}
       </button>
 
-      <label className="flex items-start gap-3 cursor-pointer">
+      <label className="flex items-start gap-3 cursor-pointer py-1 active:opacity-70 transition-opacity">
         <div className="relative mt-0.5 shrink-0">
           <input
             type="checkbox"

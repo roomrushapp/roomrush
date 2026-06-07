@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Check, Minus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import DigestSignupForm from "@/components/DigestSignupForm";
 import WaitlistSignup from "@/components/WaitlistSignup";
 import type { Metadata } from "next";
@@ -10,32 +10,33 @@ export const metadata: Metadata = {
     "Free email digest or priority WhatsApp alerts for new Munich room listings.",
 };
 
-type RowValue = string | true | false;
-
-const freeRows: { label: string; value: RowValue }[] = [
+const freeMetrics = [
   { label: "Timing",                    value: "Mon, Wed, Fri at 10 pm" },
   { label: "Includes",                  value: "Listings from the last few days" },
   { label: "Where",                     value: "Email" },
-  { label: "Direct listing links",      value: true },
-  { label: "Earlier chance to contact", value: false },
+  { label: "Direct listing links",      value: "Yes" },
+  { label: "Earlier chance to contact", value: "No" },
   { label: "Price",                     value: "Free" },
   { label: "Status",                    value: "Available now" },
 ];
 
-const priorityRows: { label: string; value: RowValue }[] = [
+const priorityMetrics = [
   { label: "Timing",                    value: "Instantly when posted" },
   { label: "Includes",                  value: "New listings as they go live" },
   { label: "Where",                     value: "Private WhatsApp group" },
-  { label: "Direct listing links",      value: true },
-  { label: "Earlier chance to contact", value: true },
+  { label: "Direct listing links",      value: "Yes" },
+  { label: "Earlier chance to contact", value: "Yes" },
   { label: "Price",                     value: "Planned €2.99/month" },
   { label: "Status",                    value: "Waitlist open" },
 ];
 
-function RowValue({ value }: { value: RowValue }) {
-  if (value === true)  return <Check size={14} className="text-emerald-400 shrink-0" />;
-  if (value === false) return <Minus size={14} className="text-zinc-600 shrink-0" />;
-  return <span className="text-zinc-300 text-sm">{value}</span>;
+function MetricBlock({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs text-zinc-500 font-medium mb-0.5">{label}</p>
+      <p className="text-sm text-zinc-200 font-medium">{value}</p>
+    </div>
+  );
 }
 
 export default function NewsletterPage() {
@@ -60,7 +61,7 @@ export default function NewsletterPage() {
             Room Alerts · Munich
           </p>
           <h1 className="font-display font-bold text-2xl sm:text-3xl leading-tight text-white mb-2">
-            Get new Munich room listings<br className="hidden sm:block" /> by email or WhatsApp
+            Munich room alerts
           </h1>
           <p className="text-zinc-400 text-sm">
             Free digest for catching up. Priority alerts for seeing listings faster.
@@ -84,27 +85,23 @@ export default function NewsletterPage() {
             <h2 className="font-display font-bold text-xl text-white mb-1">
               Free Room Digest
             </h2>
-            <p className="text-zinc-400 text-sm mb-5">
+            <p className="text-zinc-400 text-sm mb-6">
               For staying updated casually.
             </p>
 
-            {/* Comparison rows */}
-            <div className="flex flex-col gap-2.5 mb-6">
-              {freeRows.map((row) => (
-                <div key={row.label} className="flex items-center justify-between gap-3">
-                  <span className="text-xs text-zinc-500 font-medium shrink-0">{row.label}</span>
-                  <RowValue value={row.value} />
-                </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-4 mb-6">
+              {freeMetrics.map((m) => (
+                <MetricBlock key={m.label} label={m.label} value={m.value} />
               ))}
             </div>
 
-            <div className="border-t border-zinc-800 pt-5">
+            <div className="border-t border-zinc-800 pt-5 mt-auto">
               <DigestSignupForm />
             </div>
           </div>
 
           {/* Priority alerts card */}
-          <div className="border border-amber-500/30 bg-amber-400/[0.03] p-6 flex flex-col">
+          <div className="border border-zinc-700 bg-zinc-900 p-6 flex flex-col" style={{ borderTopColor: "rgb(217 119 6 / 0.4)", borderTopWidth: "2px" }}>
             <div className="flex items-center justify-between mb-4">
               <p className="text-amber-500 text-xs font-semibold uppercase tracking-widest">
                 Priority Alerts
@@ -117,31 +114,22 @@ export default function NewsletterPage() {
             <h2 className="font-display font-bold text-xl text-white mb-1">
               Priority WhatsApp Alerts
             </h2>
-            <p className="text-zinc-400 text-sm mb-5">
+            <p className="text-zinc-400 text-sm mb-6">
               For searching actively right now.
             </p>
 
-            {/* Comparison rows */}
-            <div className="flex flex-col gap-2.5 mb-6">
-              {priorityRows.map((row) => (
-                <div key={row.label} className="flex items-center justify-between gap-3">
-                  <span className="text-xs text-zinc-500 font-medium shrink-0">{row.label}</span>
-                  <RowValue value={row.value} />
-                </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-4 mb-6">
+              {priorityMetrics.map((m) => (
+                <MetricBlock key={m.label} label={m.label} value={m.value} />
               ))}
             </div>
 
-            <div className="border-t border-zinc-800 pt-5">
+            <div className="border-t border-zinc-800 pt-5 mt-auto">
               <WaitlistSignup />
             </div>
           </div>
 
         </div>
-
-        {/* Footer line */}
-        <p className="text-zinc-600 text-xs mt-6">
-          Free digest helps you catch up. Priority alerts help you react faster.
-        </p>
 
       </div>
     </div>

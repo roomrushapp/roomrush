@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Mail, MessageCircle } from "lucide-react";
+import { ArrowRight, Mail } from "lucide-react";
 
 type Status = "idle" | "loading" | "joined" | "already" | "error";
 
 export default function WaitlistSignup() {
   const [email, setEmail] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
   const [status, setStatus] = useState<Status>("idle");
 
   async function handleSubmit(e: React.FormEvent) {
@@ -18,7 +17,7 @@ export default function WaitlistSignup() {
       const res = await fetch("/api/priority-waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, whatsapp_number: whatsapp || undefined }),
+        body: JSON.stringify({ email }),
       });
 
       const data = await res.json();
@@ -38,7 +37,9 @@ export default function WaitlistSignup() {
     return (
       <p className="text-sm font-medium text-white">
         ✓ You&apos;re on the waitlist.{" "}
-        <span className="text-zinc-400">We&apos;ll email you before Priority Alerts launch.</span>
+        <span className="text-zinc-400">
+          We&apos;ll email you before Priority Alerts launch.
+        </span>
       </p>
     );
   }
@@ -54,24 +55,16 @@ export default function WaitlistSignup() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="relative">
-        <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
+        <Mail
+          size={15}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+        />
         <input
           type="email"
           required
           placeholder="your@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 text-sm px-4 py-3 pl-9 focus:outline-none focus:border-zinc-500 transition-colors"
-        />
-      </div>
-
-      <div className="relative">
-        <MessageCircle size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
-        <input
-          type="tel"
-          placeholder="WhatsApp number (optional)"
-          value={whatsapp}
-          onChange={(e) => setWhatsapp(e.target.value)}
           className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 text-sm px-4 py-3 pl-9 focus:outline-none focus:border-zinc-500 transition-colors"
         />
       </div>

@@ -84,7 +84,7 @@ export default function WaitlistSignup() {
         <p className="text-xs text-rose-400">Something went wrong. Please try again.</p>
       )}
 
-      <p className="text-xs text-zinc-600">No payment today. Planned price: €2.99/month.</p>
+      <p className="text-xs text-zinc-400">No payment today. Planned price: €2.99/month.</p>
     </form>
   );
 }

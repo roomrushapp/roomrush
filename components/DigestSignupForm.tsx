@@ -121,7 +121,7 @@ export default function DigestSignupForm() {
         </div>
         <span
           className={`text-xs leading-relaxed ${
-            checkboxError ? "text-rose-400" : "text-zinc-500"
+            checkboxError ? "text-rose-400" : "text-zinc-400"
           }`}
         >
           I agree to receive new listing emails from RoomRush. I can unsubscribe anytime.
@@ -137,7 +137,7 @@ export default function DigestSignupForm() {
         <p className="text-xs text-rose-400">Something went wrong. Please try again.</p>
       )}
 
-      <p className="text-xs text-zinc-600">Free. Unsubscribe anytime.</p>
+      <p className="text-xs text-zinc-400">Free. Unsubscribe anytime.</p>
     </form>
   );
 }

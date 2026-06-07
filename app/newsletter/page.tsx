@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import DigestSignupForm from "@/components/DigestSignupForm";
 import WaitlistSignup from "@/components/WaitlistSignup";
 import type { Metadata } from "next";
@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 const freeBullets = [
   "Recent listings in one email",
   "Sent Mon, Wed, Fri at 10 pm",
+  "Delivered by email",
   "Direct listing links",
-  "Email format",
   "Free, unsubscribe anytime",
 ];
 
@@ -80,7 +80,7 @@ export default function NewsletterPage() {
             <ul className="flex flex-col gap-2 mb-6">
               {freeBullets.map((b) => (
                 <li key={b} className="flex items-start gap-2 text-sm text-zinc-300">
-                  <span className="text-zinc-600 mt-0.5 shrink-0">—</span>
+                  <Check size={13} className="text-emerald-500 mt-0.5 shrink-0" />
                   {b}
                 </li>
               ))}
@@ -112,7 +112,7 @@ export default function NewsletterPage() {
             <ul className="flex flex-col gap-2 mb-6">
               {priorityBullets.map((b) => (
                 <li key={b} className="flex items-start gap-2 text-sm text-zinc-300">
-                  <span className="text-amber-600/70 mt-0.5 shrink-0">—</span>
+                  <Check size={13} className="text-amber-500 mt-0.5 shrink-0" />
                   {b}
                 </li>
               ))}

@@ -10,34 +10,22 @@ export const metadata: Metadata = {
     "Free email digest or priority WhatsApp alerts for new Munich room listings.",
 };
 
-const freeMetrics = [
-  { label: "Timing",                    value: "Mon, Wed, Fri at 10 pm" },
-  { label: "Includes",                  value: "Listings from the last few days" },
-  { label: "Where",                     value: "Email" },
-  { label: "Direct listing links",      value: "Yes" },
-  { label: "Earlier chance to contact", value: "No" },
-  { label: "Price",                     value: "Free" },
-  { label: "Status",                    value: "Available now" },
+const freeBullets = [
+  "Recent listings in one email",
+  "Sent Mon, Wed, Fri at 10 pm",
+  "Direct listing links",
+  "Email format",
+  "Free, unsubscribe anytime",
 ];
 
-const priorityMetrics = [
-  { label: "Timing",                    value: "Instantly when posted" },
-  { label: "Includes",                  value: "New listings as they go live" },
-  { label: "Where",                     value: "Private WhatsApp group" },
-  { label: "Direct listing links",      value: "Yes" },
-  { label: "Earlier chance to contact", value: "Yes" },
-  { label: "Price",                     value: "Planned €2.99/month" },
-  { label: "Status",                    value: "Waitlist open" },
+const priorityBullets = [
+  "Instant alerts when listings are posted",
+  "See listings before the next free digest",
+  "Direct listing links",
+  "Private WhatsApp group",
+  "Admin only, listings only",
+  "Planned €2.99/month",
 ];
-
-function MetricBlock({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-xs text-zinc-500 font-medium mb-0.5">{label}</p>
-      <p className="text-base text-zinc-100 font-medium">{value}</p>
-    </div>
-  );
-}
 
 export default function NewsletterPage() {
   return (
@@ -72,7 +60,7 @@ export default function NewsletterPage() {
         <div className="grid sm:grid-cols-2 gap-5 items-start">
 
           {/* Free digest card */}
-          <div className="border border-zinc-700 bg-zinc-900 p-6 flex flex-col">
+          <div className="group border border-zinc-700 bg-zinc-900 p-6 flex flex-col transition-all duration-200 hover:border-zinc-500 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/40">
             <div className="flex items-center justify-between mb-4">
               <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest">
                 Free Digest
@@ -85,15 +73,18 @@ export default function NewsletterPage() {
             <h2 className="font-display font-bold text-xl text-white mb-1">
               Free Room Digest
             </h2>
-            <p className="text-zinc-400 text-sm mb-6">
+            <p className="text-zinc-400 text-sm mb-5">
               For staying updated casually.
             </p>
 
-            <div className="flex flex-col gap-4 mb-6">
-              {freeMetrics.map((m) => (
-                <MetricBlock key={m.label} label={m.label} value={m.value} />
+            <ul className="flex flex-col gap-2 mb-6">
+              {freeBullets.map((b) => (
+                <li key={b} className="flex items-start gap-2 text-sm text-zinc-300">
+                  <span className="text-zinc-600 mt-0.5 shrink-0">—</span>
+                  {b}
+                </li>
               ))}
-            </div>
+            </ul>
 
             <div className="border-t border-zinc-800 pt-5 mt-auto">
               <DigestSignupForm />
@@ -101,7 +92,7 @@ export default function NewsletterPage() {
           </div>
 
           {/* Priority alerts card */}
-          <div className="border border-zinc-700 bg-zinc-900 p-6 flex flex-col" style={{ borderTopColor: "rgb(217 119 6 / 0.5)", borderTopWidth: "2px" }}>
+          <div className="group border border-zinc-700 bg-zinc-900 p-6 flex flex-col transition-all duration-200 hover:border-amber-500/50 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-amber-900/20" style={{ borderTopColor: "rgb(217 119 6 / 0.5)", borderTopWidth: "2px" }}>
             <div className="flex items-center justify-between mb-4">
               <p className="text-amber-500 text-xs font-semibold uppercase tracking-widest">
                 Priority Alerts
@@ -114,15 +105,18 @@ export default function NewsletterPage() {
             <h2 className="font-display font-bold text-xl text-white mb-1">
               Priority WhatsApp Alerts
             </h2>
-            <p className="text-zinc-400 text-sm mb-6">
+            <p className="text-zinc-400 text-sm mb-5">
               For searching actively right now.
             </p>
 
-            <div className="flex flex-col gap-4 mb-6">
-              {priorityMetrics.map((m) => (
-                <MetricBlock key={m.label} label={m.label} value={m.value} />
+            <ul className="flex flex-col gap-2 mb-6">
+              {priorityBullets.map((b) => (
+                <li key={b} className="flex items-start gap-2 text-sm text-zinc-300">
+                  <span className="text-amber-600/70 mt-0.5 shrink-0">—</span>
+                  {b}
+                </li>
               ))}
-            </div>
+            </ul>
 
             <div className="border-t border-zinc-800 pt-5 mt-auto">
               <WaitlistSignup />

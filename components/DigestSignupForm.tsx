@@ -45,7 +45,7 @@ export default function DigestSignupForm() {
   if (status === "subscribed") {
     return (
       <p className="text-sm font-medium text-white">
-        ✓ You&apos;re in!{" "}
+        You&apos;re in!{" "}
         <span className="text-zinc-400">Check your inbox Mon, Wed, and Fri at 10 pm.</span>
       </p>
     );
@@ -54,14 +54,13 @@ export default function DigestSignupForm() {
   if (status === "already") {
     return (
       <p className="text-sm font-medium text-white">
-        ✓ You&apos;re already subscribed.
+        You&apos;re already subscribed.
       </p>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      {/* Email input */}
       <div className="relative">
         <Mail
           size={15}
@@ -73,21 +72,21 @@ export default function DigestSignupForm() {
           placeholder="your@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 text-sm px-4 py-3 pl-9 focus:outline-none focus:border-zinc-500 transition-colors"
+          className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 text-sm px-4 py-3 pl-9 outline-none transition-colors focus:border-rose-500 focus:ring-1 focus:ring-rose-500/30"
         />
       </div>
 
-      {/* Submit */}
       <button
         type="submit"
         disabled={status === "loading"}
-        className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white w-full px-5 py-3 font-medium text-sm transition-all active:scale-[0.97]"
+        className="group/btn inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white w-full px-5 py-3 font-medium text-sm transition-all active:scale-[0.97]"
       >
         {status === "loading" ? "Subscribing…" : "Join free digest"}
-        {status !== "loading" && <ArrowRight size={15} />}
+        {status !== "loading" && (
+          <ArrowRight size={15} className="transition-transform duration-150 group-hover/btn:translate-x-0.5" />
+        )}
       </button>
 
-      {/* GDPR checkbox */}
       <label className="flex items-start gap-3 cursor-pointer">
         <div className="relative mt-0.5 shrink-0">
           <input

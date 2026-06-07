@@ -36,7 +36,7 @@ export default function WaitlistSignup() {
   if (status === "joined") {
     return (
       <p className="text-sm font-medium text-white">
-        ✓ You&apos;re on the waitlist.{" "}
+        You&apos;re on the waitlist.{" "}
         <span className="text-zinc-400">
           We&apos;ll email you before Priority Alerts launch.
         </span>
@@ -47,7 +47,7 @@ export default function WaitlistSignup() {
   if (status === "already") {
     return (
       <p className="text-sm font-medium text-white">
-        ✓ You&apos;re already on the waitlist.
+        You&apos;re already on the waitlist.
       </p>
     );
   }
@@ -65,17 +65,19 @@ export default function WaitlistSignup() {
           placeholder="your@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 text-sm px-4 py-3 pl-9 focus:outline-none focus:border-zinc-500 transition-colors"
+          className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 text-sm px-4 py-3 pl-9 outline-none transition-colors focus:border-rose-500 focus:ring-1 focus:ring-rose-500/30"
         />
       </div>
 
       <button
         type="submit"
         disabled={status === "loading"}
-        className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white w-full px-5 py-3 font-medium text-sm transition-all active:scale-[0.97]"
+        className="group/btn inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white w-full px-5 py-3 font-medium text-sm transition-all active:scale-[0.97]"
       >
         {status === "loading" ? "Joining…" : "Join waitlist"}
-        {status !== "loading" && <ArrowRight size={15} />}
+        {status !== "loading" && (
+          <ArrowRight size={15} className="transition-transform duration-150 group-hover/btn:translate-x-0.5" />
+        )}
       </button>
 
       {status === "error" && (

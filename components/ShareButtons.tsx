@@ -42,7 +42,7 @@ export default function ShareButtons({ listing_id }: Props) {
       <div className="flex flex-col gap-2">
         <button
           onClick={copyLink}
-          className="flex items-center justify-center gap-2 border border-zinc-300 hover:border-zinc-500 text-zinc-700 px-4 py-2.5 font-medium text-sm transition-colors w-full"
+          className="flex items-center justify-center gap-2 border border-zinc-300 hover:border-zinc-500 text-zinc-700 px-4 py-2.5 font-medium text-sm transition-all active:scale-[0.97] w-full"
         >
           <Link2 size={15} />
           {copied ? "Copied!" : "Copy link"}
@@ -50,7 +50,7 @@ export default function ShareButtons({ listing_id }: Props) {
 
         <button
           onClick={shareWhatsApp}
-          className="flex items-center justify-center gap-2 border border-zinc-300 hover:border-zinc-500 text-zinc-700 px-4 py-2.5 font-medium text-sm transition-colors w-full"
+          className="flex items-center justify-center gap-2 border border-zinc-300 hover:border-zinc-500 text-zinc-700 px-4 py-2.5 font-medium text-sm transition-all active:scale-[0.97] w-full"
         >
           {/* WhatsApp icon */}
           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
@@ -61,7 +61,7 @@ export default function ShareButtons({ listing_id }: Props) {
 
         <button
           onClick={shareTelegram}
-          className="flex items-center justify-center gap-2 border border-zinc-300 hover:border-zinc-500 text-zinc-700 px-4 py-2.5 font-medium text-sm transition-colors w-full"
+          className="flex items-center justify-center gap-2 border border-zinc-300 hover:border-zinc-500 text-zinc-700 px-4 py-2.5 font-medium text-sm transition-all active:scale-[0.97] w-full"
         >
           {/* Telegram icon */}
           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
@@ -72,7 +72,7 @@ export default function ShareButtons({ listing_id }: Props) {
 
         <button
           onClick={shareFacebook}
-          className="flex items-center justify-center gap-2 border border-zinc-300 hover:border-zinc-500 text-zinc-700 px-4 py-2.5 font-medium text-sm transition-colors w-full"
+          className="flex items-center justify-center gap-2 border border-zinc-300 hover:border-zinc-500 text-zinc-700 px-4 py-2.5 font-medium text-sm transition-all active:scale-[0.97] w-full"
         >
           {/* Facebook icon */}
           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">

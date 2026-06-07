@@ -115,14 +115,14 @@ export default function MobileStickyContact({
               <>
                 <button
                   onClick={handleEmail}
-                  className="flex-1 flex items-center justify-center gap-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white py-3 font-medium text-sm transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 active:scale-[0.97] text-white py-3 font-medium text-sm transition-all"
                 >
                   <Mail size={15} />
                   Email
                 </button>
                 <button
                   onClick={handleWhatsApp}
-                  className="flex-1 flex items-center justify-center gap-1.5 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-3 font-medium text-sm transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-green-600 hover:bg-green-700 active:bg-green-800 active:scale-[0.97] text-white py-3 font-medium text-sm transition-all"
                 >
                   {WHATSAPP_ICON}
                   WhatsApp
@@ -131,7 +131,7 @@ export default function MobileStickyContact({
             ) : hasWhatsApp ? (
               <button
                 onClick={handleWhatsApp}
-                className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-3 font-medium text-sm transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 active:scale-[0.97] text-white py-3 font-medium text-sm transition-all"
               >
                 {WHATSAPP_ICON}
                 Message on WhatsApp
@@ -139,7 +139,7 @@ export default function MobileStickyContact({
             ) : hasEmail ? (
               <button
                 onClick={handleEmail}
-                className="flex-1 flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white py-3 font-medium text-sm transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 active:scale-[0.97] text-white py-3 font-medium text-sm transition-all"
               >
                 <Mail size={15} />
                 Contact via email
@@ -147,7 +147,7 @@ export default function MobileStickyContact({
             ) : (
               <button
                 onClick={handlePhone}
-                className="flex-1 flex items-center justify-center gap-2 border border-zinc-300 hover:border-zinc-500 text-zinc-700 py-3 font-medium text-sm transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 border border-zinc-300 hover:border-zinc-500 text-zinc-700 py-3 font-medium text-sm transition-all active:scale-[0.97]"
               >
                 <Phone size={15} />
                 {phone}

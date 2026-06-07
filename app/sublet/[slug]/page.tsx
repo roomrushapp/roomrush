@@ -296,7 +296,7 @@ export default async function SubletDetailPage({ params }: Props) {
                 <Link
                   key={item.id}
                   href={href}
-                  className="flex items-start gap-3 rounded-lg border border-zinc-200 bg-white p-3 shadow-sm hover:shadow-md hover:border-zinc-300 transition-all group min-w-0"
+                  className="flex items-start gap-3 rounded-lg border border-zinc-200 bg-white p-3 shadow-sm hover:shadow-md hover:border-zinc-300 active:scale-[0.98] transition-all group min-w-0"
                 >
                   {/* Thumbnail */}
                   <div className="relative w-24 h-20 shrink-0 rounded-md bg-zinc-100 overflow-hidden">
@@ -356,7 +356,7 @@ export default async function SubletDetailPage({ params }: Props) {
         </p>
         <Link
           href="/newsletter"
-          className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-3 font-medium text-sm transition-colors"
+          className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-3 font-medium text-sm transition-all active:scale-[0.97]"
         >
           Get Room Alerts
         </Link>

@@ -27,7 +27,7 @@ export default function RoomSeekerCard({ profile }: Props) {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden flex flex-col w-full transition-transform duration-200 hover:-translate-y-0.5"
+      className="rounded-2xl overflow-hidden flex flex-col w-full transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
       style={{
         background: "#1c1c1f",
         border: "1px solid rgba(255,255,255,0.08)",
@@ -106,7 +106,7 @@ export default function RoomSeekerCard({ profile }: Props) {
         >
           <Link
             href={`/room-seekers/${profile.id}`}
-            className="flex-1 flex items-center justify-center gap-1 text-zinc-300 hover:text-white text-sm px-3 py-2.5 rounded-xl font-medium transition-colors"
+            className="flex-1 flex items-center justify-center gap-1 text-zinc-300 hover:text-white text-sm px-3 py-2.5 rounded-xl font-medium transition-all active:scale-[0.97]"
             style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
           >
             View profile
@@ -116,7 +116,7 @@ export default function RoomSeekerCard({ profile }: Props) {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 flex items-center justify-center bg-rose-600 hover:bg-rose-500 text-white text-sm px-3 py-2.5 rounded-xl transition-colors font-medium truncate"
+            className="flex-1 flex items-center justify-center bg-rose-600 hover:bg-rose-500 text-white text-sm px-3 py-2.5 rounded-xl transition-all active:scale-[0.97] font-medium truncate"
             title={btnLabel}
           >
             Contact

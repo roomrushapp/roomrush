@@ -117,7 +117,7 @@ export default function NewsletterSignup({ variant, heading, subheading, compact
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white w-full px-5 py-3 font-medium text-sm transition-colors"
+                className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white w-full px-5 py-3 font-medium text-sm transition-all active:scale-[0.97]"
               >
                 {status === "loading" ? "Subscribing…" : "Get daily listings"}
                 {status !== "loading" && <ArrowRight size={15} />}
@@ -203,7 +203,7 @@ export default function NewsletterSignup({ variant, heading, subheading, compact
                   <button
                     type="submit"
                     disabled={status === "loading"}
-                    className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white px-5 py-3 font-medium text-sm transition-colors whitespace-nowrap"
+                    className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white px-5 py-3 font-medium text-sm transition-all active:scale-[0.97] whitespace-nowrap"
                   >
                     {status === "loading" ? "Subscribing…" : "Get daily listings"}
                     {status !== "loading" && <ArrowRight size={15} />}
@@ -283,7 +283,7 @@ export default function NewsletterSignup({ variant, heading, subheading, compact
         <button
           type="submit"
           disabled={status === "loading"}
-          className="inline-flex items-center justify-center gap-2 bg-zinc-900 hover:bg-black disabled:opacity-50 text-white px-4 py-3 font-medium text-sm transition-colors w-full"
+          className="inline-flex items-center justify-center gap-2 bg-zinc-900 hover:bg-black disabled:opacity-50 text-white px-4 py-3 font-medium text-sm transition-all active:scale-[0.97] w-full"
         >
           {status === "loading" ? "Subscribing…" : "Get daily listings"}
           {status !== "loading" && <ArrowRight size={15} />}

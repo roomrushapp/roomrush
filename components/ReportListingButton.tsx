@@ -53,7 +53,7 @@ export default function ReportListingButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center justify-center gap-2 border border-zinc-200 hover:border-zinc-300 bg-white text-zinc-500 hover:text-zinc-700 px-4 py-3 font-medium text-sm transition-colors w-full mt-3"
+        className="flex items-center justify-center gap-2 border border-zinc-200 hover:border-zinc-300 bg-white text-zinc-500 hover:text-zinc-700 px-4 py-3 font-medium text-sm transition-all active:scale-[0.97] w-full mt-3"
       >
         <AlertTriangle size={14} className="text-amber-500 shrink-0" />
         Report suspicious listing
@@ -160,7 +160,7 @@ export default function ReportListingButton() {
 
                   <button
                     type="submit"
-                    className="w-full bg-zinc-800 hover:bg-zinc-900 text-white px-4 py-3 text-sm font-medium transition-colors"
+                    className="w-full bg-zinc-800 hover:bg-zinc-900 text-white px-4 py-3 text-sm font-medium transition-all active:scale-[0.97]"
                   >
                     Send report by email
                   </button>

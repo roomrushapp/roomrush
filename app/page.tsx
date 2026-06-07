@@ -34,27 +34,27 @@ export default function HomePage() {
               <div className="flex flex-wrap gap-3">
                 <Link
                   href="/listings"
-                  className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-500 text-white px-6 py-3.5 rounded-full font-semibold text-sm transition-colors whitespace-nowrap"
+                  className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-500 text-white px-6 py-3.5 rounded-full font-semibold text-sm transition-all active:scale-[0.97] whitespace-nowrap"
                 >
                   Browse available sublets
                   <ArrowRight size={15} />
                 </Link>
                 <Link
                   href="/dashboard/listings/new"
-                  className="inline-flex items-center gap-2 border border-zinc-500 hover:border-white text-white px-6 py-3.5 rounded-full font-medium text-sm transition-colors whitespace-nowrap"
+                  className="inline-flex items-center gap-2 border border-zinc-500 hover:border-white text-white px-6 py-3.5 rounded-full font-medium text-sm transition-all active:scale-[0.97] whitespace-nowrap"
                 >
                   Post your room
                 </Link>
                 <Link
                   href="/room-seekers"
-                  className="inline-flex items-center gap-2 border border-zinc-700 hover:border-zinc-400 text-zinc-300 hover:text-white px-6 py-3.5 rounded-full font-medium text-sm transition-colors whitespace-nowrap"
+                  className="inline-flex items-center gap-2 border border-zinc-700 hover:border-zinc-400 text-zinc-300 hover:text-white px-6 py-3.5 rounded-full font-medium text-sm transition-all active:scale-[0.97] whitespace-nowrap"
                 >
                   <Users size={14} />
                   Find tenants &amp; roommates
                 </Link>
                 <Link
                   href="/newsletter"
-                  className="inline-flex items-center gap-2 border border-zinc-700 hover:border-zinc-400 text-zinc-300 hover:text-white px-6 py-3.5 rounded-full font-medium text-sm transition-colors whitespace-nowrap"
+                  className="inline-flex items-center gap-2 border border-zinc-700 hover:border-zinc-400 text-zinc-300 hover:text-white px-6 py-3.5 rounded-full font-medium text-sm transition-all active:scale-[0.97] whitespace-nowrap"
                 >
                   <BellRing size={14} />
                   Get room alerts

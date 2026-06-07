@@ -34,7 +34,7 @@ function MetricBlock({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-xs text-zinc-500 font-medium mb-0.5">{label}</p>
-      <p className="text-sm text-zinc-200 font-medium">{value}</p>
+      <p className="text-base text-zinc-100 font-medium">{value}</p>
     </div>
   );
 }
@@ -58,7 +58,7 @@ export default function NewsletterPage() {
         {/* Hero */}
         <div className="mb-8">
           <p className="text-rose-500 text-xs font-semibold uppercase tracking-widest mb-2">
-            Room Alerts · Munich
+            Room Alerts
           </p>
           <h1 className="font-display font-bold text-2xl sm:text-3xl leading-tight text-white mb-2">
             Munich room alerts
@@ -89,7 +89,7 @@ export default function NewsletterPage() {
               For staying updated casually.
             </p>
 
-            <div className="grid grid-cols-2 gap-x-4 gap-y-4 mb-6">
+            <div className="flex flex-col gap-4 mb-6">
               {freeMetrics.map((m) => (
                 <MetricBlock key={m.label} label={m.label} value={m.value} />
               ))}
@@ -101,7 +101,7 @@ export default function NewsletterPage() {
           </div>
 
           {/* Priority alerts card */}
-          <div className="border border-zinc-700 bg-zinc-900 p-6 flex flex-col" style={{ borderTopColor: "rgb(217 119 6 / 0.4)", borderTopWidth: "2px" }}>
+          <div className="border border-zinc-700 bg-zinc-900 p-6 flex flex-col" style={{ borderTopColor: "rgb(217 119 6 / 0.5)", borderTopWidth: "2px" }}>
             <div className="flex items-center justify-between mb-4">
               <p className="text-amber-500 text-xs font-semibold uppercase tracking-widest">
                 Priority Alerts
@@ -118,7 +118,7 @@ export default function NewsletterPage() {
               For searching actively right now.
             </p>
 
-            <div className="grid grid-cols-2 gap-x-4 gap-y-4 mb-6">
+            <div className="flex flex-col gap-4 mb-6">
               {priorityMetrics.map((m) => (
                 <MetricBlock key={m.label} label={m.label} value={m.value} />
               ))}

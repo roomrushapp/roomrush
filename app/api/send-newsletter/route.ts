@@ -160,13 +160,13 @@ async function sendNewsletter(triggeredBy: "cron" | "manual") {
     const email = raw.trim().toLowerCase();
 
     if (!EMAIL_RE.test(email)) {
-      console.warn(`[Newsletter] Skipping invalid email format: ${JSON.stringify(raw)}`);
+      console.warn(`[Newsletter] Skipping invalid subscriber email format`);
       invalidCount++;
       continue;
     }
 
     if (seen.has(email)) {
-      console.warn(`[Newsletter] Skipping duplicate: ${email}`);
+      console.warn(`[Newsletter] Skipping duplicate subscriber email`);
       dupCount++;
       continue;
     }

@@ -4,17 +4,16 @@ import { Resend } from "resend";
 
 // ---------------------------------------------------------------------------
 // ONE-TIME BROADCAST — RoomRush product update email
-// Sends the approved update email to all active newsletter subscribers.
 //
-// Safety:
-//   - Protected by MANUAL_TRIGGER_SECRET (same pattern as send-newsletter).
-//   - Supports ?dryRun=true to validate subscriber counts without sending.
-//   - Does NOT modify newsletter_runs.
-//   - Does NOT affect the normal digest schedule or listing window.
-//   - Does NOT log subscriber email addresses.
-//   - Skips invalid, inactive, unsubscribed, and duplicate emails.
-//   - Reuses each subscriber's existing unsubscribe_token for the footer link.
+// STATUS: SENT on 2026-06-08. Real sending is permanently disabled via the
+// BROADCAST_SENT flag below to prevent accidental duplicate sends.
+// Set BROADCAST_SENT = false only if a deliberate resend is needed.
+//
+// ?dryRun=true still works for subscriber count checks.
 // ---------------------------------------------------------------------------
+
+// ── Set to false ONLY if a deliberate resend is intentionally authorised. ──
+const BROADCAST_SENT = true;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DELAY_MS = 500; // 500 ms between sends — safely under Resend's 5 req/s limit
@@ -124,6 +123,20 @@ export async function GET(request: NextRequest) {
     });
   }
 
+  // ── Guard: broadcast already sent — refuse to resend ────────────────────
+  if (BROADCAST_SENT) {
+    console.log("[Broadcast] Blocked — BROADCAST_SENT=true. Set it to false to re-enable.");
+    return NextResponse.json(
+      {
+        ok: false,
+        blocked: true,
+        reason: "Broadcast already sent. Real sending is disabled to prevent duplicates.",
+        note: "Set BROADCAST_SENT = false in the route file only if a deliberate resend is authorised.",
+      },
+      { status: 403 }
+    );
+  }
+
   // ── Fetch Room Seeker photo (non-fatal) ──────────────────────────────────
   let seekerPhotoUrl: string | null = null;
   try {
@@ -145,8 +158,6 @@ export async function GET(request: NextRequest) {
   } catch {
     // Non-fatal — placeholder used automatically by buildEmailHtml
   }
-
-  console.log(`[Broadcast] Seeker photo: ${seekerPhotoUrl ?? "placeholder"}`);
 
   // ── Send ─────────────────────────────────────────────────────────────────
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -190,7 +201,6 @@ export async function GET(request: NextRequest) {
     sentCount,
     failedCount: failures.length,
     failures,
-    seekerPhotoUrl,
   });
 }
 

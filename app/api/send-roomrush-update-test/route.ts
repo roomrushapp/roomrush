@@ -106,99 +106,113 @@ export async function GET(request: NextRequest) {
 // ---------------------------------------------------------------------------
 
 const PINK        = "#e11d48";
-const BG_BODY     = "#0e0e10";
-const BG_CARD     = "#18181b";
-const BG_HEADER   = "#09090b";
-const BG_INNER    = "#1f1f23";
-const BORDER      = "#2a2a2d";
-const TEXT_WHITE  = "#f4f4f5";
-const TEXT_MUTED  = "#a1a1aa";
-const TEXT_DIM    = "#71717a";
-const TEXT_FAINT  = "#3f3f46";
+const BG_BODY     = "#0f0f11";
+const BG_CARD     = "#19191d";
+const BG_HEADER   = "#0c0c0e";
+const BG_INNER    = "#212126";
+const BG_BODY_TD  = "#0f0f11";  // explicit for table cells
+const BORDER      = "#2c2c30";
+const TEXT_WHITE  = "#f2f2f4";
+const TEXT_MUTED  = "#9f9fa8";
+const TEXT_DIM    = "#6b6b74";
+const TEXT_FAINT  = "#3e3e44";
 const FONT        = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif";
 
 function buildEmailHtml(seekerPhotoUrl: string | null): string {
 
   // ── Room Seeker photo area ────────────────────────────────────────────────
   const photoArea = seekerPhotoUrl
-    ? `<img src="${seekerPhotoUrl}" alt="Faizan" width="560"
-         style="width:100%;max-width:560px;height:220px;object-fit:cover;display:block;border:0;outline:none;">`
-    : `<div style="width:100%;height:200px;background:linear-gradient(135deg,#1a1a1e 0%,#27272b 100%);text-align:center;padding-top:52px;box-sizing:border-box;">
-         <div style="width:60px;height:60px;border-radius:50%;background:rgba(225,29,72,0.15);border:2px solid rgba(225,29,72,0.3);margin:0 auto 10px auto;line-height:56px;">
-           <span style="color:${PINK};font-size:24px;font-weight:800;">F</span>
-         </div>
-         <p style="color:#52525b;font-size:11px;margin:0;font-family:${FONT};">Profile photo</p>
-       </div>`;
+    ? `<img src="${seekerPhotoUrl}" alt="Faizan" width="600"
+         style="width:100%;max-width:600px;height:240px;object-fit:cover;display:block;border:0;outline:none;line-height:0;font-size:0;">`
+    : `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+         <tr>
+           <td style="height:220px;background:#1d1d22;text-align:center;vertical-align:middle;padding:0;" bgcolor="#1d1d22">
+             <div style="display:inline-block;width:68px;height:68px;border-radius:50%;background:rgba(225,29,72,0.14);border:2px solid rgba(225,29,72,0.28);line-height:64px;text-align:center;margin-bottom:10px;">
+               <span style="color:${PINK};font-size:26px;font-weight:800;vertical-align:middle;">F</span>
+             </div>
+             <p style="color:#4a4a52;font-size:12px;margin:10px 0 0 0;font-family:${FONT};">Profile photo</p>
+           </td>
+         </tr>
+       </table>`;
 
   // ── Room Seeker card ──────────────────────────────────────────────────────
+  // Badge is rendered as a separate row pinned above the image using a
+  // negative-margin trick safe in most email clients, or as an overlaid div
+  // where position:absolute is supported (Gmail webmail, Apple Mail).
   const seekerCard = `
     <table width="100%" cellpadding="0" cellspacing="0" border="0"
-           style="border-collapse:collapse;border-radius:14px;overflow:hidden;border:1px solid ${BORDER};margin-bottom:8px;background-color:${BG_INNER};">
+           style="border-collapse:collapse;border-radius:16px;overflow:hidden;border:1px solid ${BORDER};background-color:${BG_INNER};"
+           bgcolor="${BG_INNER}">
       <tr>
-        <td style="background-color:${BG_INNER};border-radius:14px;overflow:hidden;padding:0;position:relative;">
-          <!-- badge overlay row -->
-          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+        <td style="padding:0;background-color:${BG_INNER};border-radius:16px;overflow:hidden;" bgcolor="${BG_INNER}">
+
+          <!-- Photo + badge overlay -->
+          <div style="position:relative;line-height:0;font-size:0;">
+            ${photoArea}
+            <div style="position:absolute;top:14px;left:14px;">
+              <span style="display:inline-block;background:${PINK};color:#fff;font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:5px 11px;border-radius:20px;font-family:${FONT};">
+                Looking for a room
+              </span>
+            </div>
+          </div>
+
+          <!-- Card body -->
+          <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                 style="border-collapse:collapse;background-color:${BG_INNER};" bgcolor="${BG_INNER}">
+
+            <!-- Name row -->
             <tr>
-              <td style="padding:0;line-height:0;font-size:0;background-color:${BG_INNER};">
-                <!-- stack: photo then badge positioned via inner table -->
-                <div style="position:relative;line-height:0;font-size:0;">
-                  ${photoArea}
-                  <div style="position:absolute;top:12px;left:12px;">
-                    <span style="background:${PINK};color:#fff;font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:4px 10px;border-radius:20px;font-family:${FONT};">
-                      Looking for a room
-                    </span>
-                  </div>
-                </div>
+              <td style="padding:20px 22px 0 22px;background-color:${BG_INNER};" bgcolor="${BG_INNER}">
+                <p style="font-size:19px;font-weight:700;color:${TEXT_WHITE};margin:0;line-height:1.2;font-family:${FONT};">Faizan, 23</p>
               </td>
             </tr>
-            <!-- Name -->
+
+            <!-- Details -->
             <tr>
-              <td style="padding:18px 20px 0 20px;background-color:${BG_INNER};">
-                <p style="font-size:18px;font-weight:700;color:${TEXT_WHITE};margin:0;font-family:${FONT};">Faizan, 23</p>
-              </td>
-            </tr>
-            <!-- Details table -->
-            <tr>
-              <td style="padding:14px 20px 0 20px;background-color:${BG_INNER};">
+              <td style="padding:14px 22px 0 22px;background-color:${BG_INNER};" bgcolor="${BG_INNER}">
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
                   <tr>
-                    <td style="color:${TEXT_DIM};font-size:13px;padding:3px 0;width:74px;font-family:${FONT};">Move in</td>
-                    <td style="color:${TEXT_WHITE};font-size:13px;font-weight:500;padding:3px 0;font-family:${FONT};">August 2026</td>
+                    <td style="color:${TEXT_DIM};font-size:13px;padding:4px 0;width:78px;vertical-align:top;font-family:${FONT};">Move in</td>
+                    <td style="color:${TEXT_WHITE};font-size:13px;font-weight:500;padding:4px 0;vertical-align:top;font-family:${FONT};">August 2026</td>
                   </tr>
                   <tr>
-                    <td style="color:${TEXT_DIM};font-size:13px;padding:3px 0;font-family:${FONT};">Budget</td>
-                    <td style="color:${TEXT_WHITE};font-size:13px;font-weight:500;padding:3px 0;font-family:${FONT};">&#8364;760/month</td>
+                    <td style="color:${TEXT_DIM};font-size:13px;padding:4px 0;vertical-align:top;font-family:${FONT};">Budget</td>
+                    <td style="color:${TEXT_WHITE};font-size:13px;font-weight:500;padding:4px 0;vertical-align:top;font-family:${FONT};">&#8364;760/month</td>
                   </tr>
                   <tr>
-                    <td style="color:${TEXT_DIM};font-size:13px;padding:3px 0;font-family:${FONT};">Area</td>
-                    <td style="color:${TEXT_WHITE};font-size:13px;font-weight:500;padding:3px 0;font-family:${FONT};">Flexible / Anywhere in Munich</td>
+                    <td style="color:${TEXT_DIM};font-size:13px;padding:4px 0;vertical-align:top;font-family:${FONT};">Area</td>
+                    <td style="color:${TEXT_WHITE};font-size:13px;font-weight:500;padding:4px 0;vertical-align:top;font-family:${FONT};">Flexible / Anywhere in Munich</td>
                   </tr>
                 </table>
               </td>
             </tr>
-            <!-- Intro -->
+
+            <!-- Intro quote -->
             <tr>
-              <td style="padding:14px 20px 0 20px;background-color:${BG_INNER};">
-                <p style="font-size:13px;color:${TEXT_DIM};line-height:1.55;margin:0;font-style:italic;border-left:2px solid rgba(225,29,72,0.3);padding-left:10px;font-family:${FONT};">
+              <td style="padding:14px 22px 0 22px;background-color:${BG_INNER};" bgcolor="${BG_INNER}">
+                <p style="font-size:14px;color:${TEXT_DIM};line-height:1.6;margin:0;font-style:italic;border-left:2px solid rgba(225,29,72,0.32);padding-left:12px;font-family:${FONT};">
                   &#8220;Hi, I&#8217;m looking for a room or WG in Munich. I&#8217;m flexible with the area and happy to share more&#8230;&#8221;
                 </p>
               </td>
             </tr>
+
             <!-- Buttons -->
             <tr>
-              <td style="padding:16px 20px 20px 20px;border-top:1px solid rgba(255,255,255,0.07);margin-top:16px;background-color:${BG_INNER};">
+              <td style="padding:18px 22px 22px 22px;border-top:1px solid rgba(255,255,255,0.06);background-color:${BG_INNER};" bgcolor="${BG_INNER}">
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
                   <tr>
-                    <td width="47%" style="padding:0;">
+                    <td width="46%" style="padding-right:6px;">
                       <a href="https://www.getroomrush.de/room-seekers"
-                         style="display:block;text-align:center;background:rgba(255,255,255,0.07);color:${TEXT_WHITE};font-size:13px;font-weight:600;padding:10px 0;border-radius:9px;text-decoration:none;border:1px solid rgba(255,255,255,0.1);font-family:${FONT};">
+                         style="display:block;text-align:center;background:#28282e;color:${TEXT_WHITE};font-size:13px;font-weight:600;padding:11px 0;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.1);font-family:${FONT};"
+                         bgcolor="#28282e">
                         View profile
                       </a>
                     </td>
-                    <td width="6%" style="padding:0;">&nbsp;</td>
-                    <td width="47%" style="padding:0;">
+                    <td width="8%" style="padding:0;">&nbsp;</td>
+                    <td width="46%" style="padding-left:6px;">
                       <a href="https://www.getroomrush.de/room-seekers"
-                         style="display:block;text-align:center;background:${PINK};color:#fff;font-size:13px;font-weight:600;padding:10px 0;border-radius:9px;text-decoration:none;font-family:${FONT};">
+                         style="display:block;text-align:center;background:${PINK};color:#ffffff;font-size:13px;font-weight:600;padding:11px 0;border-radius:10px;text-decoration:none;font-family:${FONT};"
+                         bgcolor="${PINK}">
                         Contact
                       </a>
                     </td>
@@ -206,6 +220,7 @@ function buildEmailHtml(seekerPhotoUrl: string | null): string {
                 </table>
               </td>
             </tr>
+
           </table>
         </td>
       </tr>
@@ -217,12 +232,13 @@ function buildEmailHtml(seekerPhotoUrl: string | null): string {
     "See listings before the next free digest",
     "Direct listing links",
     "Private WhatsApp group",
+    "No spam, only room listings",
   ];
 
   const benefitsHtml = benefits.map((b) => `
     <tr>
-      <td width="22" style="padding:5px 0;color:${PINK};font-size:14px;vertical-align:top;font-family:${FONT};">&#10003;</td>
-      <td style="padding:5px 0;color:#d4d4d8;font-size:14px;line-height:1.5;font-family:${FONT};">${b}</td>
+      <td width="24" style="padding:6px 0;color:${PINK};font-size:14px;vertical-align:top;font-family:${FONT};">&#10003;</td>
+      <td style="padding:6px 0;color:#d2d2d8;font-size:14px;line-height:1.5;font-family:${FONT};">${b}</td>
     </tr>`).join("");
 
   // ── Section divider helper ────────────────────────────────────────────────
@@ -236,27 +252,65 @@ function buildEmailHtml(seekerPhotoUrl: string | null): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="color-scheme" content="dark">
-  <meta name="supported-color-schemes" content="dark">
+  <meta name="color-scheme" content="dark light">
+  <meta name="supported-color-schemes" content="dark light">
   <title>RoomRush Update</title>
   <!--[if !mso]><!-->
   <style type="text/css">
-    :root { color-scheme: dark; }
-    /* Gmail app dark mode override */
-    u + .body .email-wrapper { background-color: ${BG_BODY} !important; }
-    u + .body .email-card    { background-color: ${BG_CARD} !important; }
-    u + .body .email-header  { background-color: ${BG_HEADER} !important; }
-    u + .body .email-footer  { background-color: ${BG_HEADER} !important; }
-    u + .body .inner-card    { background-color: ${BG_INNER} !important; }
-    u + .body .seeker-card   { background-color: ${BG_INNER} !important; }
-    /* Apple Mail / iOS Mail dark mode */
+    /* Tell supporting clients we prefer dark */
+    :root { color-scheme: dark light; }
+
+    /* ── Reset that prevents client from recolouring our dark email ── */
+    body, table, td, p, a, li, blockquote {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+
+    /* ── Gmail app dark mode (u + .body selector) ── */
+    u + .body .email-body-td  { background-color: ${BG_BODY_TD} !important; }
+    u + .body .email-wrapper  { background-color: ${BG_BODY} !important; }
+    u + .body .email-card     { background-color: ${BG_CARD} !important; }
+    u + .body .email-header   { background-color: ${BG_HEADER} !important; }
+    u + .body .email-body-pad { background-color: ${BG_CARD} !important; }
+    u + .body .email-footer   { background-color: ${BG_HEADER} !important; }
+    u + .body .inner-card     { background-color: ${BG_INNER} !important; }
+    u + .body .seeker-bg      { background-color: ${BG_INNER} !important; }
+    u + .body h1              { color: ${TEXT_WHITE} !important; }
+    u + .body h2              { color: ${TEXT_WHITE} !important; }
+    u + .body p               { color: ${TEXT_MUTED} !important; }
+
+    /* ── Apple Mail / iOS Mail / Outlook.com dark mode ── */
     @media (prefers-color-scheme: dark) {
-      body, .email-wrapper { background-color: ${BG_BODY} !important; }
+      body                 { background-color: ${BG_BODY} !important; }
+      .email-body-td       { background-color: ${BG_BODY_TD} !important; }
+      .email-wrapper       { background-color: ${BG_BODY} !important; }
       .email-card          { background-color: ${BG_CARD} !important; border-color: ${BORDER} !important; }
       .email-header        { background-color: ${BG_HEADER} !important; }
+      .email-body-pad      { background-color: ${BG_CARD} !important; }
       .email-footer        { background-color: ${BG_HEADER} !important; }
       .inner-card          { background-color: ${BG_INNER} !important; }
-      .seeker-card td      { background-color: ${BG_INNER} !important; }
+      .seeker-bg           { background-color: ${BG_INNER} !important; }
+      .seeker-bg td        { background-color: ${BG_INNER} !important; }
+      h1                   { color: ${TEXT_WHITE} !important; }
+      h2                   { color: ${TEXT_WHITE} !important; }
+      .label-pink          { color: ${PINK} !important; }
+      .text-muted          { color: ${TEXT_MUTED} !important; }
+      .text-dim            { color: ${TEXT_DIM} !important; }
+      .text-faint          { color: ${TEXT_FAINT} !important; }
+    }
+
+    /* ── Light mode — force dark anyway (the email IS dark-themed) ── */
+    @media (prefers-color-scheme: light) {
+      body                 { background-color: ${BG_BODY} !important; }
+      .email-body-td       { background-color: ${BG_BODY_TD} !important; }
+      .email-wrapper       { background-color: ${BG_BODY} !important; }
+      .email-card          { background-color: ${BG_CARD} !important; }
+      .email-header        { background-color: ${BG_HEADER} !important; }
+      .email-body-pad      { background-color: ${BG_CARD} !important; }
+      .email-footer        { background-color: ${BG_HEADER} !important; }
+      .inner-card          { background-color: ${BG_INNER} !important; }
+      .seeker-bg           { background-color: ${BG_INNER} !important; }
+      .seeker-bg td        { background-color: ${BG_INNER} !important; }
     }
   </style>
   <!--<![endif]-->
@@ -273,7 +327,8 @@ function buildEmailHtml(seekerPhotoUrl: string | null): string {
 <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" border="0"
        style="border-collapse:collapse;background-color:${BG_BODY};" bgcolor="${BG_BODY}">
   <tr>
-    <td align="center" style="padding:28px 12px 40px 12px;background-color:${BG_BODY};" bgcolor="${BG_BODY}">
+    <td class="email-body-td" align="center"
+        style="padding:28px 12px 40px 12px;background-color:${BG_BODY_TD};" bgcolor="${BG_BODY_TD}">
 
       <!-- ── Outer card ─────────────────────────────────────────────────── -->
       <table class="email-card" width="100%" cellpadding="0" cellspacing="0" border="0"
@@ -318,7 +373,8 @@ function buildEmailHtml(seekerPhotoUrl: string | null): string {
 
         <!-- ── BODY ───────────────────────────────────────────────────── -->
         <tr>
-          <td style="padding:36px 32px;background-color:${BG_CARD};" bgcolor="${BG_CARD}">
+          <td class="email-body-pad"
+              style="padding:36px 32px;background-color:${BG_CARD};" bgcolor="${BG_CARD}">
 
             <!-- ── SECTION 1: Room Seekers ── -->
             <table width="100%" cellpadding="0" cellspacing="0" border="0"
@@ -337,8 +393,8 @@ function buildEmailHtml(seekerPhotoUrl: string | null): string {
 
                   ${seekerCard}
 
-                  <p style="font-size:11px;color:${TEXT_FAINT};text-align:center;margin:10px 0 28px 0;font-family:${FONT};">
-                    Example profile — yours could look like this
+                  <p style="font-size:13px;color:${TEXT_DIM};text-align:center;margin:12px 0 30px 0;font-family:${FONT};">
+                    Example profile &#8212; yours could look like this
                   </p>
 
                   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
@@ -437,7 +493,7 @@ function buildEmailHtml(seekerPhotoUrl: string | null): string {
               Munich rooms, sublets, and room search tools.
             </p>
             <p style="color:${TEXT_DIM};font-size:13px;line-height:1.5;margin:0 0 16px 0;font-family:${FONT};">
-              Thanks for being part of RoomRush.
+              Thank you for being part of RoomRush.
             </p>
             <p style="color:${TEXT_FAINT};font-size:11px;margin:0;line-height:1.7;font-family:${FONT};">
               You are receiving this because you signed up for room alerts.

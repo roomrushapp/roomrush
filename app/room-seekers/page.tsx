@@ -23,7 +23,7 @@ export default async function RoomSeekersPage() {
 
   const { data: { user } } = await supabase.auth.getUser();
   let ctaHref = "/room-seekers/create";
-  let ctaLabel = "Create your profile";
+  let ctaLabel = "Create free profile";
   if (user) {
     const { data: ownProfile } = await supabase
       .from("room_seeker_profiles")
@@ -52,10 +52,10 @@ export default async function RoomSeekersPage() {
               Room Seekers
             </p>
             <h1 className="font-display font-bold text-2xl md:text-3xl text-white leading-tight mb-2">
-              Meet people looking for a room in Munich
+              Looking for a room? Let listers contact you
             </h1>
             <p className="text-zinc-400 text-sm leading-relaxed max-w-md">
-              Students, interns, and young professionals searching for WGs, sublets, and furnished rooms.
+              Create a simple profile with your budget, move in date, and area. People posting rooms can reach out if it fits.
             </p>
             <p className="text-zinc-600 text-xs mt-3">
               {profiles.length} active profile{profiles.length !== 1 ? "s" : ""}

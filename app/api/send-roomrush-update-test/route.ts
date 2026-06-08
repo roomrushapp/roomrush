@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
 import { Resend } from "resend";
 
 // TEST-ONLY route. Hardcoded to a single recipient — never sends to subscribers.
-// Protected by MANUAL_TRIGGER_SECRET (same pattern as send-newsletter).
+// Protected by MANUAL_TRIGGER_SECRET / CRON_SECRET (same pattern as send-newsletter).
 const TEST_RECIPIENT = "samadfaizan46@gmail.com";
 
-// Public assets served from /public at the production domain.
-const LOGO_URL = "https://www.getroomrush.de/roomrush-logo.png";
+// Public assets from /public served at the production domain.
+// app/icon.png is the running man icon, served by Next.js at /icon.png.
+const ICON_URL = "https://www.getroomrush.de/icon.png";
+
+function getAdminClient() {
+  return createSupabaseAdmin(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 function authorize(request: NextRequest): boolean {
   if (process.env.NODE_ENV !== "production") return true;
@@ -37,13 +46,37 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // Fetch the active Room Seeker profile photo URL from the DB.
+  // We only read from room_seeker_profiles — no subscriber data is touched.
+  let seekerPhotoUrl: string | null = null;
+  try {
+    const supabase = getAdminClient();
+    const { data } = await supabase
+      .from("room_seeker_profiles")
+      .select("photo_urls, photo_url")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (data) {
+      if (Array.isArray(data.photo_urls) && data.photo_urls.length > 0) {
+        seekerPhotoUrl = data.photo_urls[0];
+      } else if (data.photo_url) {
+        seekerPhotoUrl = data.photo_url;
+      }
+    }
+  } catch {
+    // Non-fatal — fall back to placeholder if DB read fails
+  }
+
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const html = buildEmailHtml();
+  const html = buildEmailHtml(seekerPhotoUrl);
 
   const { error } = await resend.emails.send({
     from: "RoomRush Munich <hello@getroomrush.de>",
     to: TEST_RECIPIENT,
-    subject: "RoomRush update: Room Seeker profiles + WhatsApp alerts",
+    subject: "New ways to find a room faster in Munich",
     html,
   });
 
@@ -59,11 +92,12 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  console.log(`[UpdateTest] Test email sent to ${TEST_RECIPIENT}`);
+  console.log(`[UpdateTest] Test email sent to ${TEST_RECIPIENT} seekerPhoto=${seekerPhotoUrl ?? "placeholder"}`);
   return NextResponse.json({
     ok: true,
     note: "TEST ONLY — sent to one hardcoded recipient, no subscribers affected.",
     recipient: TEST_RECIPIENT,
+    seekerPhotoUrl,
   });
 }
 
@@ -71,80 +105,100 @@ export async function GET(request: NextRequest) {
 // Email HTML
 // ---------------------------------------------------------------------------
 
-const PINK = "#e11d48";
-const BG_BODY = "#0e0e10";
-const BG_CARD = "#18181b";
-const BG_HEADER = "#09090b";
-const BG_INNER_CARD = "#1c1c1f";
-const BORDER = "#2a2a2d";
-const TEXT_WHITE = "#f4f4f5";
-const TEXT_MUTED = "#a1a1aa";
-const TEXT_DIM = "#71717a";
-const TEXT_FAINT = "#3f3f46";
+const PINK        = "#e11d48";
+const BG_BODY     = "#0e0e10";
+const BG_CARD     = "#18181b";
+const BG_HEADER   = "#09090b";
+const BG_INNER    = "#1f1f23";
+const BORDER      = "#2a2a2d";
+const TEXT_WHITE  = "#f4f4f5";
+const TEXT_MUTED  = "#a1a1aa";
+const TEXT_DIM    = "#71717a";
+const TEXT_FAINT  = "#3f3f46";
+const FONT        = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif";
 
-function buildEmailHtml(): string {
-  // ── Room Seeker preview card ──────────────────────────────────────────────
-  // The profile photo requires an authenticated Supabase URL that email
-  // clients cannot access. Instead we render a branded placeholder so the
-  // card never shows a broken image.
-  const seekerPhotoPlaceholder = `
-    <div style="width:100%;height:200px;background:linear-gradient(135deg,#1a1a1e 0%,#27272b 100%);display:flex;align-items:center;justify-content:center;position:relative;">
-      <div style="text-align:center;">
-        <div style="width:64px;height:64px;border-radius:50%;background:rgba(225,29,72,0.15);border:2px solid rgba(225,29,72,0.35);margin:0 auto 10px auto;display:flex;align-items:center;justify-content:center;">
-          <span style="color:#e11d48;font-size:26px;font-weight:800;line-height:1;">F</span>
-        </div>
-        <p style="color:#52525b;font-size:11px;margin:0;">Profile photo</p>
-      </div>
-      <div style="position:absolute;top:12px;left:12px;background:${PINK};color:#fff;font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:4px 10px;border-radius:20px;">
-        Looking for a room
-      </div>
-    </div>`;
+function buildEmailHtml(seekerPhotoUrl: string | null): string {
 
+  // ── Room Seeker photo area ────────────────────────────────────────────────
+  const photoArea = seekerPhotoUrl
+    ? `<img src="${seekerPhotoUrl}" alt="Faizan" width="560"
+         style="width:100%;max-width:560px;height:220px;object-fit:cover;display:block;border:0;outline:none;">`
+    : `<div style="width:100%;height:200px;background:linear-gradient(135deg,#1a1a1e 0%,#27272b 100%);text-align:center;padding-top:52px;box-sizing:border-box;">
+         <div style="width:60px;height:60px;border-radius:50%;background:rgba(225,29,72,0.15);border:2px solid rgba(225,29,72,0.3);margin:0 auto 10px auto;line-height:56px;">
+           <span style="color:${PINK};font-size:24px;font-weight:800;">F</span>
+         </div>
+         <p style="color:#52525b;font-size:11px;margin:0;font-family:${FONT};">Profile photo</p>
+       </div>`;
+
+  // ── Room Seeker card ──────────────────────────────────────────────────────
   const seekerCard = `
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-bottom:6px;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0"
+           style="border-collapse:collapse;border-radius:14px;overflow:hidden;border:1px solid ${BORDER};margin-bottom:8px;background-color:${BG_INNER};">
       <tr>
-        <td style="background:${BG_INNER_CARD};border-radius:16px;overflow:hidden;border:1px solid ${BORDER};">
-          <!-- Photo area -->
-          ${seekerPhotoPlaceholder}
-          <!-- Details -->
+        <td style="background-color:${BG_INNER};border-radius:14px;overflow:hidden;padding:0;position:relative;">
+          <!-- badge overlay row -->
           <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
             <tr>
-              <td style="padding:20px 20px 0 20px;">
-                <p style="font-size:18px;font-weight:700;color:${TEXT_WHITE};margin:0 0 14px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">Faizan, 23</p>
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-bottom:14px;">
+              <td style="padding:0;line-height:0;font-size:0;background-color:${BG_INNER};">
+                <!-- stack: photo then badge positioned via inner table -->
+                <div style="position:relative;line-height:0;font-size:0;">
+                  ${photoArea}
+                  <div style="position:absolute;top:12px;left:12px;">
+                    <span style="background:${PINK};color:#fff;font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:4px 10px;border-radius:20px;font-family:${FONT};">
+                      Looking for a room
+                    </span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <!-- Name -->
+            <tr>
+              <td style="padding:18px 20px 0 20px;background-color:${BG_INNER};">
+                <p style="font-size:18px;font-weight:700;color:${TEXT_WHITE};margin:0;font-family:${FONT};">Faizan, 23</p>
+              </td>
+            </tr>
+            <!-- Details table -->
+            <tr>
+              <td style="padding:14px 20px 0 20px;background-color:${BG_INNER};">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
                   <tr>
-                    <td style="padding:4px 0;color:${TEXT_DIM};font-size:13px;width:76px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">Move in</td>
-                    <td style="padding:4px 0;color:${TEXT_WHITE};font-size:13px;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">August 2026</td>
+                    <td style="color:${TEXT_DIM};font-size:13px;padding:3px 0;width:74px;font-family:${FONT};">Move in</td>
+                    <td style="color:${TEXT_WHITE};font-size:13px;font-weight:500;padding:3px 0;font-family:${FONT};">August 2026</td>
                   </tr>
                   <tr>
-                    <td style="padding:4px 0;color:${TEXT_DIM};font-size:13px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">Budget</td>
-                    <td style="padding:4px 0;color:${TEXT_WHITE};font-size:13px;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">€760/month</td>
+                    <td style="color:${TEXT_DIM};font-size:13px;padding:3px 0;font-family:${FONT};">Budget</td>
+                    <td style="color:${TEXT_WHITE};font-size:13px;font-weight:500;padding:3px 0;font-family:${FONT};">&#8364;760/month</td>
                   </tr>
                   <tr>
-                    <td style="padding:4px 0;color:${TEXT_DIM};font-size:13px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">Area</td>
-                    <td style="padding:4px 0;color:${TEXT_WHITE};font-size:13px;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">Flexible / Anywhere in Munich</td>
+                    <td style="color:${TEXT_DIM};font-size:13px;padding:3px 0;font-family:${FONT};">Area</td>
+                    <td style="color:${TEXT_WHITE};font-size:13px;font-weight:500;padding:3px 0;font-family:${FONT};">Flexible / Anywhere in Munich</td>
                   </tr>
                 </table>
-                <p style="font-size:13px;color:${TEXT_DIM};line-height:1.55;margin:0 0 16px 0;font-style:italic;border-left:2px solid rgba(225,29,72,0.35);padding-left:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+              </td>
+            </tr>
+            <!-- Intro -->
+            <tr>
+              <td style="padding:14px 20px 0 20px;background-color:${BG_INNER};">
+                <p style="font-size:13px;color:${TEXT_DIM};line-height:1.55;margin:0;font-style:italic;border-left:2px solid rgba(225,29,72,0.3);padding-left:10px;font-family:${FONT};">
                   &#8220;Hi, I&#8217;m looking for a room or WG in Munich. I&#8217;m flexible with the area and happy to share more&#8230;&#8221;
                 </p>
               </td>
             </tr>
-            <!-- Button row -->
+            <!-- Buttons -->
             <tr>
-              <td style="padding:14px 20px 20px 20px;border-top:1px solid rgba(255,255,255,0.07);">
+              <td style="padding:16px 20px 20px 20px;border-top:1px solid rgba(255,255,255,0.07);margin-top:16px;background-color:${BG_INNER};">
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
                   <tr>
-                    <td width="48%" style="padding-right:6px;">
+                    <td width="47%" style="padding:0;">
                       <a href="https://www.getroomrush.de/room-seekers"
-                         style="display:block;text-align:center;background:rgba(255,255,255,0.07);color:${TEXT_WHITE};font-size:13px;font-weight:600;padding:10px 0;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                         style="display:block;text-align:center;background:rgba(255,255,255,0.07);color:${TEXT_WHITE};font-size:13px;font-weight:600;padding:10px 0;border-radius:9px;text-decoration:none;border:1px solid rgba(255,255,255,0.1);font-family:${FONT};">
                         View profile
                       </a>
                     </td>
-                    <td width="4%">&nbsp;</td>
-                    <td width="48%" style="padding-left:6px;">
+                    <td width="6%" style="padding:0;">&nbsp;</td>
+                    <td width="47%" style="padding:0;">
                       <a href="https://www.getroomrush.de/room-seekers"
-                         style="display:block;text-align:center;background:${PINK};color:#fff;font-size:13px;font-weight:600;padding:10px 0;border-radius:10px;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                         style="display:block;text-align:center;background:${PINK};color:#fff;font-size:13px;font-weight:600;padding:10px 0;border-radius:9px;text-decoration:none;font-family:${FONT};">
                         Contact
                       </a>
                     </td>
@@ -157,7 +211,7 @@ function buildEmailHtml(): string {
       </tr>
     </table>`;
 
-  // ── Benefits list ─────────────────────────────────────────────────────────
+  // ── Benefits ──────────────────────────────────────────────────────────────
   const benefits = [
     "Instant alerts when listings are posted",
     "See listings before the next free digest",
@@ -165,17 +219,18 @@ function buildEmailHtml(): string {
     "Private WhatsApp group",
   ];
 
-  const benefitsHtml = benefits
-    .map(
-      (b) => `
+  const benefitsHtml = benefits.map((b) => `
     <tr>
-      <td width="22" style="padding:6px 0;color:${PINK};font-size:15px;vertical-align:top;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">&#10003;</td>
-      <td style="padding:6px 0;color:#d4d4d8;font-size:14px;line-height:1.5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">${b}</td>
-    </tr>`
-    )
-    .join("");
+      <td width="22" style="padding:5px 0;color:${PINK};font-size:14px;vertical-align:top;font-family:${FONT};">&#10003;</td>
+      <td style="padding:5px 0;color:#d4d4d8;font-size:14px;line-height:1.5;font-family:${FONT};">${b}</td>
+    </tr>`).join("");
 
-  // ── Full HTML ─────────────────────────────────────────────────────────────
+  // ── Section divider helper ────────────────────────────────────────────────
+  const divider = `
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;padding:0;">
+      <tr><td style="height:1px;background-color:${BORDER};font-size:0;line-height:0;padding:0;">&nbsp;</td></tr>
+    </table>`;
+
   return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -185,103 +240,112 @@ function buildEmailHtml(): string {
   <meta name="supported-color-schemes" content="dark">
   <title>RoomRush Update</title>
   <!--[if !mso]><!-->
-  <style>
+  <style type="text/css">
     :root { color-scheme: dark; }
-    body, table, td, p, a, span { color-scheme: dark; }
-    /* Force dark background even in Gmail dark mode */
-    u + .body .email-wrapper { background: ${BG_BODY} !important; }
+    /* Gmail app dark mode override */
+    u + .body .email-wrapper { background-color: ${BG_BODY} !important; }
+    u + .body .email-card    { background-color: ${BG_CARD} !important; }
+    u + .body .email-header  { background-color: ${BG_HEADER} !important; }
+    u + .body .email-footer  { background-color: ${BG_HEADER} !important; }
+    u + .body .inner-card    { background-color: ${BG_INNER} !important; }
+    u + .body .seeker-card   { background-color: ${BG_INNER} !important; }
+    /* Apple Mail / iOS Mail dark mode */
     @media (prefers-color-scheme: dark) {
-      body { background-color: ${BG_BODY} !important; }
-      .email-wrapper { background-color: ${BG_BODY} !important; }
-      .email-card { background-color: ${BG_CARD} !important; border-color: ${BORDER} !important; }
-      .email-header { background-color: ${BG_HEADER} !important; }
-      .email-footer { background-color: ${BG_HEADER} !important; }
-      .inner-card { background-color: ${BG_INNER_CARD} !important; }
+      body, .email-wrapper { background-color: ${BG_BODY} !important; }
+      .email-card          { background-color: ${BG_CARD} !important; border-color: ${BORDER} !important; }
+      .email-header        { background-color: ${BG_HEADER} !important; }
+      .email-footer        { background-color: ${BG_HEADER} !important; }
+      .inner-card          { background-color: ${BG_INNER} !important; }
+      .seeker-card td      { background-color: ${BG_INNER} !important; }
     }
   </style>
   <!--<![endif]-->
 </head>
-<!--[if !mso]><!-->
-<body class="body" style="margin:0;padding:0;background-color:${BG_BODY};-webkit-text-size-adjust:100%;mso-line-height-rule:exactly;">
-<!--<![endif]-->
-<!--[if mso]>
-<body style="margin:0;padding:0;background-color:${BG_BODY};">
-<![endif]-->
+<body class="body"
+      style="margin:0;padding:0;background-color:${BG_BODY};-webkit-text-size-adjust:100%;mso-line-height-rule:exactly;"
+      bgcolor="${BG_BODY}">
 
-<!-- Preheader (hidden preview text) -->
-<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
-  Create a profile so listers can contact you, plus updates to free digests and Priority WhatsApp Alerts.&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;
+<!-- Hidden preheader -->
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;color:${BG_BODY};">
+  Room Seeker profiles are live. Free digests now go out Mon, Wed, Fri, and instant alerts are moving to WhatsApp.&#847;&zwj;&#847;&zwj;&#847;&zwj;&#847;&zwj;&#847;&zwj;&#847;&zwj;&#847;
 </div>
 
-<table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;background-color:${BG_BODY};min-width:100%;">
+<table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" border="0"
+       style="border-collapse:collapse;background-color:${BG_BODY};" bgcolor="${BG_BODY}">
   <tr>
-    <td align="center" style="padding:32px 16px;">
+    <td align="center" style="padding:28px 12px 40px 12px;background-color:${BG_BODY};" bgcolor="${BG_BODY}">
 
-      <!-- ── Outer card ── -->
+      <!-- ── Outer card ─────────────────────────────────────────────────── -->
       <table class="email-card" width="100%" cellpadding="0" cellspacing="0" border="0"
-             style="border-collapse:collapse;max-width:600px;background-color:${BG_CARD};border-radius:20px;overflow:hidden;border:1px solid ${BORDER};">
+             style="border-collapse:collapse;max-width:600px;background-color:${BG_CARD};border-radius:18px;overflow:hidden;border:1px solid ${BORDER};"
+             bgcolor="${BG_CARD}">
 
-        <!-- ── HEADER ── -->
+        <!-- ── HEADER ─────────────────────────────────────────────────── -->
         <tr>
-          <td class="email-header" style="background-color:${BG_HEADER};padding:28px 32px 26px 32px;">
-            <!-- Logo row -->
-            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-bottom:20px;">
+          <td class="email-header"
+              style="background-color:${BG_HEADER};padding:28px 32px 28px 32px;"
+              bgcolor="${BG_HEADER}">
+            <!-- Icon + label row -->
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-bottom:18px;">
               <tr>
                 <td style="vertical-align:middle;">
-                  <img src="${LOGO_URL}" alt="RoomRush" height="28"
-                       style="height:28px;width:auto;display:inline-block;border:0;outline:none;text-decoration:none;">
+                  <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                    <tr>
+                      <td style="vertical-align:middle;padding-right:8px;">
+                        <img src="${ICON_URL}" alt="" width="22" height="22"
+                             style="width:22px;height:22px;display:block;border:0;outline:none;text-decoration:none;">
+                      </td>
+                      <td style="vertical-align:middle;">
+                        <span style="color:${PINK};font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;font-family:${FONT};">
+                          Update
+                        </span>
+                      </td>
+                    </tr>
+                  </table>
                 </td>
               </tr>
             </table>
-            <!-- Label -->
-            <p style="color:${PINK};font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin:0 0 10px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-              RoomRush Update
-            </p>
             <!-- Title -->
-            <h1 style="color:${TEXT_WHITE};font-size:26px;font-weight:800;line-height:1.25;margin:0 0 12px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+            <h1 style="color:${TEXT_WHITE};font-size:26px;font-weight:800;line-height:1.25;margin:0 0 14px 0;font-family:${FONT};">
               New ways to find a room faster in Munich
             </h1>
             <!-- Intro -->
-            <p style="color:${TEXT_MUTED};font-size:14px;line-height:1.65;margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+            <p style="color:${TEXT_MUTED};font-size:14px;line-height:1.7;margin:0;font-family:${FONT};">
               We have launched Room Seeker profiles, updated the free digest schedule, and are moving instant alerts to WhatsApp for faster delivery.
             </p>
           </td>
         </tr>
 
-        <!-- ── BODY ── -->
+        <!-- ── BODY ───────────────────────────────────────────────────── -->
         <tr>
-          <td style="padding:36px 32px;">
+          <td style="padding:36px 32px;background-color:${BG_CARD};" bgcolor="${BG_CARD}">
 
-            <!-- ── SECTION 1: Room Seeker profiles ── -->
-            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-bottom:40px;">
+            <!-- ── SECTION 1: Room Seekers ── -->
+            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                   style="border-collapse:collapse;margin-bottom:36px;">
               <tr>
                 <td>
-                  <p style="color:${PINK};font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:0 0 6px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                  <p style="color:${PINK};font-size:10px;font-weight:700;letter-spacing:0.11em;text-transform:uppercase;margin:0 0 6px 0;font-family:${FONT};">
                     Room Seekers
                   </p>
-                  <h2 style="color:${TEXT_WHITE};font-size:20px;font-weight:700;margin:0 0 10px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                  <h2 style="color:${TEXT_WHITE};font-size:20px;font-weight:700;margin:0 0 10px 0;font-family:${FONT};">
                     Let listers find you
                   </h2>
-                  <p style="color:${TEXT_MUTED};font-size:14px;line-height:1.65;margin:0 0 8px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-                    Create a Room Seeker profile with your budget, move in date, area, and intro so people with available rooms can contact you directly.
-                  </p>
-                  <p style="color:${TEXT_MUTED};font-size:14px;line-height:1.65;margin:0 0 28px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-                    You can also add a contact option — WhatsApp, Instagram, Facebook, or email — so interested listers can reach you directly.
+                  <p style="color:${TEXT_MUTED};font-size:14px;line-height:1.7;margin:0 0 26px 0;font-family:${FONT};">
+                    Create a Room Seeker profile with your budget, move in date, area, intro, and contact method so people with available rooms can contact you directly.
                   </p>
 
-                  <!-- Seeker card -->
                   ${seekerCard}
 
-                  <p style="font-size:11px;color:${TEXT_FAINT};text-align:center;margin:10px 0 28px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                  <p style="font-size:11px;color:${TEXT_FAINT};text-align:center;margin:10px 0 28px 0;font-family:${FONT};">
                     Example profile — yours could look like this
                   </p>
 
-                  <!-- CTA -->
                   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
                     <tr>
                       <td align="center">
                         <a href="https://www.getroomrush.de/room-seekers"
-                           style="display:inline-block;background:${PINK};color:#fff;font-size:14px;font-weight:600;padding:13px 30px;border-radius:100px;text-decoration:none;letter-spacing:0.01em;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                           style="display:inline-block;background:${PINK};color:#fff;font-size:14px;font-weight:600;padding:13px 30px;border-radius:100px;text-decoration:none;letter-spacing:0.01em;font-family:${FONT};">
                           Create your free profile &rarr;
                         </a>
                       </td>
@@ -292,29 +356,28 @@ function buildEmailHtml(): string {
             </table>
 
             <!-- Divider -->
-            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-bottom:40px;">
-              <tr><td style="border-top:1px solid ${BORDER};font-size:0;line-height:0;">&nbsp;</td></tr>
-            </table>
+            <div style="margin-bottom:36px;">${divider}</div>
 
-            <!-- ── SECTION 2: WhatsApp Priority Alerts ── -->
-            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-bottom:40px;">
+            <!-- ── SECTION 2: Priority Alerts ── -->
+            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                   style="border-collapse:collapse;margin-bottom:36px;">
               <tr>
                 <td>
-                  <p style="color:${PINK};font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:0 0 6px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                  <p style="color:${PINK};font-size:10px;font-weight:700;letter-spacing:0.11em;text-transform:uppercase;margin:0 0 6px 0;font-family:${FONT};">
                     Priority Alerts
                   </p>
-                  <h2 style="color:${TEXT_WHITE};font-size:20px;font-weight:700;margin:0 0 10px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                  <h2 style="color:${TEXT_WHITE};font-size:20px;font-weight:700;margin:0 0 10px 0;font-family:${FONT};">
                     Instant alerts are moving to WhatsApp
                   </h2>
-                  <p style="color:${TEXT_MUTED};font-size:14px;line-height:1.65;margin:0 0 22px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                  <p style="color:${TEXT_MUTED};font-size:14px;line-height:1.7;margin:0 0 22px 0;font-family:${FONT};">
                     Listings move fast, so Priority Alerts are being moved to WhatsApp for better speed and visibility.
                   </p>
 
-                  <!-- Benefits card -->
                   <table class="inner-card" width="100%" cellpadding="0" cellspacing="0" border="0"
-                         style="border-collapse:collapse;background-color:${BG_INNER_CARD};border-radius:14px;margin-bottom:22px;">
+                         style="border-collapse:collapse;background-color:${BG_INNER};border-radius:13px;margin-bottom:20px;"
+                         bgcolor="${BG_INNER}">
                     <tr>
-                      <td style="padding:18px 22px;">
+                      <td style="padding:18px 22px;background-color:${BG_INNER};" bgcolor="${BG_INNER}">
                         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
                           ${benefitsHtml}
                         </table>
@@ -322,15 +385,15 @@ function buildEmailHtml(): string {
                     </tr>
                   </table>
 
-                  <p style="color:${TEXT_DIM};font-size:12px;margin:0 0 18px 0;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                  <p style="color:${TEXT_DIM};font-size:12px;margin:0 0 18px 0;text-align:center;font-family:${FONT};">
                     No payment today. Planned price: &#8364;2.99/month.
                   </p>
 
                   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
                     <tr>
                       <td align="center">
-                        <a href="https://www.getroomrush.de/newsletter"
-                           style="display:inline-block;background:${PINK};color:#fff;font-size:14px;font-weight:600;padding:13px 30px;border-radius:100px;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                        <a href="https://www.getroomrush.de/newsletter#priority-alerts"
+                           style="display:inline-block;background:${PINK};color:#fff;font-size:14px;font-weight:600;padding:13px 30px;border-radius:100px;text-decoration:none;font-family:${FONT};">
                           Join the waitlist &rarr;
                         </a>
                       </td>
@@ -341,21 +404,19 @@ function buildEmailHtml(): string {
             </table>
 
             <!-- Divider -->
-            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-bottom:40px;">
-              <tr><td style="border-top:1px solid ${BORDER};font-size:0;line-height:0;">&nbsp;</td></tr>
-            </table>
+            <div style="margin-bottom:36px;">${divider}</div>
 
-            <!-- ── SECTION 3: Free digest timing ── -->
+            <!-- ── SECTION 3: Digest timing ── -->
             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
               <tr>
                 <td>
-                  <p style="color:${PINK};font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:0 0 6px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                  <p style="color:${PINK};font-size:10px;font-weight:700;letter-spacing:0.11em;text-transform:uppercase;margin:0 0 6px 0;font-family:${FONT};">
                     Digest Schedule
                   </p>
-                  <h2 style="color:${TEXT_WHITE};font-size:20px;font-weight:700;margin:0 0 10px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                  <h2 style="color:${TEXT_WHITE};font-size:20px;font-weight:700;margin:0 0 10px 0;font-family:${FONT};">
                     Free digest timing update
                   </h2>
-                  <p style="color:${TEXT_MUTED};font-size:14px;line-height:1.65;margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                  <p style="color:${TEXT_MUTED};font-size:14px;line-height:1.7;margin:0;font-family:${FONT};">
                     The free RoomRush digest is now sent on
                     <strong style="color:${TEXT_WHITE};">Monday, Wednesday, and Friday at 10&nbsp;pm</strong>.
                     This keeps things less noisy while still helping you catch up on the latest rooms.
@@ -367,28 +428,23 @@ function buildEmailHtml(): string {
           </td>
         </tr>
 
-        <!-- ── FOOTER ── -->
+        <!-- ── FOOTER ─────────────────────────────────────────────────── -->
         <tr>
-          <td class="email-footer" style="background-color:${BG_HEADER};padding:26px 32px;border-top:1px solid ${BORDER};">
-            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
-              <tr>
-                <td>
-                  <img src="${LOGO_URL}" alt="RoomRush" height="20"
-                       style="height:20px;width:auto;display:block;margin-bottom:6px;border:0;outline:none;text-decoration:none;">
-                  <p style="color:#52525b;font-size:12px;margin:0 0 18px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-                    Munich rooms, sublets, and room search tools.
-                  </p>
-                  <p style="color:#71717a;font-size:13px;line-height:1.5;margin:0 0 16px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-                    Thanks for being part of RoomRush.
-                  </p>
-                  <p style="color:${TEXT_FAINT};font-size:11px;margin:0;line-height:1.7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-                    You are receiving this because you signed up for RoomRush room alerts.
-                    &nbsp;&middot;&nbsp;
-                    <a href="https://www.getroomrush.de/newsletter" style="color:${TEXT_FAINT};text-decoration:underline;">Unsubscribe</a>
-                  </p>
-                </td>
-              </tr>
-            </table>
+          <td class="email-footer"
+              style="background-color:${BG_HEADER};padding:24px 32px;border-top:1px solid ${BORDER};"
+              bgcolor="${BG_HEADER}">
+            <p style="color:#52525b;font-size:12px;margin:0 0 4px 0;font-family:${FONT};">
+              Munich rooms, sublets, and room search tools.
+            </p>
+            <p style="color:${TEXT_DIM};font-size:13px;line-height:1.5;margin:0 0 16px 0;font-family:${FONT};">
+              Thanks for being part of RoomRush.
+            </p>
+            <p style="color:${TEXT_FAINT};font-size:11px;margin:0;line-height:1.7;font-family:${FONT};">
+              You are receiving this because you signed up for room alerts.
+              &nbsp;&middot;&nbsp;
+              <a href="https://www.getroomrush.de/newsletter"
+                 style="color:${TEXT_FAINT};text-decoration:underline;font-family:${FONT};">Unsubscribe</a>
+            </p>
           </td>
         </tr>
 

@@ -150,18 +150,18 @@ function buildEmailHtml(seekerPhotoUrl: string | null): string {
       <!-- Photo row -->
       ${photoRow}
 
-      <!-- Badge — 16px below image, same horizontal padding as the rest of the card -->
+      <!-- Badge — 15px below image, same horizontal padding as name/details -->
       <tr>
-        <td style="padding:16px 22px 0 22px;background-color:${BG_INNER};" bgcolor="${BG_INNER}">
-          <span style="display:inline-block;background-color:${PINK};color:#ffffff;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:7px 13px;border-radius:20px;font-family:${FONT};">
+        <td style="padding:15px 22px 0 22px;background-color:${BG_INNER};" bgcolor="${BG_INNER}">
+          <span style="display:inline-block;background-color:${PINK};color:#ffffff;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:4px 10px;border-radius:20px;font-family:${FONT};">
             Looking for a room
           </span>
         </td>
       </tr>
 
-      <!-- Name — 16px below badge -->
+      <!-- Name — 12px below badge -->
       <tr>
-        <td style="padding:16px 22px 0 22px;background-color:${BG_INNER};" bgcolor="${BG_INNER}">
+        <td style="padding:12px 22px 0 22px;background-color:${BG_INNER};" bgcolor="${BG_INNER}">
           <p style="font-size:19px;font-weight:700;color:${TEXT_WHITE};margin:0;line-height:1.2;font-family:${FONT};">Faizan, 23</p>
         </td>
       </tr>

@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { MapPin, ArrowRight, Calendar, Wallet } from "lucide-react";
 import type { RoomSeekerProfile } from "@/types";
 import { contactHref, contactButtonLabel } from "@/lib/contactHelpers";
@@ -17,9 +20,11 @@ function formatBudget(raw: string): string {
 }
 
 export default function RoomSeekerCard({ profile }: Props) {
+  const router = useRouter();
   const href = contactHref(profile.contact_method, profile.contact_value);
   const btnLabel = contactButtonLabel(profile.contact_method);
   const mainPhoto = resolveMainSeekerPhoto(profile.photo_urls, profile.photo_url);
+  const profileUrl = `/room-seekers/${profile.id}`;
 
   const displayName = profile.age
     ? `${profile.name}, ${profile.age}`
@@ -27,11 +32,19 @@ export default function RoomSeekerCard({ profile }: Props) {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden flex flex-col w-full transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
+      role="article"
+      onClick={() => router.push(profileUrl)}
+      className="rounded-2xl overflow-hidden flex flex-col w-full cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/50 active:scale-[0.98]"
       style={{
         background: "#1c1c1f",
         border: "1px solid rgba(255,255,255,0.08)",
         boxShadow: "0 2px 16px rgba(0,0,0,0.4)",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.18)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.08)";
       }}
     >
       {/* Photo / avatar strip */}
@@ -105,7 +118,8 @@ export default function RoomSeekerCard({ profile }: Props) {
           style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
         >
           <Link
-            href={`/room-seekers/${profile.id}`}
+            href={profileUrl}
+            onClick={(e) => e.stopPropagation()}
             className="flex-1 flex items-center justify-center gap-1 text-zinc-300 hover:text-white text-sm px-3 py-2.5 rounded-xl font-medium transition-all active:scale-[0.97]"
             style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
           >
@@ -116,6 +130,7 @@ export default function RoomSeekerCard({ profile }: Props) {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
             className="flex-1 flex items-center justify-center bg-rose-600 hover:bg-rose-500 text-white text-sm px-3 py-2.5 rounded-xl transition-all active:scale-[0.97] font-medium truncate"
             title={btnLabel}
           >

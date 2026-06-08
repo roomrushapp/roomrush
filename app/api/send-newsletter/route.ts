@@ -16,17 +16,20 @@ function getAdminClient() {
 
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
+// Cron schedule: Mon, Wed, Fri at 20:00 UTC = 22:00 Munich summer time (CEST/UTC+2).
+// In winter (CET/UTC+1) this fires at 21:00 Munich — update vercel.json to "0 21 * * 1,3,5" then.
 async function sendNewsletter(triggeredBy: "cron" | "manual") {
+  const runAt = new Date();
+  console.log(`[Newsletter] ── Run started ── trigger=${triggeredBy} utc=${runAt.toISOString()}`);
+
   if (!process.env.RESEND_API_KEY) {
+    console.error("[Newsletter] RESEND_API_KEY is not set — aborting.");
     return NextResponse.json(
       { error: "Newsletter email service is not configured." },
       { status: 500 }
     );
   }
   const resend = new Resend(process.env.RESEND_API_KEY);
-
-  const runAt = new Date();
-  console.log(`[Newsletter] Run started — trigger=${triggeredBy} utc=${runAt.toISOString()}`);
 
   const supabase = getAdminClient();
 
@@ -214,7 +217,7 @@ async function sendNewsletter(triggeredBy: "cron" | "manual") {
 
   // ── Send emails (sequential with delay to respect Resend rate limits) ────────
   let sentCount = 0;
-  const failures: Array<{ email: string; reason: string }> = [];
+  const failures: Array<{ reason: string }> = [];
 
   for (const subscriber of validSubscribers) {
     const unsubscribeUrl = `https://getroomrush.de/api/unsubscribe?token=${subscriber.unsubscribe_token}`;
@@ -260,11 +263,11 @@ async function sendNewsletter(triggeredBy: "cron" | "manual") {
 
     if (error) {
       const reason = (error as { message?: string }).message ?? JSON.stringify(error);
-      console.error(`[Newsletter] FAILED → ${subscriber.email}: ${reason}`);
-      failures.push({ email: subscriber.email, reason });
+      console.error(`[Newsletter] FAILED send #${sentCount + failures.length + 1}: ${reason}`);
+      failures.push({ reason });
     } else {
-      console.log(`[Newsletter] Sent → ${subscriber.email}`);
       sentCount++;
+      console.log(`[Newsletter] Sent #${sentCount} ok`);
     }
 
     // 500ms between sends — max 2 emails/s, safely under Resend's 5 req/s limit
@@ -281,7 +284,7 @@ async function sendNewsletter(triggeredBy: "cron" | "manual") {
   );
 
   if (failures.length > 0) {
-    console.warn("[Newsletter] Failed recipients:", JSON.stringify(failures));
+    console.warn(`[Newsletter] ${failures.length} send(s) failed — reasons:`, failures.map(f => f.reason));
   }
 
   return NextResponse.json({

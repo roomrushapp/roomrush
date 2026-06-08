@@ -140,21 +140,9 @@ function buildEmailHtml(seekerPhotoUrl: string | null): string {
        </tr>`;
 
   // ── Room Seeker card ──────────────────────────────────────────────────────
-  // Badge lives ABOVE the card table so it is never squeezed between the card
-  // border and the image. No position:absolute — fully Gmail-safe.
+  // Badge sits inside the card content area, below the image, with consistent
+  // left/right padding that matches name and details. No absolute positioning.
   const seekerCard = `
-    <!-- Badge above the card, left-aligned -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-bottom:12px;">
-      <tr>
-        <td style="padding:0;">
-          <span style="display:inline-block;background-color:${PINK};color:#ffffff;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:8px 14px;border-radius:20px;font-family:${FONT};">
-            Looking for a room
-          </span>
-        </td>
-      </tr>
-    </table>
-
-    <!-- Card -->
     <table class="seeker-bg" width="100%" cellpadding="0" cellspacing="0" border="0"
            style="border-collapse:collapse;border:1px solid ${BORDER};border-radius:14px;background-color:${BG_INNER};"
            bgcolor="${BG_INNER}">
@@ -162,9 +150,18 @@ function buildEmailHtml(seekerPhotoUrl: string | null): string {
       <!-- Photo row -->
       ${photoRow}
 
-      <!-- Name -->
+      <!-- Badge — 16px below image, same horizontal padding as the rest of the card -->
       <tr>
-        <td style="padding:18px 22px 0 22px;background-color:${BG_INNER};" bgcolor="${BG_INNER}">
+        <td style="padding:16px 22px 0 22px;background-color:${BG_INNER};" bgcolor="${BG_INNER}">
+          <span style="display:inline-block;background-color:${PINK};color:#ffffff;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:7px 13px;border-radius:20px;font-family:${FONT};">
+            Looking for a room
+          </span>
+        </td>
+      </tr>
+
+      <!-- Name — 16px below badge -->
+      <tr>
+        <td style="padding:16px 22px 0 22px;background-color:${BG_INNER};" bgcolor="${BG_INNER}">
           <p style="font-size:19px;font-weight:700;color:${TEXT_WHITE};margin:0;line-height:1.2;font-family:${FONT};">Faizan, 23</p>
         </td>
       </tr>

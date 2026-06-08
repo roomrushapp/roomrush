@@ -140,21 +140,24 @@ function buildEmailHtml(seekerPhotoUrl: string | null): string {
        </tr>`;
 
   // ── Room Seeker card ──────────────────────────────────────────────────────
-  // Badge uses its own table row directly above the photo — no position:absolute
-  // (Gmail strips it). This is the most reliable cross-client approach.
+  // Badge lives ABOVE the card table so it is never squeezed between the card
+  // border and the image. No position:absolute — fully Gmail-safe.
   const seekerCard = `
-    <table class="seeker-bg" width="100%" cellpadding="0" cellspacing="0" border="0"
-           style="border-collapse:collapse;border:1px solid ${BORDER};border-radius:14px;background-color:${BG_INNER};"
-           bgcolor="${BG_INNER}">
-
-      <!-- Badge row — sits directly above the photo, flush left -->
+    <!-- Badge above the card, left-aligned -->
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-bottom:12px;">
       <tr>
-        <td style="padding:14px 14px 10px 14px;background-color:${BG_INNER};" bgcolor="${BG_INNER}">
-          <span style="display:inline-block;background-color:${PINK};color:#ffffff;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 12px;border-radius:20px;font-family:${FONT};">
+        <td style="padding:0;">
+          <span style="display:inline-block;background-color:${PINK};color:#ffffff;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:8px 14px;border-radius:20px;font-family:${FONT};">
             Looking for a room
           </span>
         </td>
       </tr>
+    </table>
+
+    <!-- Card -->
+    <table class="seeker-bg" width="100%" cellpadding="0" cellspacing="0" border="0"
+           style="border-collapse:collapse;border:1px solid ${BORDER};border-radius:14px;background-color:${BG_INNER};"
+           bgcolor="${BG_INNER}">
 
       <!-- Photo row -->
       ${photoRow}

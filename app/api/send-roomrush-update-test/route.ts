@@ -305,7 +305,7 @@ function buildEmailHtml(seekerPhotoUrl: string | null): string {
        style="border-collapse:collapse;background-color:${BG_BODY};" bgcolor="${BG_BODY}">
   <tr>
     <td class="email-body-td" align="center"
-        style="padding:28px 12px 40px 12px;background-color:${BG_BODY_TD};" bgcolor="${BG_BODY_TD}">
+        style="padding:28px 12px 40px 12px;background-color:${BG_BODY};" bgcolor="${BG_BODY}">
 
       <!-- ── Outer card ─────────────────────────────────────────────────── -->
       <table class="email-card" width="100%" cellpadding="0" cellspacing="0" border="0"

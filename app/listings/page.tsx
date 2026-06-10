@@ -9,9 +9,12 @@ export const metadata = {
 
 export default async function ListingsPage() {
   const supabase = await createClient();
+  // Only the columns the listing cards/filters need — never contact data or user_id
   const { data } = await supabase
     .from("listings")
-    .select("*")
+    .select(
+      "id, slug, title, rent, location, available_from, available_until, image_urls, views_count, created_at"
+    )
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 

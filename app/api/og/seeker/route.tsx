@@ -91,10 +91,13 @@ export async function GET(req: NextRequest) {
   let profile: ProfileRow | null = null;
   try {
     const supabase = createAdminClient();
+    // Only active profiles may render — hidden/inactive profiles must never
+    // leak personal data through the OG image, so they get the branded fallback.
     const { data } = await supabase
       .from("room_seeker_profiles")
       .select("name, age, budget, move_in_date, preferred_area")
       .eq("id", id)
+      .eq("is_active", true)
       .maybeSingle();
     profile = data as ProfileRow | null;
   } catch {

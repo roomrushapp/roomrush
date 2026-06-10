@@ -49,6 +49,23 @@ async function uploadPhotos(userId: string, files: File[]): Promise<string[]> {
   return urls;
 }
 
+// Delete removed photos from the room-seeker-photos bucket. Only paths inside
+// the current user's own folder are deleted — storage RLS enforces this too,
+// but we never even attempt to remove someone else's object.
+async function deleteRemovedPhotos(userId: string, urls: string[]) {
+  if (urls.length === 0) return;
+  const marker = "/object/public/room-seeker-photos/";
+  const paths = urls
+    .map((url) => {
+      const idx = url.indexOf(marker);
+      return idx !== -1 ? url.slice(idx + marker.length) : null;
+    })
+    .filter((p): p is string => !!p && p.startsWith(`${userId}/`));
+  if (paths.length === 0) return;
+  const supabase = createClient();
+  await supabase.storage.from("room-seeker-photos").remove(paths);
+}
+
 /**
  * If stored value is in the known list, return it.
  * If it's a custom value (not in list), return "Other" so the dropdown shows "Other"
@@ -73,6 +90,8 @@ export default function EditRoomSeekerPage() {
 
   // Photo state
   const [existingUrls, setExistingUrls] = useState<string[]>([]);
+  // URLs the user removed — their storage objects are deleted on save
+  const [removedUrls, setRemovedUrls] = useState<string[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [pendingPreviews, setPendingPreviews] = useState<string[]>([]);
 
@@ -148,6 +167,8 @@ export default function EditRoomSeekerPage() {
   }
 
   function handleRemoveExisting(i: number) {
+    const url = existingUrls[i];
+    if (url) setRemovedUrls((prev) => [...prev, url]);
     setExistingUrls((prev) => prev.filter((_, idx) => idx !== i));
   }
 
@@ -199,8 +220,13 @@ export default function EditRoomSeekerPage() {
     setLoading(false);
     if (err) { setError(err.message); return; }
 
+    // Profile saved — now remove the detached photos from storage so they
+    // don't remain publicly reachable at their old URLs.
+    await deleteRemovedPhotos(userId, removedUrls);
+
     // Reflect saved state
     setExistingUrls(finalPhotoUrls);
+    setRemovedUrls([]);
     setPendingFiles([]);
     setPendingPreviews([]);
     setSuccess(true);

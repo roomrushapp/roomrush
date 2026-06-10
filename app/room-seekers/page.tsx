@@ -13,9 +13,12 @@ export const metadata = {
 export default async function RoomSeekersPage() {
   const supabase = await createClient();
 
+  // Only the columns the seeker cards need — excludes user_id and internal fields
   const { data: profilesData } = await supabase
     .from("room_seeker_profiles")
-    .select("*")
+    .select(
+      "id, name, age, photo_url, photo_urls, budget, move_in_date, preferred_area, short_intro, contact_method, contact_value, created_at"
+    )
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 

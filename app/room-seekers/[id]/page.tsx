@@ -25,10 +25,13 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getroomrush.de";
 export async function generateMetadata({ params }: Props) {
   const { id } = await params;
   const supabase = await createClient();
+  // Inactive (hidden) profiles must not expose personal data via metadata —
+  // they fall through to the generic title below.
   const { data } = await supabase
     .from("room_seeker_profiles")
     .select("name, age, preferred_area, budget, move_in_date")
     .eq("id", id)
+    .eq("is_active", true)
     .maybeSingle();
 
   if (!data) return { title: "Room Seeker | RoomRush" };
@@ -73,9 +76,13 @@ export default async function RoomSeekerProfilePage({ params }: Props) {
   const { id } = await params;
   const supabase = await createClient();
 
+  // Explicit columns: user_id is needed for the owner check, is_active for the
+  // inactive notice. RLS restricts non-owners to active profiles only.
   const { data } = await supabase
     .from("room_seeker_profiles")
-    .select("*")
+    .select(
+      "id, user_id, name, age, photo_url, photo_urls, budget, move_in_date, preferred_area, short_intro, contact_method, contact_value, is_active"
+    )
     .eq("id", id)
     .maybeSingle();
 

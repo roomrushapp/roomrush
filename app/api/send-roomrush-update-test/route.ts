@@ -17,24 +17,30 @@ function getAdminClient() {
   );
 }
 
+// Secrets are accepted ONLY via the Authorization header. Query-string secrets
+// end up in request logs, proxies, and browser history, so they are no longer
+// supported.
 function authorize(request: NextRequest): boolean {
   if (process.env.NODE_ENV !== "production") return true;
 
-  const querySecret = new URL(request.url).searchParams.get("secret");
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) return false;
+  const token = authHeader.slice("Bearer ".length);
+
   if (
     process.env.MANUAL_TRIGGER_SECRET &&
-    querySecret === process.env.MANUAL_TRIGGER_SECRET
+    token === process.env.MANUAL_TRIGGER_SECRET
   ) {
     return true;
   }
-
-  const authHeader = request.headers.get("authorization");
-  if (authHeader === `Bearer ${process.env.CRON_SECRET}`) return true;
+  if (process.env.CRON_SECRET && token === process.env.CRON_SECRET) return true;
 
   return false;
 }
 
-export async function GET(request: NextRequest) {
+// POST only — this route sends a real email (to the hardcoded test recipient),
+// so it must not be triggerable by a GET/prefetched URL.
+export async function POST(request: NextRequest) {
   if (!authorize(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

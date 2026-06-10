@@ -9,7 +9,8 @@ import { Resend } from "resend";
 // BROADCAST_SENT flag below to prevent accidental duplicate sends.
 // Set BROADCAST_SENT = false only if a deliberate resend is needed.
 //
-// ?dryRun=true still works for subscriber count checks.
+// GET is always a dry run (subscriber count checks only). Real sending
+// requires POST with Authorization: Bearer <secret>.
 // ---------------------------------------------------------------------------
 
 // ── Set to false ONLY if a deliberate resend is intentionally authorised. ──
@@ -25,29 +26,47 @@ function getAdminClient() {
   );
 }
 
+// Secrets are accepted ONLY via the Authorization header. Query-string secrets
+// end up in request logs, proxies, and browser history, so they are no longer
+// supported.
 function authorize(request: NextRequest): boolean {
   if (process.env.NODE_ENV !== "production") return true;
 
-  const querySecret = new URL(request.url).searchParams.get("secret");
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) return false;
+  const token = authHeader.slice("Bearer ".length);
+
   if (
     process.env.MANUAL_TRIGGER_SECRET &&
-    querySecret === process.env.MANUAL_TRIGGER_SECRET
+    token === process.env.MANUAL_TRIGGER_SECRET
   ) {
     return true;
   }
-
-  const authHeader = request.headers.get("authorization");
-  if (authHeader === `Bearer ${process.env.CRON_SECRET}`) return true;
+  if (process.env.CRON_SECRET && token === process.env.CRON_SECRET) return true;
 
   return false;
 }
 
 const delay = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
+// GET — dry run ONLY. Returns subscriber counts, never sends email, so a
+// leaked or prefetched URL can never trigger a real broadcast.
 export async function GET(request: NextRequest) {
   if (!authorize(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  return handleBroadcast(true);
+}
+
+// POST — real send (still blocked by the BROADCAST_SENT flag above).
+export async function POST(request: NextRequest) {
+  if (!authorize(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return handleBroadcast(false);
+}
+
+async function handleBroadcast(isDryRun: boolean) {
 
   if (!process.env.RESEND_API_KEY) {
     return NextResponse.json(
@@ -55,9 +74,6 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-
-  const url = new URL(request.url);
-  const isDryRun = url.searchParams.get("dryRun") === "true";
 
   const supabase = getAdminClient();
 
@@ -119,7 +135,7 @@ export async function GET(request: NextRequest) {
       validRecipients: valid.length,
       skippedInvalid,
       skippedDuplicates: skippedDupes,
-      note: "No emails were sent. Remove dryRun=true to trigger the real send.",
+      note: "No emails were sent. Use POST (with Bearer auth) to trigger the real send.",
     });
   }
 

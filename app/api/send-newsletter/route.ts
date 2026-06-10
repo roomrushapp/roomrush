@@ -306,32 +306,50 @@ async function sendNewsletter(triggeredBy: "cron" | "manual") {
   });
 }
 
-function authorize(request: NextRequest): { ok: boolean; trigger: "cron" | "manual" } {
+// Secrets are accepted ONLY via the Authorization header. Query-string secrets
+// end up in request logs, proxies, and browser history, so they are no longer
+// supported.
+function getBearerToken(request: NextRequest): string | null {
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) return null;
+  return authHeader.slice("Bearer ".length);
+}
+
+function authorize(
+  request: NextRequest,
+  allowManual: boolean
+): { ok: boolean; trigger: "cron" | "manual" } {
   if (process.env.NODE_ENV !== "production") return { ok: true, trigger: "manual" };
 
+  const token = getBearerToken(request);
+  if (!token) return { ok: false, trigger: "manual" };
+
   // Vercel cron — sends Authorization: Bearer <CRON_SECRET>
-  const authHeader = request.headers.get("authorization");
-  if (authHeader && authHeader === `Bearer ${process.env.CRON_SECRET}`) {
+  if (process.env.CRON_SECRET && token === process.env.CRON_SECRET) {
     return { ok: true, trigger: "cron" };
   }
 
-  // Manual admin trigger — ?secret=<MANUAL_TRIGGER_SECRET>
-  const querySecret = new URL(request.url).searchParams.get("secret");
-  if (process.env.MANUAL_TRIGGER_SECRET && querySecret === process.env.MANUAL_TRIGGER_SECRET) {
+  if (
+    allowManual &&
+    process.env.MANUAL_TRIGGER_SECRET &&
+    token === process.env.MANUAL_TRIGGER_SECRET
+  ) {
     return { ok: true, trigger: "manual" };
   }
 
   return { ok: false, trigger: "manual" };
 }
 
+// GET is reserved for the Vercel cron (which authenticates with CRON_SECRET).
+// Manual sends must use POST so a leaked or prefetched URL can never trigger one.
 export async function GET(request: NextRequest) {
-  const auth = authorize(request);
+  const auth = authorize(request, false);
   if (!auth.ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   return sendNewsletter(auth.trigger);
 }
 
 export async function POST(request: NextRequest) {
-  const auth = authorize(request);
+  const auth = authorize(request, true);
   if (!auth.ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   return sendNewsletter(auth.trigger);
 }

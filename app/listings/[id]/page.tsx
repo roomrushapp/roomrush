@@ -120,9 +120,12 @@ function PartnerSourceBox({
 export default async function ListingDetailPage({ params }: Props) {
   const { id } = await params;
   const supabase = await createClient();
+  // Explicit display columns only — excludes user_id and any internal fields
   const { data: listing } = await supabase
     .from("listings")
-    .select("*")
+    .select(
+      "id, slug, title, description, rent, location, available_from, available_until, contact_email, phone, facebook_url, image_urls, views_count, is_partner_listing, partner_name, partner_url, original_post_url"
+    )
     .eq("id", id)
     .eq("is_active", true)
     .single();
